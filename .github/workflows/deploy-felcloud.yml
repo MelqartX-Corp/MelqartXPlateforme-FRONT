@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────
+#  Déploiement du frontend Angular MelqartX sur la VM FelCloud
+#  Emplacement : .github/workflows/deploy-felcloud.yml (dépôt FRONT)
+#
+#  Déclenchement :
+#    - MANUEL : Actions → "Deploy front → FelCloud" → Run workflow
+#    - (optionnel) automatique à chaque push sur main : décommenter "push"
+#
+#  Étapes : npm ci → ng build (production) → rsync du dossier browser/
+#           vers /var/www/melqartx-app sur la VM → vérification HTTPS.
+#  Nginx sert directement les fichiers : aucun redémarrage nécessaire.
+#
+#  Secrets de l'environnement "prod" (Settings → Environments → prod) :
+#    SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, SSH_KNOWN_HOSTS
+#  Variables (optionnelles) : DEPLOY_PATH (défaut /var/www/melqartx-app),
+#                             APP_URL (défaut https://app.melqartx.com)
+# ─────────────────────────────────────────────────────────────────────
+name: Deploy front → FelCloud
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Taper deploy pour confirmer'
+        default: ''
+        required: true
+  # push:
+  #   branches: [ main ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-front-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: build & deploy → app.melqartx.com
+    if: github.event_name == 'push' || github.event.inputs.confirmation == 'deploy'
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 30
+
+    env:
+      SSH_HOST:    ${{ secrets.SSH_HOST }}
+      SSH_USER:    ${{ secrets.SSH_USER }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/var/www/melqartx-app' }}
+      APP_URL:     ${{ vars.APP_URL || 'https://app.melqartx.com' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Build Angular (production)
+        run: npx ng build --configuration production
+
+      - name: Localiser le dossier à publier
+        run: |
+          OUT=dist/angular-workspace/browser
+          [ -d "$OUT" ] || OUT=dist/angular-workspace
+          [ -f "$OUT/index.html" ] || { echo "::error::index.html introuvable dans dist/"; ls -R dist | head -50; exit 1; }
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+          du -sh "$OUT"
+
+      - name: Préparer SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          for v in SSH_HOST SSH_USER SSH_PRIVATE_KEY SSH_KNOWN_HOSTS; do
+            [ -n "${!v}" ] || { echo "::error::Secret $v manquant (environnement prod)"; exit 1; }
+          done
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy && chmod 600 ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Publier sur la VM
+        run: |
+          SSH="ssh -i $HOME/.ssh/id_deploy -o StrictHostKeyChecking=yes"
+          # 1. fichiers avec hash (js, css, images) d'abord, sans supprimer les anciens :
+          #    un utilisateur en cours de navigation garde ses fichiers
+          rsync -az --exclude 'index.html' -e "$SSH" "$OUT/" "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+          # 2. index.html en dernier : bascule vers la nouvelle version
+          rsync -az -e "$SSH" "$OUT/index.html" "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/index.html"
+          # 3. nettoyage des anciens fichiers
+          rsync -az --delete -e "$SSH" "$OUT/" "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+          echo "$(git log -1 --format='%h %s')" | $SSH "$SSH_USER@$SSH_HOST" "cat > '$DEPLOY_PATH/version.txt'"
+
+      - name: Vérifier le site
+        run: |
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' "$APP_URL/")
+          [ "$CODE" = "200" ] || { echo "::error::$APP_URL répond $CODE"; exit 1; }
+          curl -s "$APP_URL/" | grep -q '<app-root' && echo "✅ Angular en ligne sur $APP_URL" \
+            || { echo "::error::index.html ne contient pas <app-root>"; exit 1; }
+
+      - name: Supprimer la clé SSH du runner
+        if: always()
+        run: rm -f ~/.ssh/id_deploy
