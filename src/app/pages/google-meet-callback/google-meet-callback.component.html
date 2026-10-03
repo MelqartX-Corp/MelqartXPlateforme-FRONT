@@ -1,0 +1,54 @@
+<div class="min-h-screen flex items-center justify-center bg-canvas p-4">
+      <div class="w-full max-w-md rounded-3xl border border-border/60 bg-card/95 backdrop-blur-2xl p-8 shadow-2xl text-center space-y-6 animate-fadeIn">
+
+        <!-- Google Meet Animated Logo -->
+        <div class="relative w-20 h-20 mx-auto flex items-center justify-center">
+          <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-500/20 via-emerald-500/20 to-yellow-500/20 animate-spin" style="animation-duration: 4s;"></div>
+          <div class="w-16 h-16 rounded-2xl bg-card border border-border/50 flex items-center justify-center shadow-lg text-3xl">
+            🎥
+          </div>
+        </div>
+
+        <div *ngIf="loading" class="space-y-3">
+          <h2 class="text-lg font-extrabold text-foreground" style="font-family:'Outfit',sans-serif">
+            Connexion à Google Meet en cours...
+          </h2>
+          <p class="text-xs text-muted-foreground">
+            Validation des autorisations Google Calendar et synchronisation de votre compte.
+          </p>
+          <div class="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mt-4"></div>
+        </div>
+
+        <div *ngIf="success" class="space-y-4">
+          <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center mx-auto text-xl">
+            ✓
+          </div>
+          <h2 class="text-lg font-extrabold text-foreground" style="font-family:'Outfit',sans-serif">
+            Compte Google connecté avec succès !
+          </h2>
+          <p class="text-xs text-emerald-400 font-bold bg-emerald-500/10 py-2 px-3 rounded-xl border border-emerald-500/20">
+            {{ connectedEmail || 'Compte vérifié' }}
+          </p>
+          <p class="text-[11px] text-muted-foreground">
+            Votre calendrier Google Meet est synchronisé. Redirection en cours...
+          </p>
+        </div>
+
+        <div *ngIf="error" class="space-y-4">
+          <div class="w-12 h-12 rounded-full bg-destructive/10 text-destructive border border-destructive/20 flex items-center justify-center mx-auto text-xl">
+            ✕
+          </div>
+          <h2 class="text-lg font-extrabold text-destructive" style="font-family:'Outfit',sans-serif">
+            Échec de la connexion Google
+          </h2>
+          <p class="text-xs text-muted-foreground">
+            {{ errorMessage }}
+          </p>
+          <button (click)="retournerAuDashboard()"
+                  class="px-5 py-2.5 rounded-xl text-xs font-bold bg-secondary hover:bg-secondary/80 text-foreground transition-all">
+            Retourner au tableau de bord
+          </button>
+        </div>
+
+      </div>
+    </div>

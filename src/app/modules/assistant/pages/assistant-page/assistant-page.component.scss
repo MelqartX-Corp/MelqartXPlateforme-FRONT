@@ -1,0 +1,296 @@
+/* ════════════════════════════════════════════════════════════════
+   ASSISTANT MELQARTX — Light Mode Electronics Design System
+   ════════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+/* ── Circuit Background & Ambient Lighting (Light Mode) ── */
+.melqartx-ambient-bg {
+  background-color: #F7F9FC;
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(22, 199, 217, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.07) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(124, 92, 252, 0.04) 0%, transparent 55%),
+    linear-gradient(rgba(226, 232, 240, 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(226, 232, 240, 0.45) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 36px 36px, 36px 36px;
+  background-position: 0 0, 0 0, 0 0, -1px -1px, -1px -1px;
+}
+
+/* ── Premium Surface Card (Light Mode) ── */
+.tech-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow:
+    0 1px 3px rgba(20, 33, 61, 0.03),
+    0 8px 24px -4px rgba(37, 99, 235, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.tech-card-hover:hover {
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow:
+    0 2px 6px rgba(20, 33, 61, 0.04),
+    0 12px 32px -4px rgba(37, 99, 235, 0.10);
+  transform: translateY(-2px);
+}
+
+/* ── Horizontal PCBA Banner Hero ── */
+.horizontal-pcba-banner {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 4px 20px -2px rgba(20, 33, 61, 0.08),
+    0 2px 6px -1px rgba(0, 0, 0, 0.04);
+}
+
+/* ── History Items ── */
+.history-item {
+  transition: all 0.2s ease;
+  &:hover:not(.active) {
+    border-color: rgba(37, 99, 235, 0.4);
+    background-color: #F8FAFC;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.08);
+  }
+  &.active {
+    border-color: rgba(37, 99, 235, 0.7);
+    background-color: #EFF6FF;
+    box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.12);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   DARK MODE ADAPTATIONS (:host-context(.dark))
+   ════════════════════════════════════════════════════════════════ */
+:host-context(.dark) {
+  .melqartx-ambient-bg {
+    background-color: #0F1117;
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(22, 199, 217, 0.08) 0%, transparent 45%),
+      radial-gradient(circle at 90% 80%, rgba(37, 99, 235, 0.10) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(124, 92, 252, 0.06) 0%, transparent 55%),
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  }
+
+  .tech-card {
+    background: #1A1D27;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+      0 4px 20px -2px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+
+  .tech-card-hover:hover {
+    border-color: rgba(0, 194, 255, 0.4);
+    box-shadow:
+      0 8px 30px -4px rgba(0, 194, 255, 0.15),
+      0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .horizontal-pcba-banner {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.6);
+  }
+
+  .history-item {
+    background: #131620;
+    border-color: rgba(255, 255, 255, 0.07);
+
+    &:hover:not(.active) {
+      background: #1e2330;
+      border-color: rgba(22, 199, 217, 0.35);
+      box-shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.4);
+    }
+
+    &.active {
+      background: rgba(37, 99, 235, 0.22);
+      border-color: rgba(37, 99, 235, 0.65);
+      box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.25);
+    }
+  }
+
+  .clean-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    &:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+  }
+}
+
+/* ── Cyber Neon AI Chip Core Box ── */
+@keyframes neonPulseAura {
+  0%, 100% {
+    box-shadow:
+      0 0 35px -5px rgba(22, 199, 217, 0.45),
+      0 0 15px 0px rgba(37, 99, 235, 0.35),
+      inset 0 0 15px rgba(22, 199, 217, 0.2);
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 50px -2px rgba(22, 199, 217, 0.65),
+      0 0 25px 2px rgba(37, 99, 235, 0.5),
+      inset 0 0 20px rgba(22, 199, 217, 0.35);
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+.cyber-chip-hero {
+  animation: neonPulseAura 4.5s ease-in-out infinite;
+  border: 2px solid rgba(22, 199, 217, 0.85);
+}
+
+/* ── Pulsing Circuit Nodes & Data Traces ── */
+@keyframes tracePulse {
+  0%, 100% {
+    stroke-opacity: 0.35;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-opacity: 0.95;
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes nodeGlow {
+  0%, 100% {
+    r: 3;
+    opacity: 0.6;
+    filter: drop-shadow(0 0 2px rgba(22, 199, 217, 0.4));
+  }
+  50% {
+    r: 4.5;
+    opacity: 1;
+    filter: drop-shadow(0 0 6px rgba(22, 199, 217, 0.9));
+  }
+}
+
+.circuit-anim-trace {
+  stroke-dasharray: 6 3;
+  animation: tracePulse 3s linear infinite;
+}
+
+.circuit-anim-node {
+  animation: nodeGlow 2.5s ease-in-out infinite;
+}
+
+.circuit-anim-node-delayed {
+  animation: nodeGlow 2.5s ease-in-out 1.25s infinite;
+}
+
+/* ── Gradient Text & Buttons ── */
+.btn-electric-primary {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  box-shadow:
+    0 4px 14px -2px rgba(37, 99, 235, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+    box-shadow:
+      0 6px 20px -2px rgba(37, 99, 235, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+  }
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+.btn-cyan-send {
+  background: linear-gradient(135deg, #2563EB 0%, #16C7D9 100%);
+  box-shadow:
+    0 4px 16px -2px rgba(22, 199, 217, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #3B82F6 0%, #22D3EE 100%);
+    box-shadow:
+      0 6px 22px -2px rgba(22, 199, 217, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px) scale(1.03);
+  }
+  &:active:not(:disabled) {
+    transform: translateY(0) scale(0.96);
+  }
+}
+
+/* ── History Card Styling ── */
+.history-item {
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 3px;
+    height: 70%;
+    border-radius: 0 4px 4px 0;
+    background: linear-gradient(to bottom, #16C7D9, #2563EB);
+    transition: transform 0.2s ease;
+  }
+
+  &.active {
+    border-color: rgba(37, 99, 235, 0.45);
+    background: rgba(37, 99, 235, 0.04);
+    box-shadow: 0 4px 16px -3px rgba(37, 99, 235, 0.12);
+
+    &::before {
+      transform: translateY(-50%) scaleY(1);
+    }
+  }
+
+  &:hover:not(.active) {
+    border-color: rgba(22, 199, 217, 0.4);
+    background: rgba(247, 249, 252, 0.9);
+    transform: translateX(2px);
+  }
+}
+
+/* ── Typing Indicator ── */
+@keyframes typingPulse {
+  0%, 80%, 100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.2);
+    box-shadow: 0 0 8px rgba(22, 199, 217, 0.8);
+  }
+}
+
+.logic-dot {
+  animation: typingPulse 1.2s infinite ease-in-out;
+  &:nth-child(2) { animation-delay: 0.2s; }
+  &:nth-child(3) { animation-delay: 0.4s; }
+}
+
+/* ── Clean Scrollbars ── */
+.clean-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.3);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.55);
+  }
+}

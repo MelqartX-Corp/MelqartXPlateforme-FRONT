@@ -1,0 +1,163 @@
+<!-- ════════════════════════════════════════════════════════════════
+     MODAL FEEDBACK — panneau ancré à droite, fond de page visible
+     ════════════════════════════════════════════════════════════════ -->
+<div *ngIf="visible && pending"
+     (click)="dismiss()"
+     class="feedback-overlay fixed inset-0 z-[9999] flex items-center justify-end p-4 sm:p-6 animate-fadeIn select-none">
+
+  <div (click)="$event.stopPropagation()"
+       class="feedback-modal relative w-full max-w-[480px] max-h-[calc(100vh-3rem)] overflow-y-auto rounded-[28px] px-6 pb-6 pt-4 text-slate-900 dark:text-slate-100">
+
+    <!-- Bouton Fermer -->
+    <button (click)="dismiss()" type="button" title="Fermer"
+            class="close-btn absolute top-3.5 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all cursor-pointer z-20">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+
+    <!-- ════════ ÉTAT DE CONFIRMATION (SUCCÈS) ════════ -->
+    <div *ngIf="submitted" class="py-10 px-2 text-center space-y-3 animate-fadeIn">
+      <div class="w-14 h-14 mx-auto rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-2xl shadow-sm">
+        💜
+      </div>
+      <h4 class="text-xl font-black text-[#14213D] dark:text-white" style="font-family:'Outfit',sans-serif">
+        Merci pour votre retour !
+      </h4>
+      <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+        Votre avis a bien été enregistré et nous aide énormément à progresser.
+      </p>
+    </div>
+
+    <!-- ════════ FORMULAIRE PRINCIPAL ════════ -->
+    <div *ngIf="!submitted" class="space-y-3.5">
+
+      <!-- ── En-tête : badge, titre, mascotte ── -->
+      <div class="relative">
+        <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 text-blue-600 dark:text-cyan-300 text-[10px] font-black uppercase tracking-wider">
+          <span>✨</span>
+          <span>Projet livré</span>
+        </div>
+
+        <!-- Mascotte, en superposition dans le coin -->
+        <div class="pointer-events-none absolute -top-1 right-11 w-[72px] h-[72px] select-none">
+          <img src="feedback/envelope-mascot.jpg" alt="" class="w-full h-full object-contain drop-shadow-md" />
+        </div>
+
+        <h3 class="mt-2.5 max-w-[260px] text-[22px] font-black leading-[1.15] tracking-tight text-[#14213D] dark:text-white"
+            style="font-family:'Outfit',sans-serif">
+          Votre expérience compte<br />
+          <span class="title-accent">beaucoup ♡</span>
+        </h3>
+        <p class="mt-1.5 max-w-[300px] text-[11px] font-medium leading-relaxed text-slate-500 dark:text-slate-400">
+          Aidez-nous à nous améliorer pour vous offrir un service encore plus exceptionnel.
+        </p>
+      </div>
+
+      <!-- ── 1. Notation : un axe par note réellement stockée ── -->
+      <div class="rating-panel rounded-2xl px-3.5 py-3.5">
+        <div class="flex items-baseline justify-between gap-2">
+          <div class="text-[11.5px] font-black text-[#14213D] dark:text-white">
+            Comment s'est passée votre expérience ?
+          </div>
+          <span class="shrink-0 text-[9.5px] font-semibold"
+                [class.text-blue-600]="allRated"
+                [class.dark:text-cyan-300]="allRated"
+                [class.text-slate-400]="!allRated">
+            {{ notedCount }}/3
+          </span>
+        </div>
+        <div class="text-[10px] font-medium text-slate-400">Notez chaque aspect de 1 à 5 étoiles</div>
+
+        <div class="mt-2.5 space-y-1" (mouseleave)="onStarLeave()">
+          <div *ngFor="let critere of criteres"
+               class="critere-row flex items-center gap-2 rounded-xl px-2 py-1.5">
+            <span class="text-[13px] leading-none">{{ critere.icon }}</span>
+            <span class="w-[92px] shrink-0 text-[11px] font-bold text-slate-600 dark:text-slate-300">
+              {{ critere.label }}
+            </span>
+
+            <div class="flex items-center gap-0.5">
+              <button *ngFor="let s of [1,2,3,4,5]"
+                      (mouseenter)="onStarHover(critere.key, s)"
+                      (click)="setRating(critere.key, s)"
+                      type="button"
+                      [attr.aria-label]="critere.label + ' : ' + ratingLabels[s]"
+                      class="star-btn cursor-pointer p-0.5 focus:outline-none">
+                <svg class="h-[22px] w-[22px] transition-all duration-200"
+                     [class.scale-110]="activeRating(critere.key) >= s"
+                     [class.text-amber-400]="activeRating(critere.key) >= s"
+                     [class.text-slate-300]="activeRating(critere.key) < s"
+                     [class.dark:text-slate-600]="activeRating(critere.key) < s"
+                     [class.star-active-glow]="activeRating(critere.key) >= s"
+                     viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0.5">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              </button>
+            </div>
+
+            <span class="ml-auto text-right text-[9.5px] font-semibold leading-tight"
+                  [class.text-blue-600]="activeRating(critere.key) >= 1"
+                  [class.dark:text-cyan-300]="activeRating(critere.key) >= 1"
+                  [class.text-slate-300]="activeRating(critere.key) < 1">
+              {{ ratingLabel(critere.key) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 2. Commentaire ── -->
+      <div>
+        <label class="flex items-center gap-1.5 text-[11.5px] font-black text-[#14213D] dark:text-white">
+          <span>Un commentaire ?</span>
+          <span class="text-[10px] font-normal text-slate-400">(facultatif)</span>
+        </label>
+
+        <div class="comment-box relative mt-2 rounded-2xl transition-all">
+          <textarea [(ngModel)]="form.commentaire"
+                    maxlength="300"
+                    rows="2"
+                    placeholder="Dites-nous ce qui pourrait être encore meilleur..."
+                    class="w-full resize-none bg-transparent px-3.5 py-2.5 pb-5 text-[11.5px] leading-relaxed text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none"></textarea>
+          <span class="absolute bottom-2 right-3 text-[9.5px] font-semibold text-slate-400">
+            {{ (form.commentaire?.length || 0) }}/300
+          </span>
+        </div>
+      </div>
+
+      <!-- Erreur éventuelle -->
+      <div *ngIf="error"
+           class="rounded-xl border border-rose-200 bg-rose-50 p-2 text-center text-[10.5px] font-bold text-rose-500 dark:border-rose-800/40 dark:bg-rose-950/40">
+        {{ error }}
+      </div>
+
+      <!-- ── 4. Pied : remerciement + envoi ── -->
+      <div class="flex items-center justify-between gap-3 border-t border-slate-100 pt-3.5 dark:border-white/10">
+        <div class="flex items-center gap-2">
+          <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-indigo-100 bg-indigo-50 text-indigo-600 dark:border-indigo-800/40 dark:bg-indigo-950/60 dark:text-indigo-400">
+            <span class="text-[11px]">💜</span>
+          </div>
+          <p class="text-[10px] font-medium leading-tight text-slate-500 dark:text-slate-400">
+            Merci ! Chaque avis nous aide<br />à grandir et à mieux vous servir.
+          </p>
+        </div>
+
+        <div class="flex shrink-0 flex-col items-end gap-1">
+          <button (click)="submit()" [disabled]="submitting" type="button"
+                  class="btn-gradient-submit flex cursor-pointer items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-[11.5px] font-black text-white shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40 active:scale-95 disabled:opacity-50">
+            <span *ngIf="submitting" class="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            <svg *ngIf="!submitting" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+            <span>Envoyer mon avis</span>
+          </button>
+          <span class="text-[9px] font-medium text-slate-400">Cela ne prend que quelques secondes ⓘ</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

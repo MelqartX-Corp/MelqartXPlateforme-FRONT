@@ -1,0 +1,245 @@
+/* ══════════════════════════════════════════════════════════════════
+   AVIS CLIENTS — tableau de bord administrateur
+   Les couleurs passent par les tokens de l'app en hsl(var(--x) / a) :
+   les modificateurs d'opacité Tailwind (bg-card/40) ne sont pas générés
+   dans ce projet, les tokens du tailwind.config n'ayant pas <alpha-value>.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Cartes d'indicateurs ── */
+.fb-kpi {
+  position: relative;
+  overflow: hidden;
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.45);
+  backdrop-filter: blur(12px);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fb-kpi:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--primary) / 0.28);
+  box-shadow: 0 18px 40px -28px hsl(var(--primary) / 0.6);
+}
+
+/* La carte « note moyenne » porte un halo : c'est le chiffre à lire en premier */
+.fb-kpi-hero {
+  background:
+    radial-gradient(ellipse 90% 130% at 100% 0%, hsl(var(--primary) / 0.12), transparent 70%),
+    hsl(var(--card) / 0.85);
+  border-color: hsl(var(--primary) / 0.25);
+}
+
+.fb-kpi-danger {
+  border-color: hsl(var(--destructive) / 0.35);
+  background:
+    radial-gradient(ellipse 90% 130% at 100% 0%, hsl(var(--destructive) / 0.10), transparent 70%),
+    hsl(var(--card) / 0.85);
+}
+
+.fb-kpi-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.fb-kpi-link {
+  color: hsl(var(--destructive));
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.fb-kpi-link:hover {
+  opacity: 0.75;
+}
+
+/* ── Cartes de contenu ── */
+.fb-card {
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.45);
+  backdrop-filter: blur(12px);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fb-card:hover {
+  border-color: hsl(var(--primary) / 0.28);
+  box-shadow: 0 18px 40px -28px hsl(var(--primary) / 0.55);
+}
+
+.fb-card-title {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+/* ── Barres de progression ── */
+.fb-bar-track {
+  background: hsl(var(--muted) / 0.55);
+}
+
+.fb-bar-fill {
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Alerte ── */
+.fb-alert {
+  background: hsl(var(--destructive) / 0.07);
+  border: 1px solid hsl(var(--destructive) / 0.28);
+}
+
+/* ── Ligne agent ── */
+.fb-agent {
+  transition: background-color 0.2s ease;
+}
+
+.fb-agent:hover {
+  background: hsl(var(--secondary) / 0.45);
+}
+
+.fb-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border-radius: 9999px;
+  background: hsl(var(--muted) / 0.7);
+  color: hsl(var(--muted-foreground));
+  font-size: 0.625rem;
+  font-weight: 900;
+}
+
+.fb-rank-top {
+  background: hsl(45 93% 55% / 0.18);
+  color: hsl(38 92% 45%);
+}
+
+.fb-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.20), hsl(var(--accent) / 0.20));
+  color: hsl(var(--primary));
+  font-size: 0.625rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.fb-avatar-lg {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+}
+
+/* ── Filtres ── */
+.fb-segment {
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border) / 0.4);
+}
+
+.fb-segment-btn {
+  padding: 0.4rem 0.9rem;
+  border-radius: 0.6rem;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: hsl(var(--muted-foreground));
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.fb-segment-btn:hover {
+  color: hsl(var(--foreground));
+}
+
+.fb-segment-on {
+  background: hsl(var(--card));
+  color: hsl(var(--foreground));
+  box-shadow: 0 2px 8px -3px hsl(var(--foreground) / 0.35);
+}
+
+.fb-search {
+  background: hsl(var(--card) / 0.8);
+  border: 1px solid hsl(var(--border) / 0.45);
+  transition: border-color 0.2s ease;
+}
+
+.fb-search:focus-within {
+  border-color: hsl(var(--primary) / 0.5);
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.12);
+}
+
+/* ── Carte d'avis ── */
+.fb-review {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border) / 0.5);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.fb-review:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--primary) / 0.3);
+  box-shadow: 0 20px 45px -30px hsl(var(--foreground) / 0.5);
+}
+
+/* Un avis critique se repère à son liseré rouge, sans avoir à lire la note */
+.fb-review-critique {
+  border-left: 3px solid hsl(var(--destructive));
+}
+
+.fb-critere-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+}
+
+.fb-agent-tag {
+  margin-left: 0.25rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 9999px;
+  background: hsl(var(--secondary) / 0.7);
+  font-size: 0.625rem;
+  font-weight: 700;
+  color: hsl(var(--muted-foreground));
+}
+
+.fb-quote {
+  position: relative;
+  margin-top: 0.25rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid hsl(var(--primary) / 0.35);
+  max-width: 40rem;
+  font-size: 0.8125rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: hsl(var(--muted-foreground));
+}
+
+.fb-note-badge {
+  display: inline-block;
+  padding: 0.15rem 0.55rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+
+.fb-empty-inline {
+  font-size: 0.7rem;
+  color: hsl(var(--muted-foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-bar-fill,
+  .fb-review,
+  .fb-kpi {
+    transition: none;
+  }
+}

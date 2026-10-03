@@ -1,0 +1,540 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ═══ SUCCESS TOAST ═══ -->
+  <div *ngIf="saved"
+       class="fixed top-20 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border border-success/30 backdrop-blur-xl animate-fade-up"
+       style="background:hsl(var(--card)/0.95)">
+    <div class="w-8 h-8 rounded-xl bg-success/20 flex items-center justify-center shrink-0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-bold text-foreground">Mot de passe mis à jour !</p>
+      <p class="text-xs text-muted-foreground">Votre nouveau mot de passe est désormais actif sur tous vos appareils.</p>
+    </div>
+  </div>
+
+  <!-- ═══ 1. ADAPTIVE HERO HEADER ═══ -->
+  <!-- External Client "WOW" Banner -->
+  <div *ngIf="isExternalUser()" class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">
+        🛡️
+      </div>
+      <div>
+        <div class="client-header-tag">
+          Centre de Sécurité &amp; Confidentialité
+        </div>
+        <h1 class="client-header-title">
+          Sécurité &amp; Connexions
+        </h1>
+        <p class="client-header-subtitle">
+          Supervisez vos sessions actives, vos appareils de confiance et le renouvellement de votre mot de passe
+        </p>
+      </div>
+    </div>
+    <div class="relative z-10 flex items-center gap-2.5 self-start sm:self-center">
+      <a routerLink="/profile/edit" class="client-header-btn-primary gap-2">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="4"/><path d="M5.7 20a7 7 0 0 1 12.6 0"/>
+        </svg>
+        <span>Retour au Profil</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Internal Staff / Admin Premium Header -->
+  <div *ngIf="!isExternalUser()" class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🛡️</span>
+        <h1 class="page-title-premium">
+          Sécurité &amp; Connexions
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Gestion du mot de passe, suivi des sessions actives et contrôle des appareils de confiance
+      </p>
+    </div>
+    <div class="relative z-10">
+      <a routerLink="/profile/edit" class="page-header-btn-action">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="7" r="4"/><path d="M5.7 20a7 7 0 0 1 12.6 0"/>
+        </svg>
+        <span>Retour au Profil</span>
+      </a>
+    </div>
+  </div>
+
+
+  <!-- ═══ 2. MAIN 2-COLUMN SECURITY WORKSPACE ═══ -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+
+    <!-- ── LEFT COLUMN: SECURITY RADAR & OVERVIEW (4 cols) ── -->
+    <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+
+      <!-- Master Security Shield Card -->
+      <div class="glass-card rounded-3xl overflow-hidden shadow-xl border border-border/50 relative p-6 space-y-6">
+        
+        <!-- Animated Aura Shield Graphic -->
+        <div class="text-center py-4 relative">
+          <div class="w-20 h-20 mx-auto rounded-3xl flex items-center justify-center shadow-2xl relative"
+               style="background: linear-gradient(135deg, hsl(var(--primary)/0.2), hsl(var(--accent)/0.2)); border: 1px solid hsl(var(--primary)/0.3)">
+            <div class="absolute inset-0 rounded-3xl animate-ping opacity-20" style="background: hsl(var(--primary))"></div>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--primary))">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <polyline points="9 12 11 14 15 10"/>
+            </svg>
+          </div>
+
+          <div class="mt-4 space-y-1">
+            <h3 class="text-lg font-black text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+              Protection Maximale
+            </h3>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Compte Protégé &amp; Surveillé
+            </span>
+          </div>
+        </div>
+
+        <!-- Security Metrics List -->
+        <div class="space-y-3 pt-2 border-t border-border/40">
+          
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-secondary/30 border border-border/40 text-xs">
+            <span class="text-muted-foreground font-medium flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              Sessions actives
+            </span>
+            <span class="font-extrabold text-foreground">{{ sessions.length }}</span>
+          </div>
+
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-secondary/30 border border-border/40 text-xs">
+            <span class="text-muted-foreground font-medium flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              Appareils de confiance
+            </span>
+            <span class="font-extrabold text-foreground">{{ devices.length }}</span>
+          </div>
+
+        </div>
+
+        <!-- Recommendations Info Box -->
+        <div class="p-4 rounded-2xl border border-border/40 space-y-2" style="background: hsl(var(--primary)/0.04)">
+          <div class="flex items-center gap-2 text-xs font-bold text-foreground">
+            <span>💡 Recommandation de sécurité</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground leading-relaxed">
+            Si vous constatez une activité inhabituelle sur l'un de vos appareils, utilisez immédiatement le bouton <strong>"Tout déconnecter"</strong> pour révoquer tous les accès distants.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ── RIGHT COLUMN: SECURITY CONTROLS (8 cols) ── -->
+    <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+      <!-- ════ 1. MOT DE PASSE & AUTHENTIFICATION ════ -->
+      <!-- Google Auth Card -->
+      <div *ngIf="isGoogleUser" class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 text-center space-y-4">
+        <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center border border-blue-500/20 bg-blue-500/10 shadow-lg">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-base font-bold text-foreground">Compte Authentifié via Google Workspace</h3>
+          <p class="text-xs text-muted-foreground max-w-md mx-auto">
+            Votre mot de passe et l'authentification à double facteur (2FA) sont gérés directement et en toute sécurité par les serveurs Google.
+          </p>
+        </div>
+      </div>
+
+      <!-- Local Password Form Card -->
+      <div *ngIf="!isGoogleUser" class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 space-y-6">
+        <div class="flex items-center justify-between pb-4 border-b border-border/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                 style="background: linear-gradient(135deg, hsl(var(--primary)/0.15), hsl(var(--accent)/0.15))">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--primary))">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+                Modifier le Mot de Passe
+              </h3>
+              <p class="text-xs text-muted-foreground">Renouvelez votre mot de passe pour sécuriser votre compte</p>
+            </div>
+          </div>
+        </div>
+
+        <form #passwordForm="ngForm" (submit)="$event.preventDefault(); submitPassword()" class="space-y-5">
+          
+          <!-- Current password -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Mot de passe actuel</label>
+            <div class="relative">
+              <input [type]="showCurrent ? 'text' : 'password'"
+                     class="input-base w-full py-3 pl-4 pr-12 rounded-xl border border-border/60 focus:border-primary text-sm font-medium"
+                     [(ngModel)]="form.currentPassword"
+                     name="current"
+                     placeholder="••••••••"
+                     required #currentRef="ngModel"/>
+              <button type="button" (click)="showCurrent = !showCurrent"
+                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <svg *ngIf="!showCurrent" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg *ngIf="showCurrent" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <p *ngIf="currentRef.invalid && currentRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="currentRef.errors?.['required']">Le mot de passe actuel est requis</span>
+            </p>
+          </div>
+
+          <!-- New password -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Nouveau mot de passe</label>
+            <div class="relative">
+              <input [type]="showNew ? 'text' : 'password'"
+                     class="input-base w-full py-3 pl-4 pr-12 rounded-xl border border-border/60 focus:border-primary text-sm font-medium"
+                     [(ngModel)]="form.newPassword"
+                     name="new"
+                     placeholder="••••••••" 
+                     required minlength="8"
+                     pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$"
+                     #newRef="ngModel"/>
+              <button type="button" (click)="showNew = !showNew"
+                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <svg *ngIf="!showNew" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg *ngIf="showNew" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <p *ngIf="newRef.invalid && newRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="newRef.errors?.['required']">Le nouveau mot de passe est obligatoire</span>
+              <span *ngIf="newRef.errors?.['minlength'] || newRef.errors?.['pattern']">Exigé : min 8 caractères, 1 majuscule, 1 chiffre et 1 symbole</span>
+            </p>
+
+            <!-- Strength progress meter -->
+            <div *ngIf="form.newPassword" class="space-y-1 pt-1">
+              <div class="flex gap-1.5">
+                <div *ngFor="let i of [1,2,3,4]"
+                     class="h-1.5 flex-1 rounded-full transition-all duration-300"
+                     [style.background]="i <= strength ? (strength <= 1 ? 'hsl(var(--destructive))' : strength <= 2 ? 'hsl(var(--warning))' : 'hsl(var(--success))') : 'hsl(var(--border))'">
+                </div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] font-bold">
+                <span class="text-muted-foreground">Niveau de sécurité :</span>
+                <span [ngClass]="strengthColor">{{ strengthLabel }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Confirm password -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">Confirmer le nouveau mot de passe</label>
+            <div class="relative">
+              <input [type]="showConfirm ? 'text' : 'password'"
+                     class="input-base w-full py-3 pl-4 pr-12 rounded-xl border border-border/60 focus:border-primary text-sm font-medium"
+                     [(ngModel)]="form.confirmPassword"
+                     name="confirm"
+                     placeholder="••••••••"
+                     required #confirmRef="ngModel"/>
+              <button type="button" (click)="showConfirm = !showConfirm"
+                      class="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                <svg *ngIf="!showConfirm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg *ngIf="showConfirm" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </button>
+            </div>
+            <p *ngIf="form.confirmPassword && form.newPassword !== form.confirmPassword"
+               class="text-[11px] text-destructive font-semibold">
+              Les mots de passe ne correspondent pas
+            </p>
+            <p *ngIf="form.confirmPassword && form.newPassword === form.confirmPassword"
+               class="text-[11px] text-emerald-500 font-bold flex items-center gap-1">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              Les mots de passe correspondent parfaitement
+            </p>
+          </div>
+
+          <!-- Error notice -->
+          <div *ngIf="passwordError" class="p-3.5 rounded-2xl bg-destructive/10 border border-destructive/30 text-xs text-destructive font-bold flex items-center gap-2">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <span>{{ passwordError }}</span>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit"
+                  [disabled]="saving || passwordForm.invalid || form.newPassword !== form.confirmPassword"
+                  class="btn-primary w-full justify-center py-3 rounded-xl text-xs font-bold gap-2 shadow-lg shadow-primary/20 hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            <svg *ngIf="!saving" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>{{ saving ? 'Mise à jour en cours...' : 'Mettre à jour le mot de passe' }}</span>
+          </button>
+        </form>
+      </div>
+
+
+      <!-- ════ 2. SESSIONS ACTIVES & APPAREILS CONNECTÉS ════ -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                 style="background: linear-gradient(135deg, hsl(var(--accent)/0.15), hsl(var(--primary)/0.15))">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--accent))">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+                Sessions &amp; Connexions Actives
+              </h3>
+              <p class="text-xs text-muted-foreground">Surveillez et révoquez les appareils connectés à votre compte</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 self-start sm:self-center">
+            <!-- Refresh -->
+            <button (click)="loadSessions()"
+                    [disabled]="loadingSessions"
+                    class="btn-icon w-9 h-9 rounded-xl border border-border/60 hover:bg-secondary text-muted-foreground hover:text-foreground shadow-sm"
+                    title="Actualiser">
+              <svg [class.animate-spin]="loadingSessions" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+              </svg>
+            </button>
+
+            <!-- Force logout all -->
+            <button *ngIf="otherSessions.length > 0"
+                    (click)="openForceLogout()"
+                    [disabled]="forcingLogout"
+                    class="btn-secondary text-xs py-2 px-3.5 rounded-xl font-bold text-destructive hover:bg-destructive/10 border-destructive/30 flex items-center gap-1.5 shadow-sm transition-all">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/>
+              </svg>
+              <span>Tout déconnecter ({{ otherSessions.length }})</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Loading -->
+        <div *ngIf="loadingSessions" class="flex flex-col items-center justify-center py-10 space-y-3">
+          <div class="w-8 h-8 border-3 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+          <p class="text-xs text-muted-foreground font-semibold animate-pulse">Synchronisation des sessions...</p>
+        </div>
+
+        <!-- Sessions List -->
+        <div *ngIf="!loadingSessions && sessions.length > 0" class="space-y-4">
+          
+          <!-- Current Session (Master Highlight) -->
+          <div *ngIf="currentSession as cs"
+               class="rounded-2xl p-5 border transition-all duration-300 relative overflow-hidden shadow-md"
+               style="background: hsl(var(--card)); border-color: hsl(var(--success)/0.4); box-shadow: 0 4px 20px -5px hsl(var(--success)/0.15)">
+            <div class="flex items-center gap-4 relative z-10">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-sm">
+                <svg *ngIf="getDeviceIcon(cs) === 'desktop'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                <svg *ngIf="getDeviceIcon(cs) === 'mobile'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                <svg *ngIf="getDeviceIcon(cs) === 'tablet'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                  <p class="text-sm font-extrabold text-foreground">{{ getBrowser(cs) }} · {{ getOS(cs) }}</p>
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    Cet appareil (Session actuelle)
+                  </span>
+                </div>
+                <div class="flex items-center gap-3 text-xs text-muted-foreground font-medium">
+                  <span class="font-mono text-[11px] bg-secondary/50 px-2 py-0.5 rounded-md text-foreground">IP: {{ cs.ipAddress || '127.0.0.1' }}</span>
+                  <span>•</span>
+                  <span>Activité : {{ getTimeAgo(cs.lastActivity || cs.dateCreation) }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Other Sessions -->
+          <div *ngIf="otherSessions.length > 0" class="space-y-3 pt-2">
+            <p class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Autres appareils connectés</p>
+            <div *ngFor="let s of otherSessions"
+                 class="p-4 rounded-2xl border border-border/50 hover:border-border transition-all flex items-center justify-between gap-4 bg-card/60">
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-secondary text-muted-foreground border border-border/40">
+                  <svg *ngIf="getDeviceIcon(s) === 'desktop'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  <svg *ngIf="getDeviceIcon(s) === 'mobile'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  <svg *ngIf="getDeviceIcon(s) === 'tablet'" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <p class="text-xs font-bold text-foreground truncate">{{ getBrowser(s) }} · {{ getOS(s) }}</p>
+                  <div class="flex items-center gap-2 text-[11px] text-muted-foreground font-medium mt-0.5">
+                    <span class="font-mono">{{ s.ipAddress }}</span>
+                    <span>•</span>
+                    <span>{{ getTimeAgo(s.lastActivity || s.dateCreation) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button (click)="confirmTerminate(s)"
+                      [disabled]="terminatingId === s.id"
+                      class="btn-secondary text-xs py-2 px-3 rounded-xl font-bold text-destructive hover:bg-destructive/10 border-destructive/20 flex items-center gap-1.5 shrink-0"
+                      title="Déconnecter cette session">
+                <span *ngIf="terminatingId === s.id" class="w-3 h-3 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin"></span>
+                <svg *ngIf="terminatingId !== s.id" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                <span>Déconnecter</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ════ 3. APPAREILS DE CONFIANCE ════ -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 space-y-6">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-border/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                 style="background: linear-gradient(135deg, hsl(var(--primary)/0.15), hsl(var(--success)/0.15))">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+                Appareils de Confiance
+              </h3>
+              <p class="text-xs text-muted-foreground">Appareils autorisés sans vérification OTP systématique</p>
+            </div>
+          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-secondary text-foreground border border-border/60">
+            {{ devices.length }} appareil(s)
+          </span>
+        </div>
+
+        <!-- Loading Devices -->
+        <div *ngIf="loadingDevices" class="flex justify-center py-8">
+          <div class="w-7 h-7 border-3 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Devices List -->
+        <div *ngIf="!loadingDevices && devices.length > 0" class="space-y-3">
+          <div *ngFor="let d of devices"
+               class="p-4 rounded-2xl border border-border/50 flex items-center justify-between gap-4 bg-card/60 hover:bg-secondary/20 transition-all">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-primary/10 text-primary border border-primary/20">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="3" width="20" height="14" rx="2"/>
+                  <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                </svg>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-xs font-bold text-foreground truncate">{{ d.deviceName || 'Appareil vérifié' }}</span>
+                  <span class="text-sm">{{ getCountryFlag(d.country) }}</span>
+                  <span class="text-[9px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 uppercase tracking-wider">
+                    Vérifié
+                  </span>
+                </div>
+                <div class="flex items-center gap-2.5 text-[11px] text-muted-foreground font-medium">
+                  <span class="font-mono text-foreground">{{ d.ipAddress }}</span>
+                  <span>•</span>
+                  <span>Dernière activité : {{ getTimeAgo(d.lastSeen) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <button (click)="confirmRemoveDevice(d)"
+                    [disabled]="removingIp === (d.deviceId || d.ipAddress)"
+                    class="btn-icon w-9 h-9 rounded-xl text-destructive hover:bg-destructive/10 border border-destructive/20 shadow-sm"
+                    title="Révoquer la confiance">
+              <span *ngIf="removingIp === (d.deviceId || d.ipAddress)" class="w-3.5 h-3.5 border-2 border-destructive/30 border-t-destructive rounded-full animate-spin"></span>
+              <svg *ngIf="removingIp !== (d.deviceId || d.ipAddress)" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingDevices && devices.length === 0" class="text-center py-8 text-xs text-muted-foreground font-semibold">
+          Aucun appareil de confiance enregistré pour le moment.
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ════════════════ MODALS DE CONFIRMATION ════════════════ -->
+
+<!-- Modal Déconnexion Session Unique -->
+<div *ngIf="showTerminateModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-up">
+  <div class="glass-card rounded-3xl w-full max-w-sm shadow-2xl p-6 text-center space-y-4 border border-destructive/30">
+    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center bg-destructive/10 text-destructive border border-destructive/20">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+    </div>
+    <div class="space-y-1">
+      <h3 class="font-bold text-foreground text-base">Fermer cette session ?</h3>
+      <p class="text-xs text-muted-foreground">L'utilisateur sera immédiatement déconnecté de cet appareil distant.</p>
+    </div>
+    <div class="flex gap-2.5 pt-2">
+      <button (click)="cancelTerminate()" class="btn-secondary flex-1 text-xs py-2.5 rounded-xl font-bold">Annuler</button>
+      <button (click)="terminateSession()" class="btn-primary flex-1 text-xs py-2.5 rounded-xl font-bold bg-destructive hover:bg-destructive/90 text-white">Déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Tout Déconnecter -->
+<div *ngIf="showForceLogoutModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-up">
+  <div class="glass-card rounded-3xl w-full max-w-sm shadow-2xl p-6 text-center space-y-4 border border-destructive/40">
+    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center bg-destructive/15 text-destructive border border-destructive/30">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
+    <div class="space-y-1">
+      <h3 class="font-bold text-foreground text-base">Déconnecter tous les autres appareils ?</h3>
+      <p class="text-xs text-muted-foreground">Toutes les autres sessions actives seront invalidées instantanément. Seule votre session actuelle sera préservée.</p>
+    </div>
+    <div class="flex gap-2.5 pt-2">
+      <button (click)="cancelForceLogout()" class="btn-secondary flex-1 text-xs py-2.5 rounded-xl font-bold">Annuler</button>
+      <button (click)="forceLogoutAll()" class="btn-primary flex-1 text-xs py-2.5 rounded-xl font-bold bg-destructive hover:bg-destructive/90 text-white">Confirmer</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Retirer Appareil de Confiance -->
+<div *ngIf="showRemoveDeviceModal" class="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-up">
+  <div class="glass-card rounded-3xl w-full max-w-sm shadow-2xl p-6 text-center space-y-4 border border-warning/35">
+    <div class="w-14 h-14 mx-auto rounded-2xl flex items-center justify-center bg-warning/15 text-warning border border-warning/30">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="3" width="20" height="14" rx="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+    </div>
+    <div class="space-y-1">
+      <h3 class="font-bold text-foreground text-base">Retirer cet appareil de confiance ?</h3>
+      <p class="text-xs text-muted-foreground">
+        L'appareil <span class="font-bold text-foreground">{{ deviceToRemove?.deviceName }}</span> devra subir une vérification OTP lors de sa prochaine connexion.
+      </p>
+    </div>
+    <div class="flex gap-2.5 pt-2">
+      <button (click)="cancelRemoveDevice()" class="btn-secondary flex-1 text-xs py-2.5 rounded-xl font-bold">Annuler</button>
+      <button (click)="removeDevice()" class="btn-primary flex-1 text-xs py-2.5 rounded-xl font-bold bg-warning hover:bg-warning/90 text-white">Retirer</button>
+    </div>
+  </div>
+</div>

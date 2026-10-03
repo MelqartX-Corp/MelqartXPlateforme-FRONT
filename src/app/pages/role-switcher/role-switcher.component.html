@@ -1,0 +1,83 @@
+<div class="min-h-screen bg-background p-8">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+      <div class="inline-flex items-center justify-center h-16 mb-6">
+        <img src="1000044998.png" alt="MELQARTX Logo" class="max-w-[200px] h-full object-contain dark:invert" />
+      </div>
+      <p class="text-xl text-primary mb-4">Fabrication PCB/PCBA en Tunisie</p>
+      <p class="text-sm text-muted-foreground max-w-2xl mx-auto">
+        Plateforme complète pour la fabrication de circuits imprimés (PCB) et l'assemblage de composants (PCBA).
+        Demandez un devis, suivez vos commandes et gérez vos projets en toute simplicité.
+      </p>
+    </div>
+
+    <!-- Role Selection Title -->
+    <div class="text-center mb-6">
+      <h2 class="text-2xl text-foreground mb-2">Choisissez votre rôle</h2>
+      <p class="text-muted-foreground">
+        Sélectionnez un rôle pour explorer les différentes interfaces de la plateforme
+      </p>
+    </div>
+
+    <!-- Roles Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let roleData of roles" 
+           class="glass-card rounded-xl p-6 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/30 transition-all duration-200 cursor-pointer relative overflow-hidden"
+           (click)="handleSelectRole(roleData.role, roleData.name)">
+        <div class="absolute top-0 left-0 right-0 h-2" [ngClass]="roleData.color"></div>
+        
+        <div class="pt-6 space-y-4">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 rounded-lg flex items-center justify-center" [ngClass]="roleData.color">
+              <!-- Inline SVG Switch based on iconId -->
+              <ng-container [ngSwitch]="roleData.iconId">
+                <svg *ngSwitchCase="'user'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-white"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <svg *ngSwitchCase="'building'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-white"><path d="M4 10h16"/><path d="M4 14h16"/><path d="M4 18h16"/><path d="M4 6h16"/><path d="M4 2v20"/><path d="M20 2v20"/></svg>
+                <svg *ngSwitchCase="'headphones'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-white"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+                <svg *ngSwitchCase="'check'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-white"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                <svg *ngSwitchCase="'shield'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-white"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>
+              </ng-container>
+            </div>
+            <div>
+              <h3 class="text-foreground font-medium">{{roleData.name}}</h3>
+              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold" 
+                   [ngClass]="{'border-transparent bg-primary text-primary-foreground': roleData.role === 'CLIENT' || roleData.role === 'CLIENT_ENTREPRISE', 'bg-warning text-warning-foreground': roleData.role === 'CLIENT_ENTREPRISE', 'bg-success text-success-foreground': roleData.role === 'SUPPORT_TECHNIQUE', 'bg-destructive text-destructive-foreground': roleData.role === 'ADMINISTRATEUR'}">
+                {{roleData.role}}
+              </div>
+            </div>
+          </div>
+          
+          <p class="text-sm text-muted-foreground">{{roleData.description}}</p>
+          
+          <ul class="space-y-2">
+            <li *ngFor="let feature of roleData.features" class="text-sm text-foreground flex items-center">
+              <span class="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+              {{feature}}
+            </li>
+          </ul>
+          
+          <button 
+            (click)="handleSelectRole(roleData.role, roleData.name); $event.stopPropagation()"
+            class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2  btn-primary  h-10 px-4 py-2 w-full mt-4">
+            Explorer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="mt-12 p-6 glass-card rounded-xl text-center">
+      <p class="text-muted-foreground mb-4">
+        Cette plateforme de démonstration simule tous les rôles avec des données fictives.
+        <br />
+        Vous pouvez naviguer entre les différents rôles pour explorer toutes les fonctionnalités.
+      </p>
+      <a routerLink="/features">
+        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 mt-4">
+          En savoir plus sur MELQARTX
+        </button>
+      </a>
+    </div>
+  </div>
+</div>

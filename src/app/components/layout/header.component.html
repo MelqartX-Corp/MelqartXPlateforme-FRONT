@@ -1,0 +1,652 @@
+<header class="glass-header h-16 flex items-center justify-between px-4 sm:px-6 relative">
+
+      <!-- Toast Feedback Floating Banner -->
+      <div *ngIf="toastMessage"
+           class="toast-anim absolute top-18 right-8 z-50 px-4 py-2.5 rounded-xl shadow-lg border border-primary/30 flex items-center gap-2 text-xs font-semibold"
+           style="background: hsl(var(--card)); color: hsl(var(--foreground)); backdrop-filter: blur(16px)">
+        <span>{{ toastMessage }}</span>
+        <button *ngIf="toastAction" type="button" (click)="runToastAction()"
+                class="ml-1 rounded-md px-2 py-0.5 text-[11px] font-bold text-primary transition-colors hover:bg-primary/10">
+          {{ toastAction }}
+        </button>
+      </div>
+
+        <!-- Left: breadcrumb -->
+        <div class="flex items-center gap-2 min-w-0">
+          <div class="w-1.5 h-5 rounded-full opacity-70 shrink-0"
+               style="background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--accent)))"></div>
+          <nav class="flex items-center gap-1.5 text-sm hidden sm:flex overflow-hidden" aria-label="Fil d'ariane">
+            <ng-container *ngFor="let crumb of breadcrumbs; let last = last; let i = index">
+              <span *ngIf="i > 0" class="text-border/80 shrink-0 select-none">/</span>
+              <span *ngIf="last || !crumb.url"
+                    class="font-semibold text-foreground truncate max-w-[200px]">
+                {{ crumb.label }}
+              </span>
+              <a *ngIf="!last && crumb.url"
+                 [routerLink]="crumb.url"
+                 class="text-muted-foreground hover:text-primary transition-colors cursor-pointer truncate max-w-[160px]">
+                {{ crumb.label }}
+              </a>
+            </ng-container>
+          </nav>
+          <!-- Mobile: just current page -->
+          <span class="text-sm font-semibold text-foreground sm:hidden truncate max-w-[180px]">
+            {{ breadcrumbs[breadcrumbs.length - 1].label }}
+          </span>
+        </div>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+
+        <!-- Theme Toggle -->
+        <button
+          (click)="themeService.toggleTheme()"
+          class="relative flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50
+                 bg-secondary/40 hover:bg-secondary text-muted-foreground hover:text-foreground
+                 transition-all duration-200 text-xs font-medium overflow-hidden group"
+          [title]="themeService.isDarkMode() ? 'Mode clair' : 'Mode sombre'"
+        >
+          <!-- Hover glow -->
+          <span class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style="background: radial-gradient(circle at center, hsl(var(--primary)/0.08), transparent 70%)"></span>
+
+          <!-- Sun icon -->
+          <svg *ngIf="themeService.isDarkMode()" class="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4"/>
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+          </svg>
+          <!-- Moon icon -->
+          <svg *ngIf="!themeService.isDarkMode()" class="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>
+          </svg>
+          <span class="hidden sm:inline relative">{{ themeService.isDarkMode() ? 'Clair' : 'Sombre' }}</span>
+        </button>
+
+        <!-- Disponibilités Quick Button (Chef de Projet) -->
+        <button *ngIf="isCDP"
+                (click)="showAvailabilityModal = true"
+                class="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/30
+                       bg-primary/10 hover:bg-primary/20 text-primary transition-all duration-200 text-xs font-bold shadow-sm"
+                title="Gérer mes disponibilités de réunion">
+          <span>📅</span>
+          <span class="hidden md:inline">Disponibilités</span>
+        </button>
+
+        <!-- Panier Client : placé à côté des notifications, mêmes dimensions et couleurs -->
+        <a *ngIf="isLoggedIn && isClient && !lectureSeule"
+           routerLink="/client/panier"
+           class="btn-icon relative w-9 h-9 p-0 group"
+           [title]="cartCount() > 0 ? cartCount() + ' devis au panier' : 'Mon panier'">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+               class="group-hover:scale-110 transition-transform duration-200">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <!-- Badge compteur panier identique au badge de notification -->
+          <span *ngIf="cartCount() > 0"
+                class="notif-dot absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center
+                       text-[9px] font-bold ring-2 ring-card"
+                style="background: hsl(var(--accent)); color: hsl(var(--accent-foreground))">
+            {{ cartCount() > 9 ? '9+' : cartCount() }}
+          </span>
+        </a>
+
+        <!-- Discussions Dropdown (Messagerie) -->
+        <div *ngIf="isLoggedIn && aMessagerie" class="relative" id="discussionsMenu">
+          <button (click)="toggleDiscussionsDropdown()"
+                  type="button"
+                  class="btn-icon relative w-9 h-9 p-0 group"
+                  [title]="discussionsUnreadCount > 0 ? discussionsUnreadCount + ' nouvelle(s) discussion(s)' : 'Mes discussions'">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="group-hover:scale-110 transition-transform duration-200">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+            </svg>
+            <!-- Badge compteur : affiché seulement s'il y a du non lu -->
+            <span *ngIf="discussionsUnreadCount > 0"
+                  class="notif-dot absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center
+                         text-[9px] font-bold ring-2 ring-card"
+                  style="background: hsl(var(--destructive, 0 84% 55%)); color: #fff">
+              {{ discussionsUnreadCount > 9 ? '9+' : discussionsUnreadCount }}
+            </span>
+          </button>
+
+          <!-- Discussions dropdown panel -->
+          <div *ngIf="isDiscussionsOpen"
+               class="dropdown-enter absolute right-0 mt-3 w-[360px] sm:w-[420px] rounded-2xl shadow-2xl border border-border/80 z-50 overflow-hidden"
+               style="background: hsl(var(--card) / 0.98); backdrop-filter: blur(28px); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25), 0 0 0 1px hsl(var(--border));">
+
+            <!-- Top Gradient Accent -->
+            <div class="h-1 w-full bg-gradient-to-r from-blue-500 via-primary to-emerald-500"></div>
+
+            <!-- Header -->
+            <div class="px-5 py-3.5 border-b border-border/50 flex items-center justify-between"
+                 style="background: hsl(var(--secondary)/0.35)">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10 text-primary">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+                  </svg>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-foreground">Mes Discussions</span>
+                  <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm bg-primary/10 text-primary">
+                    {{ discussions.length }}
+                  </span>
+                </div>
+              </div>
+
+              <a routerLink="/client/discussions" (click)="isDiscussionsOpen = false"
+                 class="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 cursor-pointer">
+                <span>Tout voir</span>
+                <span>&rarr;</span>
+              </a>
+            </div>
+
+            <!-- Discussion list container -->
+            <div class="max-h-[360px] overflow-y-auto divide-y divide-border/40">
+              <!-- Loading -->
+              <div *ngIf="loadingDiscussions" class="p-8 text-center text-muted-foreground flex flex-col items-center gap-2">
+                <div class="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <span class="text-xs">Chargement de vos discussions…</span>
+              </div>
+
+              <!-- Empty State -->
+              <div *ngIf="!loadingDiscussions && discussions.length === 0" class="p-8 text-center space-y-2">
+                <div class="w-12 h-12 mx-auto rounded-full bg-secondary/50 flex items-center justify-center text-xl">
+                  💬
+                </div>
+                <p class="text-xs font-semibold text-foreground">Aucune discussion ouverte</p>
+                <p class="text-[11px] text-muted-foreground">Vos conversations de projets apparaîtront ici.</p>
+              </div>
+
+              <!-- List of discussions -->
+              <div *ngFor="let d of discussions"
+                   (click)="ouvrirDiscussion(d)"
+                   class="p-4 transition-colors cursor-pointer group flex items-start gap-3 relative hover:bg-secondary/40"
+                   [style.background]="nonLusDe(d) > 0 ? 'hsl(var(--destructive, 0 84% 55%) / 0.06)' : ''">
+                <!-- Le liseré rouge se voit avant même de lire le titre. -->
+                <span *ngIf="nonLusDe(d) > 0" class="absolute left-0 top-0 bottom-0 w-1"
+                      style="background: hsl(var(--destructive, 0 84% 55%));"></span>
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 font-bold text-sm relative"
+                     [style.background]="nonLusDe(d) > 0 ? 'hsl(var(--destructive, 0 84% 55%) / 0.12)' : 'hsl(var(--primary)/0.1)'"
+                     [style.color]="nonLusDe(d) > 0 ? 'hsl(var(--destructive, 0 84% 55%))' : 'hsl(var(--primary))'">
+                  💬
+                  <span *ngIf="nonLusDe(d) > 0"
+                        class="absolute -top-1 -right-1 min-w-4 h-4 px-1 rounded-full flex items-center justify-center
+                               text-[9px] font-bold ring-2 ring-card"
+                        style="background: hsl(var(--destructive, 0 84% 55%)); color: #fff">
+                    {{ nonLusDe(d) > 9 ? '9+' : nonLusDe(d) }}
+                  </span>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2 mb-1">
+                    <h4 class="text-xs text-foreground truncate group-hover:text-primary transition-colors"
+                        [class.font-bold]="nonLusDe(d) === 0"
+                        [class.font-extrabold]="nonLusDe(d) > 0">
+                      {{ d.projetNom || 'Projet' }}
+                    </h4>
+                    <span class="text-[10px] font-medium text-muted-foreground shrink-0">
+                      {{ d.lastMessageAt ? (d.lastMessageAt | date:'shortDate') : '' }}
+                    </span>
+                  </div>
+                  <p class="text-[11px] line-clamp-1 mb-2"
+                     [class.text-muted-foreground]="nonLusDe(d) === 0"
+                     [class.text-foreground]="nonLusDe(d) > 0">
+                    <span *ngIf="d.lastMessagePreview">
+                      <span class="font-semibold text-foreground/80">{{ d.lastMessageSenderNom }} :</span>
+                      {{ d.lastMessagePreview }}
+                    </span>
+                    <span *ngIf="!d.lastMessagePreview">Aucun message pour l'instant</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="p-2.5 border-t border-border/50 bg-secondary/20 text-center">
+              <button (click)="voirToutesDiscussions()"
+                      type="button"
+                      class="w-full py-1.5 px-3 rounded-xl text-xs font-semibold text-primary hover:bg-primary/10 transition-colors flex items-center justify-center gap-1.5 cursor-pointer">
+                <span>Accéder à l'espace de messagerie</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Notifications Dropdown -->
+        <div *ngIf="isLoggedIn" class="relative" id="notifMenu">
+          <button (click)="toggleNotifDropdown()" class="btn-icon relative w-9 h-9 p-0 group" title="Notifications">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 class="group-hover:scale-110 transition-transform duration-200">
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+            <!-- Count badge -->
+            <span *ngIf="notifCount > 0"
+                  class="notif-dot absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center
+                         text-[9px] font-bold ring-2 ring-card"
+                  style="background: hsl(var(--accent)); color: hsl(var(--accent-foreground))">
+              {{ notifCount > 9 ? '9+' : notifCount }}
+            </span>
+          </button>
+
+          <!-- Notifications dropdown panel -->
+          <div *ngIf="isNotifOpen"
+               class="dropdown-enter absolute right-0 mt-3 w-[440px] sm:w-[500px] rounded-2xl shadow-2xl border border-border/80 z-50 overflow-hidden"
+               style="background: hsl(var(--card) / 0.98); backdrop-filter: blur(28px); box-shadow: 0 20px 40px -15px rgba(0,0,0,0.25), 0 0 0 1px hsl(var(--border));">
+
+            <!-- Top Gradient Accent -->
+            <div class="h-1 w-full bg-gradient-to-r from-primary via-emerald-500 to-accent"></div>
+
+            <!-- Header -->
+            <div class="px-5 py-3.5 border-b border-border/50 flex items-center justify-between"
+                 style="background: hsl(var(--secondary)/0.35)">
+              <div class="flex items-center gap-2.5">
+                <div class="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10 text-primary">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                  </svg>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-bold text-foreground">Centre de Notifications</span>
+                  <span *ngIf="notifCount > 0" class="text-[10px] font-extrabold px-2 py-0.5 rounded-full shadow-sm"
+                        style="background:hsl(var(--accent));color:hsl(var(--accent-foreground))">{{ notifCount }}</span>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button *ngIf="notifCount > 0" (click)="markAllAsRead()"
+                        class="text-[11px] font-semibold text-primary hover:text-primary/80 transition-colors px-2.5 py-1 rounded-md hover:bg-primary/10">
+                  Tout marquer lu
+                </button>
+                <button *ngIf="notifications.length > 0" (click)="askDeleteAll()"
+                        class="text-[11px] font-semibold text-muted-foreground hover:text-red-500 transition-colors px-2.5 py-1 rounded-md">
+                  Tout supprimer
+                </button>
+              </div>
+            </div>
+
+            <!-- Category Filter Tabs (Pill Bar) -->
+            <div class="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/40 overflow-x-auto bg-muted/20 text-[11px] no-scrollbar">
+              <button (click)="activeTab = 'ALL'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'ALL' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'ALL' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>Tous</span>
+                <span class="text-[10px] px-1.5 py-0.2 rounded-full"
+                      [style.background]="activeTab === 'ALL' ? 'hsl(var(--primary-foreground)/0.2)' : 'hsl(var(--secondary))'">
+                  {{ notifications.length }}
+                </span>
+              </button>
+
+              <button *ngIf="categoryCounts.projet > 0 || isClient || isCDP"
+                      (click)="activeTab = 'PROJET'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'PROJET' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'PROJET' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>📁 Projets</span>
+                <span *ngIf="categoryCounts.projet > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/20">
+                  {{ categoryCounts.projet }}
+                </span>
+              </button>
+
+              <button *ngIf="categoryCounts.billing > 0 || isClient || isCDP"
+                      (click)="activeTab = 'BILLING'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'BILLING' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'BILLING' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>💳 Factures</span>
+                <span *ngIf="categoryCounts.billing > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/20">
+                  {{ categoryCounts.billing }}
+                </span>
+              </button>
+
+              <button *ngIf="isAppro || isAdmin"
+                      (click)="activeTab = 'STOCK'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'STOCK' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'STOCK' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>📦 Stock</span>
+                <span *ngIf="categoryCounts.stock > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-destructive/20 text-destructive font-bold">
+                  {{ categoryCounts.stock }}
+                </span>
+              </button>
+
+              <button *ngIf="categoryCounts.ticket > 0 || isClient || isSupport"
+                      (click)="activeTab = 'TICKET'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'TICKET' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'TICKET' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>💬 Tickets</span>
+                <span *ngIf="categoryCounts.ticket > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-primary/20">
+                  {{ categoryCounts.ticket }}
+                </span>
+              </button>
+
+              <button *ngIf="isAdmin"
+                      (click)="activeTab = 'SECURITY'"
+                      class="px-3 py-1.5 rounded-xl font-semibold transition-all shrink-0 flex items-center gap-1.5"
+                      [style.background]="activeTab === 'SECURITY' ? 'hsl(var(--primary))' : 'transparent'"
+                      [style.color]="activeTab === 'SECURITY' ? 'hsl(var(--primary-foreground))' : 'hsl(var(--muted-foreground))'">
+                <span>🔒 Sécurité</span>
+                <span *ngIf="categoryCounts.security > 0" class="text-[10px] px-1.5 py-0.2 rounded-full bg-warning/20 text-warning font-bold">
+                  {{ categoryCounts.security }}
+                </span>
+              </button>
+            </div>
+
+            <!-- List Container -->
+            <div class="overflow-y-auto divide-y divide-border/30" style="max-height: 420px;">
+
+              <!-- Loading State -->
+              <div *ngIf="loadingNotifs" class="flex flex-col items-center justify-center py-12 gap-3">
+                <div class="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+                <span class="text-xs text-muted-foreground font-medium">Chargement des notifications...</span>
+              </div>
+
+              <!-- Empty State (Ultra Premium Glass) -->
+              <div *ngIf="!loadingNotifs && filteredNotifications.length === 0"
+                   class="flex flex-col items-center justify-center py-12 px-6 text-center">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-3 shadow-inner"
+                     style="background: linear-gradient(135deg, hsl(var(--primary)/0.12), hsl(var(--accent)/0.08)); border: 1px solid hsl(var(--primary)/0.2)">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    <path d="M9 11l2 2 4-4"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-bold text-foreground mb-1">Toutes les notifications sont lues</p>
+                <p class="text-xs text-muted-foreground max-w-[280px]">Vous êtes parfaitement à jour dans cet onglet.</p>
+              </div>
+
+              <!-- Notification Items -->
+              <div *ngFor="let n of filteredNotifications"
+                   (click)="markAsRead(n)"
+                   class="px-5 py-4 hover:bg-secondary/40 transition-all duration-200 cursor-pointer relative group"
+                   [style.background]="(n.read || n.isRead) ? 'transparent' : 'hsl(var(--primary)/0.03)'">
+
+                <!-- Left Unread Glow Accent Line -->
+                <div *ngIf="!(n.read || n.isRead)"
+                     class="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-primary shadow-glow-sm"></div>
+
+
+                <div class="flex items-start gap-3.5">
+                  <!-- Type icon with vibrant badge container -->
+                  <div class="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 mt-0.5 shadow-sm transition-transform duration-200 group-hover:scale-105"
+                       [style.background]="getNotifColor(n.type, 0.14)"
+                       [style.color]="getNotifColor(n.type, 1)">
+                    <svg *ngIf="n.type.includes('DEVICE') || n.type.includes('SECURITY') || n.type.includes('BLOCKED')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <svg *ngIf="n.type.includes('PROJET') || n.type.includes('BOM') || n.type.includes('CAHIER') || n.type.includes('TECH_DOCS') || n.type.includes('REPORT')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M2 7a2 2 0 0 1 2-2h4l2 2h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2z"/>
+                    </svg>
+                    <svg *ngIf="n.type.includes('QUOTE') || n.type.includes('INVOICE') || n.type.includes('TRANCHE') || n.type.includes('PAYMENT') || n.type.includes('CONTRACT')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    <svg *ngIf="n.type.includes('STOCK')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                    <svg *ngIf="n.type.includes('TICKET')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <svg *ngIf="n.type.includes('OVERTIME') || n.type.includes('HOURS')" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                  </div>
+
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-center justify-between mb-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                              [style.background]="getNotifColor(n.type, 0.12)"
+                              [style.color]="getNotifColor(n.type, 1)">
+                          {{ getNotifLabel(n.type) }}
+                        </span>
+                        <span *ngIf="!(n.read || n.isRead)" class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-glow-sm"></span>
+                      </div>
+                      <div class="flex shrink-0 items-center gap-1">
+                        <span class="text-[11px] text-muted-foreground font-medium">{{ getTimeAgo(n.createdAt) }}</span>
+                        <!-- Retire la notification de MA liste ; les autres destinataires la gardent -->
+                        <button type="button" (click)="deleteNotification($event, n)" title="Supprimer"
+                                class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md text-muted-foreground opacity-50 transition-all group-hover:opacity-100 hover:bg-red-500/10 hover:text-red-500">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+
+                    <p *ngIf="n.title" class="text-xs font-bold text-foreground mb-1 leading-snug">{{ n.title }}</p>
+
+                    <p class="text-xs text-muted-foreground leading-relaxed">{{ n.message }}</p>
+
+                    <!-- ⚡ ACTION BUTTONS ⚡ -->
+                    <div class="mt-3 flex flex-wrap items-center gap-2" (click)="$event.stopPropagation()">
+
+                      <!-- 1. BOM Decision (Client) -->
+                      <ng-container *ngIf="n.type.includes('ALTERNATIVES') || n.type.includes('BOM')">
+                        <button (click)="onAcceptAlternatives($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 transition-all shadow-sm">
+                          ✅ Accepter Alternatives
+                        </button>
+                        <button (click)="onRefuseAlternatives($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-secondary hover:bg-secondary/80 text-foreground transition-all">
+                          📦 Je fournis (DNP)
+                        </button>
+                      </ng-container>
+
+                      <!-- 2. Overtime Code -->
+                      <ng-container *ngIf="n.type.includes('OVERTIME')">
+                        <button (click)="onCopyOvertimeCode($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary/15 text-primary hover:bg-primary/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>📋 Copier le Code</span>
+                        </button>
+                      </ng-container>
+
+                      <!-- 4. Documents & Reports Action -->
+                      <ng-container *ngIf="n.type.includes('CAHIER') || n.type.includes('TECH_DOCS') || n.type.includes('REPORT')">
+                        <button (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-indigo-500/15 text-indigo-600 hover:bg-indigo-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>📥 Consulter Document</span>
+                        </button>
+                      </ng-container>
+
+                      <!-- 5. Quote Action -->
+                      <ng-container *ngIf="n.type.includes('QUOTE_SENT')">
+                        <button (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>📑 Voir le Devis</span>
+                        </button>
+                      </ng-container>
+
+                      <!-- 5b. Invoice & Payment Action -->
+                      <ng-container *ngIf="n.type.includes('TRANCHE') || n.type.includes('INVOICE') || n.type.includes('PAYMENT')">
+                        <!-- If already paid -->
+                        <button *ngIf="n.type.includes('PAID')" (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>📄 Consulter Facture</span>
+                        </button>
+                        <!-- Commande en ligne : un seul règlement, pour la
+                             totalité. Proposer « 50 % » ici ferait attendre au
+                             client un second appel de fonds qui ne viendra pas. -->
+                        <button *ngIf="n.type === 'BILLING_INVOICE_ISSUED'" (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>💳 Régler la facture</span>
+                        </button>
+                        <!-- If Tranche 1 to be paid -->
+                        <button *ngIf="n.type === 'BILLING_TRANCHE1_ISSUED'" (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>💳 Régler Acompte (50%)</span>
+                        </button>
+                        <!-- If Tranche 2 to be paid -->
+                        <button *ngIf="n.type === 'BILLING_TRANCHE2_ISSUED'" (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>💳 Régler Solde (50%)</span>
+                        </button>
+                      </ng-container>
+
+                      <!-- 6. Ticket Action -->
+                      <ng-container *ngIf="n.type.includes('TICKET')">
+                        <button (click)="onNavigateAction($event, n)"
+                                class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-blue-500/15 text-blue-600 hover:bg-blue-500/25 flex items-center gap-1.5 transition-all shadow-sm">
+                          <span>💬 Répondre</span>
+                        </button>
+                      </ng-container>
+
+                      <!-- 7. Default Direct Link Button -->
+                      <button *ngIf="n.linkUrl && !n.type.includes('CAHIER') && !n.type.includes('TECH_DOCS') && !n.type.includes('REPORT') && !n.type.includes('QUOTE_SENT') && !n.type.includes('TRANCHE') && !n.type.includes('INVOICE') && !n.type.includes('PAYMENT') && !n.type.includes('TICKET') && !n.type.includes('ALTERNATIVES') && !n.type.includes('OVERTIME')" (click)="onNavigateAction($event, n)"
+                              class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-primary text-primary-foreground hover:opacity-90 flex items-center gap-1.5 transition-all ml-auto shadow-sm">
+                        <span>Ouvrir</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                      </button>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confirmation avant de vider la liste : action massive et non rattrapable -->
+            <div *ngIf="showConfirmDeleteAll" (click)="$event.stopPropagation()"
+                 class="absolute inset-0 z-30 flex items-center justify-center rounded-2xl p-6"
+                 style="background: hsl(var(--card) / 0.92); backdrop-filter: blur(6px)">
+              <div class="w-full max-w-[280px] text-center">
+                <div class="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-red-500/10 text-red-500">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/>
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-bold text-foreground">Supprimer {{ notifications.length }} notification{{ notifications.length > 1 ? 's' : '' }} ?</p>
+                <p class="mt-1 text-[11px] text-muted-foreground">Elles seront retirées de votre liste. Cette action ne peut pas être annulée.</p>
+                <div class="mt-4 flex items-center justify-center gap-2">
+                  <button type="button" (click)="cancelDeleteAll()"
+                          class="rounded-lg border border-border/60 px-3.5 py-1.5 text-[11px] font-bold text-foreground transition-colors hover:bg-secondary">
+                    Annuler
+                  </button>
+                  <button type="button" (click)="deleteAllNotifications()"
+                          class="rounded-lg bg-red-500 px-3.5 py-1.5 text-[11px] font-bold text-white transition-colors hover:bg-red-600">
+                    Tout supprimer
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="px-5 py-2.5 bg-muted/20 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
+              <span>Centre de notifications PCB/PCBA</span>
+              <span class="flex items-center gap-1.5 text-primary font-medium">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> En direct
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="h-6 w-px bg-border/60 hidden sm:block mx-1"></div>
+
+        <!-- Profile Dropdown -->
+        <div class="relative" id="profileMenu">
+          <div class="flex items-center gap-2.5 cursor-pointer group" (click)="toggleDropdown()">
+            <!-- Name + role (desktop) -->
+            <div class="text-right hidden sm:block">
+              <p class="text-sm font-semibold leading-tight text-foreground">{{ userName }}</p>
+              <p class="text-[10px] text-muted-foreground leading-tight">{{ userRole }}</p>
+            </div>
+            <!-- Avatar -->
+            <img *ngIf="avatarUrl" [src]="avatarUrl"
+                 class="w-9 h-9 rounded-xl object-cover shadow-md transition-all duration-200
+                        ring-2 ring-transparent group-hover:ring-primary/40 group-hover:shadow-glow-sm"/>
+            <div *ngIf="!avatarUrl"
+                 class="w-9 h-9 flex items-center justify-center rounded-xl font-bold text-sm shadow-md text-white
+                        ring-2 ring-transparent group-hover:ring-primary/40 transition-all duration-200"
+                 [style.background]="avatarGradient">
+              {{ userInitials }}
+            </div>
+            <!-- Chevron -->
+            <svg class="hidden sm:block transition-transform duration-200 text-muted-foreground"
+                 [class.rotate-180]="isDropdownOpen"
+                 width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+
+          <!-- Dropdown -->
+          <div *ngIf="isDropdownOpen"
+               class="dropdown-enter absolute right-0 mt-3 w-64 rounded-2xl shadow-card-float border border-border/50 py-2 z-50 overflow-hidden"
+               style="background: hsl(var(--card)); backdrop-filter: blur(20px);">
+
+            <!-- User info header -->
+            <div class="px-4 py-3 border-b border-border/50 mb-1"
+                 style="background: hsl(var(--secondary)/0.3)">
+              <div class="flex items-center gap-3">
+                <img *ngIf="avatarUrl" [src]="avatarUrl" class="w-8 h-8 rounded-lg object-cover shadow-sm"/>
+                <div *ngIf="!avatarUrl" class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shadow-sm text-white"
+                     [style.background]="avatarGradient">{{ userInitials }}</div>
+                <div class="min-w-0">
+                  <p class="text-sm font-semibold text-foreground truncate">{{ userName }}</p>
+                  <p class="text-xs text-muted-foreground truncate">{{ userEmail }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Links -->
+            <div class="px-2 space-y-0.5">
+              <a routerLink="/profile/edit" (click)="closeDropdown()"
+                 class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium
+                        text-muted-foreground hover:text-foreground hover:bg-secondary/60
+                        transition-all duration-150 cursor-pointer group">
+                <span class="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style="background: hsl(var(--primary)/0.10)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--primary))">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </span>
+                Mon profil
+              </a>
+              <a routerLink="/profile/security" (click)="closeDropdown()"
+                 class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium
+                        text-muted-foreground hover:text-foreground hover:bg-secondary/60
+                        transition-all duration-150 cursor-pointer group">
+                <span class="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style="background: hsl(var(--warning)/0.10)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--warning))">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  </svg>
+                </span>
+                Sécurité & Sessions
+              </a>
+            </div>
+
+            <!-- Logout -->
+            <div class="px-2 pt-2 mt-1 border-t border-border/50">
+              <a (click)="handleLogout()"
+                 class="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-semibold
+                        text-destructive hover:bg-destructive/10 transition-all duration-150
+                        cursor-pointer group">
+                <span class="w-7 h-7 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
+                      style="background: hsl(var(--destructive)/0.10)">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--destructive))">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+                  </svg>
+                </span>
+                Déconnexion
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Modal Disponibilités Chef de Projet -->
+    <app-chef-availability-modal
+      *ngIf="showAvailabilityModal"
+      (close)="showAvailabilityModal = false">
+    </app-chef-availability-modal>

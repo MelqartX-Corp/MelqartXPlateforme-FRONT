@@ -1,0 +1,266 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🏭</span>
+        <h1 class="page-title-premium">
+          Supervision de Production
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Suivi Kanban des lignes CMS, AOI, tests fonctionnels et conditionnement
+      </p>
+    </div>
+    <div class="relative z-10 flex flex-wrap items-center gap-2">
+      <button type="button" class="chip" [class.badge-glow-primary]="filtrePriorite() === null"
+              (click)="filtrer(null)">Toutes</button>
+      <button type="button" class="chip" [class.badge-glow-destructive]="filtrePriorite() === 'HAUTE'"
+              (click)="filtrer('HAUTE')">Haute</button>
+      <button type="button" class="chip" [class.badge-glow-warning]="filtrePriorite() === 'MOYENNE'"
+              (click)="filtrer('MOYENNE')">Moyenne</button>
+      <button type="button" class="chip" [class.badge-glow-accent]="filtrePriorite() === 'BASSE'"
+              (click)="filtrer('BASSE')">Basse</button>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border/60 bg-card/60 backdrop-blur-md text-xs">
+        <span class="w-2 h-2 rounded-full animate-pulse" style="background:hsl(var(--success))"></span>
+        <span class="text-foreground font-bold">{{ totalOrders() }}</span>
+        <span class="text-muted-foreground">en atelier</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Les trois chiffres qui decident de la journee -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+    <div class="kpi-card">
+      <p class="section-label">En file de lancement</p>
+      <p class="text-3xl font-extrabold text-foreground tabular-nums mt-1">{{ enFile() }}</p>
+      <p class="text-[11px] text-muted-foreground mt-0.5">reglees, pas encore lancees</p>
+    </div>
+    <div class="kpi-card">
+      <p class="section-label">Prioritaires</p>
+      <p class="text-3xl font-extrabold tabular-nums mt-1" style="color: hsl(var(--destructive));">
+        {{ urgentes() }}
+      </p>
+      <p class="text-[11px] text-muted-foreground mt-0.5">a traiter avant les autres</p>
+    </div>
+    <div class="kpi-card">
+      <p class="section-label">En atelier</p>
+      <p class="text-3xl font-extrabold text-foreground tabular-nums mt-1">{{ totalOrders() }}</p>
+      <p class="text-[11px] text-muted-foreground mt-0.5">commandes qui vous sont confiees</p>
+    </div>
+  </div>
+
+  <!-- Un refus du serveur est une information, pas un incident technique -->
+  <div *ngIf="error()" class="glass-card rounded-2xl p-4 flex items-start gap-3"
+       style="border-color: hsl(var(--destructive) / 0.35); background: hsl(var(--destructive) / 0.07);">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color: hsl(var(--destructive));"
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.33 16a2 2 0 001.74 3z"/>
+    </svg>
+    <p class="text-xs font-semibold flex-1" style="color: hsl(var(--destructive));">{{ error() }}</p>
+    <button type="button" class="btn-icon" (click)="error.set(null)" aria-label="Fermer">&#10005;</button>
+  </div>
+
+  <div *ngIf="loading()" class="skeleton skeleton-card rounded-2xl" style="height: 60vh;"></div>
+
+  <!-- Kanban Board -->
+  <div *ngIf="!loading()" cdkDropListGroup
+       class="flex gap-4 overflow-x-auto pb-4 -mx-2 px-2" style="min-height: 70vh;">
+
+    <!-- Column -->
+    <div *ngFor="let col of columns(); let i = index"
+         class="flex-shrink-0 flex flex-col rounded-2xl border border-border/50 overflow-hidden"
+         style="width: 280px; background: hsl(var(--card) / 0.5); backdrop-filter: blur(12px);">
+
+      <!-- Column Header -->
+      <div class="px-4 py-3 border-b border-border/50 flex items-center justify-between shrink-0"
+           [style.background]="'hsl(' + col.color + ' / 0.06)'">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+               [style.background]="'hsl(' + col.color + ' / 0.15)'">
+            <!-- Clock -->
+            <svg *ngIf="col.icon === 'clock'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.color]="'hsl(' + col.color + ')'">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <!-- Cog -->
+            <svg *ngIf="col.icon === 'cog'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.color]="'hsl(' + col.color + ')'">
+              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <!-- Layers -->
+            <svg *ngIf="col.icon === 'layers'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.color]="'hsl(' + col.color + ')'">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+            </svg>
+            <!-- Check -->
+            <svg *ngIf="col.icon === 'check'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.color]="'hsl(' + col.color + ')'">
+              <circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 15 10"/>
+            </svg>
+            <!-- Truck -->
+            <svg *ngIf="col.icon === 'truck'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" [style.color]="'hsl(' + col.color + ')'">
+              <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 6v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <span class="text-xs font-bold text-foreground uppercase tracking-wide">{{ col.title }}</span>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+              [style.background]="'hsl(' + col.color + ' / 0.15)'"
+              [style.color]="'hsl(' + col.color + ')'">
+          {{ col.orders.length }}
+        </span>
+      </div>
+
+      <!-- Drop Zone -->
+      <div cdkDropList
+           [id]="col.id"
+           [cdkDropListData]="col.orders"
+           [cdkDropListConnectedTo]="connectedLists"
+           (cdkDropListDropped)="drop($event, col.id)"
+           class="flex-1 p-2.5 space-y-2.5 overflow-y-auto"
+           style="min-height: 120px;">
+
+        <!-- Card -->
+        <div *ngFor="let order of col.orders"
+             cdkDrag
+             [cdkDragData]="order"
+             class="rounded-xl border border-border/50 p-3.5 cursor-grab active:cursor-grabbing transition-all duration-150 hover:shadow-lg hover:-translate-y-0.5 group"
+             [ngClass]="'kanban-card-' + order.priorite.toLowerCase()"
+             style="background: hsl(var(--card));">
+
+          <!-- Drag preview placeholder -->
+          <div *cdkDragPlaceholder
+               class="rounded-xl border-2 border-dashed p-3.5 mb-2.5"
+               [style.border-color]="'hsl(' + col.color + ' / 0.4)'"
+               [style.background]="'hsl(' + col.color + ' / 0.04)'"
+               style="min-height: 100px;">
+          </div>
+
+          <!-- Order Header -->
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-black text-foreground tracking-tight">{{ order.orderNumber }}</span>
+            <span class="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md"
+                  [ngClass]="priorityClass(order.priorite)">
+              {{ order.priorite }}
+            </span>
+          </div>
+
+          <!-- Client -->
+          <p class="text-xs font-semibold text-foreground mb-1.5 truncate">{{ order.customerName }}</p>
+
+          <!-- Ce qui est fabrique, et combien de cartes -->
+          <div class="flex items-center justify-between text-[11px] text-muted-foreground gap-2">
+            <span class="truncate">{{ projetsLabel(order) }}</span>
+            <span class="font-bold shrink-0">{{ totalCartes(order) }} u.</span>
+          </div>
+
+          <!-- Une priorite relevee a la main est une decision, pas un calcul :
+               l'atelier doit pouvoir lire pourquoi cette carte passe devant. -->
+          <p *ngIf="order.prioriteMotif" class="text-[10px] mt-2 leading-relaxed"
+             style="color: hsl(var(--warning));">
+            &#9432; {{ order.prioriteMotif }}
+          </p>
+
+          <!-- Preparation bobines : le seul endroit ou l'atelier sort et rend
+               les bobines d'un projet. On y va depuis la carte parce que
+               c'est la commande qui dit quel projet est en cours — et c'est
+               une page, l'atelier la garde ouverte en allant au magasin. -->
+          <button (click)="ouvrirPreparation(order); $event.stopPropagation()"
+                  (mousedown)="$event.stopPropagation()"
+                  class="w-full mt-2.5 py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-95 bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/25 hover:border-blue-500/40">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            <span>Bobines &amp; Kitting</span>
+          </button>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-between mt-3 pt-2.5 border-t border-border/40">
+            <span class="text-[10px] text-muted-foreground flex items-center gap-1">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              {{ joursEnFile(order) }} j
+            </span>
+            <span *ngIf="order.shipping?.method === 'EXPRESS'"
+                  class="text-[10px] font-bold" style="color: hsl(var(--accent));">&#9889; Express</span>
+            <!-- Drag hint -->
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors">
+              <circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/>
+              <circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div *ngIf="col.orders.length === 0"
+             class="flex flex-col items-center justify-center py-10 text-center opacity-40">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="text-muted-foreground mb-2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/>
+          </svg>
+          <p class="text-xs text-muted-foreground font-medium">
+            {{ totalOrders() === 0 ? 'Aucune commande ne vous est confiée' : 'Déposez une commande ici' }}
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Retour en arriere : la note est obligatoire, sinon plus personne ne saura
+     la semaine prochaine pourquoi cette carte a recule. -->
+<div *ngIf="retour() as demande" class="modal-overlay-premium" (click)="annulerRetour()">
+  <div class="modal-content-premium max-w-md" (click)="$event.stopPropagation()">
+    <div class="card-header-premium"><h3>Retour en arri&egrave;re</h3></div>
+    <div class="p-5 space-y-4">
+      <p class="text-xs text-muted-foreground leading-relaxed">
+        La commande <b class="text-foreground">{{ demande.order.orderNumber }}</b> revient de
+        &laquo;&nbsp;{{ titreDe(demande.order.stage) }}&nbsp;&raquo; vers
+        &laquo;&nbsp;{{ titreDe(demande.cible) }}&nbsp;&raquo;. Indiquez ce qui a &eacute;t&eacute; constat&eacute;.
+      </p>
+      <textarea class="input-base w-full h-24 resize-none" [(ngModel)]="noteRetour"
+                placeholder="Ex. : deux soudures froides d&eacute;tect&eacute;es &agrave; l'AOI sur le connecteur J3"></textarea>
+      <div class="flex gap-2">
+        <button type="button" class="btn-ghost flex-1 justify-center text-xs"
+                (click)="annulerRetour()">Annuler</button>
+        <button type="button" class="btn-primary flex-1 justify-center text-xs"
+                [disabled]="!noteRetour.trim()" (click)="confirmerRetour()">
+          Confirmer le retour
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Expedition : transporteur et suivi avant de pousser la carte -->
+<div *ngIf="expedition() as order" class="modal-overlay-premium" (click)="annulerExpedition()">
+  <div class="modal-content-premium max-w-md" (click)="$event.stopPropagation()">
+    <div class="card-header-premium"><h3>Remise au transporteur</h3></div>
+    <div class="p-5 space-y-4">
+      <p class="text-xs text-muted-foreground leading-relaxed">
+        Colis de <b class="text-foreground">{{ order.shipping.poidsKg | number:'1.2-2' }} kg</b>
+        &agrave; destination de {{ order.shipping.gouvernorat }}. Le client re&ccedil;oit ce num&eacute;ro de
+        suivi par e-mail d&egrave;s la validation.
+      </p>
+      <div>
+        <label class="section-label">Transporteur</label>
+        <input class="input-base w-full mt-1.5" [(ngModel)]="transporteur"
+               placeholder="Ex. : Aramex, First Delivery, Rapid-Poste"/>
+      </div>
+      <div>
+        <label class="section-label">Num&eacute;ro de suivi</label>
+        <input class="input-base w-full mt-1.5" [(ngModel)]="trackingNumber"
+               placeholder="Tel qu'il figure sur l'&eacute;tiquette"/>
+      </div>
+      <div class="flex gap-2">
+        <button type="button" class="btn-ghost flex-1 justify-center text-xs"
+                (click)="annulerExpedition()">Annuler</button>
+        <button type="button" class="btn-primary flex-1 justify-center text-xs"
+                [disabled]="!transporteur.trim() || !trackingNumber.trim()"
+                (click)="confirmerExpedition()">Exp&eacute;dier</button>
+      </div>
+    </div>
+  </div>
+</div>

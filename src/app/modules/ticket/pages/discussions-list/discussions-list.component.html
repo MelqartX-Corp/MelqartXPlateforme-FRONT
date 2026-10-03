@@ -1,0 +1,80 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ En-tête ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">💬</span>
+        <h1 class="page-title-premium">Mes discussions</h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Vos échanges avec l'équipe, projet par projet
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ Erreur ═══ -->
+  <div *ngIf="error()"
+       class="p-4 rounded-2xl border border-destructive/30 bg-destructive/5 text-sm font-semibold text-destructive">
+    {{ error() }}
+  </div>
+
+  <!-- ═══ Chargement ═══ -->
+  <div *ngIf="loading()" class="flex justify-center py-16">
+    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- ═══ Liste ═══ -->
+  <div *ngIf="!loading() && discussions().length > 0" class="space-y-3">
+    <button *ngFor="let d of discussions()"
+            type="button"
+            (click)="ouvrir(d)"
+            class="w-full text-left glass-card-premium rounded-2xl border p-5 transition-all hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+            style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5);">
+      <div class="flex items-start justify-between gap-4">
+
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0"
+               style="background: hsl(var(--primary)/0.1); border: 1px solid hsl(var(--primary)/0.2);">
+            💬
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-foreground truncate m-0"
+               style="font-family:'Outfit',sans-serif">
+              {{ d.projetNom || 'Projet' }}
+            </p>
+            <p *ngIf="d.lastMessagePreview" class="text-xs text-muted-foreground mt-1 mb-0 line-clamp-1">
+              <span class="font-semibold text-foreground/80">{{ d.lastMessageSenderNom }} :</span>
+              {{ d.lastMessagePreview }}
+            </p>
+            <p *ngIf="!d.lastMessagePreview" class="text-xs text-muted-foreground mt-1 mb-0">
+              Aucun message pour l'instant
+            </p>
+          </div>
+        </div>
+
+        <span class="text-[11px] font-semibold text-muted-foreground shrink-0 whitespace-nowrap">
+          {{ depuis(d.lastMessageAt) }}
+        </span>
+      </div>
+    </button>
+  </div>
+
+  <!-- ═══ Aucune conversation ═══ -->
+  <div *ngIf="vide()"
+       class="text-center py-16 rounded-3xl border border-dashed space-y-3"
+       style="border-color: hsl(var(--border)); background: hsl(var(--card)/0.5);">
+    <div class="text-3xl">💬</div>
+    <p class="text-sm font-bold text-foreground m-0">Aucune conversation</p>
+    <p class="text-xs text-muted-foreground max-w-sm mx-auto m-0">
+      Chaque projet a la sienne. Ouvrez la fiche d'un projet et écrivez votre
+      premier message — elle apparaîtra ici.
+    </p>
+    <div class="pt-2">
+      <a routerLink="/client/projets" class="btn-primary inline-flex items-center gap-2 text-xs">
+        Voir mes projets
+      </a>
+    </div>
+  </div>
+
+</div>

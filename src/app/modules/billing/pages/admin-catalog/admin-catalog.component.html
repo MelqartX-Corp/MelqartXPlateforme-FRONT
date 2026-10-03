@@ -1,0 +1,355 @@
+<div class="space-y-7 animate-fade-up font-sans text-slate-900 dark:text-slate-100">
+  
+  <!-- ═══ PREMIUM PAGE HEADER (Matching Workspace Projets Style) ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🗂️</span>
+        <h1 class="page-title-premium">
+          Catalogue des Services & Tarification
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span>{{ services.length }} prestations au total</span>
+        <span class="text-muted-foreground/30">•</span>
+        <span class="text-primary font-bold">{{ countEngineering }} ingénierie</span>
+        <span class="text-muted-foreground/30">•</span>
+        <span class="text-warning font-bold">{{ countPrototyping }} prototypage</span>
+        <span class="text-muted-foreground/30">•</span>
+        <span class="text-success font-bold">{{ countManufacturing }} fabrication</span>
+        <span class="text-muted-foreground/30">•</span>
+        <span class="text-indigo-400 font-bold">{{ countComponents }} composants</span>
+      </p>
+    </div>
+
+    <!-- Right Side Controls -->
+    <div class="flex items-center gap-3 relative z-10 self-start md:self-center">
+      <button (click)="openCreateModal()"
+              class="btn-primary flex items-center justify-center gap-2 transition-all duration-300 cursor-pointer"
+              style="height: 48px; padding: 0 24px; border-radius: 14px; font-size: 14px; box-shadow: 0 8px 30px hsl(var(--primary)/0.25);">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+        </svg>
+        <span>Nouveau Service</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading / Error -->
+  <div *ngIf="loading" class="text-center py-16 text-muted-foreground flex flex-col items-center justify-center gap-3 bg-card/60 rounded-3xl border border-border/40 backdrop-blur-md shadow-sm">
+    <svg class="animate-spin h-7 w-7 text-primary" fill="none" viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+    </svg>
+    <span class="text-xs font-semibold tracking-wide uppercase font-mono">Chargement du catalogue...</span>
+  </div>
+  <div *ngIf="error" class="p-4 bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 rounded-2xl border border-rose-200 dark:border-rose-800 text-xs font-semibold">{{ error }}</div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SERVICES & PRICING TABLE CONTAINER
+  ══════════════════════════════════════════════════════ -->
+  <div *ngIf="!loading && !error" class="bg-card rounded-3xl border border-border/60 overflow-hidden shadow-xl space-y-0 backdrop-blur-md">
+    
+    <!-- Toolbar: Search, Filters & Sort -->
+    <div class="p-4 sm:p-5 border-b border-border/60 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-muted/20">
+      
+      <!-- Search Input -->
+      <div class="relative flex-1 max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Rechercher par code, libellé de prestation..." 
+          class="w-full pl-10 pr-9 py-2.5 bg-background border border-border/60 rounded-xl text-xs text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition font-sans shadow-xs">
+        <button *ngIf="searchTerm" (click)="searchTerm = ''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button 
+          (click)="selectedCategory = 'ALL'"
+          [ngClass]="selectedCategory === 'ALL' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background hover:bg-muted text-muted-foreground border border-border/60'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+          TOUS <span class="ml-1 opacity-75 font-mono">({{ services.length }})</span>
+        </button>
+        <button 
+          (click)="selectedCategory = 'ENGINEERING'"
+          [ngClass]="selectedCategory === 'ENGINEERING' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background hover:bg-muted text-muted-foreground border border-border/60'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+          ⚡ INGÉNIERIE <span class="ml-1 opacity-75 font-mono">({{ countEngineering }})</span>
+        </button>
+        <button 
+          (click)="selectedCategory = 'PROTOTYPING'"
+          [ngClass]="selectedCategory === 'PROTOTYPING' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background hover:bg-muted text-muted-foreground border border-border/60'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+          🔬 PROTOTYPAGE <span class="ml-1 opacity-75 font-mono">({{ countPrototyping }})</span>
+        </button>
+        <button 
+          (click)="selectedCategory = 'MANUFACTURING'"
+          [ngClass]="selectedCategory === 'MANUFACTURING' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background hover:bg-muted text-muted-foreground border border-border/60'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+          🏭 FABRICATION <span class="ml-1 opacity-75 font-mono">({{ countManufacturing }})</span>
+        </button>
+        <button 
+          (click)="selectedCategory = 'COMPONENTS'"
+          [ngClass]="selectedCategory === 'COMPONENTS' ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-background hover:bg-muted text-muted-foreground border border-border/60'"
+          class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer">
+          📦 COMPOSANTS <span class="ml-1 opacity-75 font-mono">({{ countComponents }})</span>
+        </button>
+      </div>
+
+      <!-- Sorting Selector -->
+      <div class="flex items-center gap-2 text-xs">
+        <span class="text-muted-foreground font-mono text-[11px] uppercase tracking-wider">Trier :</span>
+        <select 
+          [(ngModel)]="sortBy"
+          class="bg-background border border-border/60 rounded-xl px-3 py-1.5 text-xs font-medium text-foreground outline-none shadow-xs cursor-pointer">
+          <option value="NAME_ASC">Nom : A à Z</option>
+          <option value="CODE_ASC">Code : A à Z</option>
+          <option value="PRICE_DESC">Prix : Décroissant</option>
+          <option value="PRICE_ASC">Prix : Croissant</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-border/60 bg-muted/40 text-[10px] font-mono font-bold text-muted-foreground uppercase tracking-wider">
+            <th class="py-4 pl-6 pr-4">Code Prestation</th>
+            <th class="py-4 px-4">Libellé & Prestation</th>
+            <th class="py-4 px-4">Catégorie</th>
+            <th class="py-4 px-4">Méthode Facturation</th>
+            <th class="py-4 px-4 text-center">Unité</th>
+            <th class="py-4 px-4 text-right">Tarif Unitaire HT</th>
+            <th class="py-4 px-4 text-center">Taux TVA</th>
+            <th class="py-4 pr-6 pl-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border/40 text-xs">
+          <tr *ngFor="let s of filteredServices" 
+              class="hover:bg-muted/40 dark:hover:bg-muted/20 transition-colors group">
+            
+            <!-- 1. Code -->
+            <td class="py-4 pl-6 pr-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-2.5 py-1 rounded-lg font-mono font-bold text-xs bg-primary/10 text-primary border border-primary/20 tracking-wider">
+                {{ s.code }}
+              </span>
+            </td>
+
+            <!-- 2. Libellé -->
+            <td class="py-4 px-4 whitespace-nowrap">
+              <div class="font-bold text-foreground text-sm tracking-tight">
+                {{ s.name }}
+              </div>
+              <div class="text-[11px] text-muted-foreground font-mono flex items-center gap-1.5 pt-0.5">
+                <span>{{ getCategoryIcon(s.category) }}</span>
+                <span>{{ getCategoryLabel(s.category) }}</span>
+              </div>
+            </td>
+
+            <!-- 3. Catégorie Badge -->
+            <td class="py-4 px-4 whitespace-nowrap">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-xl border" [ngClass]="getCategoryBadgeClass(s.category)">
+                <span>{{ getCategoryIcon(s.category) }}</span>
+                <span>{{ getCategoryLabel(s.category) }}</span>
+              </span>
+            </td>
+
+            <!-- 4. Méthode Facturation -->
+            <td class="py-4 px-4 whitespace-nowrap">
+              <div class="flex items-center gap-1.5 text-foreground font-medium">
+                <span>{{ getMethodIcon(s.billingMethod) }}</span>
+                <span>{{ getMethodLabel(s.billingMethod) }}</span>
+              </div>
+            </td>
+
+            <!-- 5. Unité -->
+            <td class="py-4 px-4 whitespace-nowrap text-center">
+              <span class="px-2.5 py-1 rounded-lg bg-muted/60 text-muted-foreground font-mono font-semibold text-[11px] border border-border/40">
+                {{ s.defaultUnit }}
+              </span>
+            </td>
+
+            <!-- 6. Prix Unitaire HT -->
+            <td class="py-4 px-4 text-right whitespace-nowrap">
+              <div *ngIf="s.currentPrice?.unitPrice" class="flex items-baseline justify-end gap-1.5">
+                <span class="text-base font-black text-foreground font-mono tracking-tight">
+                  {{ s.currentPrice?.unitPrice | number:'1.3-3' }}
+                </span>
+                <span class="text-[10px] font-bold text-primary uppercase">TND</span>
+              </div>
+              <span *ngIf="!s.currentPrice?.unitPrice" class="text-muted-foreground italic text-xs font-mono">Non tarifé</span>
+            </td>
+
+            <!-- 7. TVA -->
+            <td class="py-4 px-4 text-center whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-muted text-foreground font-mono font-bold text-xs border border-border/40">
+                {{ s.currentPrice?.taxRate || 19 }}%
+              </span>
+            </td>
+
+            <!-- 8. Actions CTA -->
+            <td class="py-4 pr-6 pl-4 text-right whitespace-nowrap">
+              <button (click)="openPriceModal(s)" 
+                      title="Ajuster le tarif de cette prestation"
+                      class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl text-amber-700 dark:text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 shadow-xs hover:shadow-sm transition-all duration-200 active:scale-95 group/btn cursor-pointer">
+                <svg class="w-3.5 h-3.5 text-warning group-hover/btn:rotate-12 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                </svg>
+                <span>Ajuster Prix</span>
+              </button>
+            </td>
+
+          </tr>
+
+          <!-- Empty State -->
+          <tr *ngIf="filteredServices.length === 0">
+            <td colspan="8" class="text-center py-16 text-muted-foreground">
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-12 h-12 rounded-2xl bg-muted/60 border border-border/40 flex items-center justify-center text-2xl">
+                  🔍
+                </div>
+                <div class="space-y-1">
+                  <p class="font-bold text-foreground text-sm">Aucune prestation correspondante</p>
+                  <p class="text-xs text-muted-foreground">Essayez de modifier votre recherche ou vos filtres de catégorie.</p>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Table Footer Stats -->
+    <div class="p-4 border-t border-border/40 bg-muted/10 flex items-center justify-between text-xs text-muted-foreground font-mono">
+      <span>Affichage de <strong class="text-foreground">{{ filteredServices.length }}</strong> sur <strong class="text-foreground">{{ services.length }}</strong> prestation(s)</span>
+      <span>Système de tarification modulaire PCB/PCBA</span>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: CREATE SERVICE
+  ══════════════════════════════════════════════════════ -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-card rounded-3xl max-w-lg w-full p-6 sm:p-8 space-y-5 shadow-2xl border border-border/60 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-border/40">
+        <h2 class="text-lg font-extrabold text-foreground flex items-center gap-2.5" style="font-family:'Outfit',sans-serif">
+          <span class="p-2 bg-primary/10 text-primary rounded-xl text-base">✨</span>
+          Ajouter une Prestation
+        </h2>
+        <button (click)="showCreateModal = false" class="text-muted-foreground hover:text-foreground cursor-pointer p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Code Prestation (ex: CONSULTING, PCB_DESIGN)</label>
+          <input [(ngModel)]="newService.code" placeholder="EX: CADRAGE_TECH" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-sm font-mono text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Nom du Service (ex: Analyse DFM & Gerber)</label>
+          <input [(ngModel)]="newService.name" placeholder="Ex: Audit d'industrialisation PCB" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-sm text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Catégorie</label>
+            <select [(ngModel)]="newService.category" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-xs font-medium text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none cursor-pointer">
+              <option value="ENGINEERING">⚡ Ingénierie (Engineering)</option>
+              <option value="PROTOTYPING">🔬 Prototypage (Prototyping)</option>
+              <option value="MANUFACTURING">🏭 Fabrication (Manufacturing)</option>
+              <option value="COMPONENTS">📦 Composants (Components)</option>
+              <option value="OTHER">⚙️ Autre (Other)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Méthode Facturation</label>
+            <select [(ngModel)]="newService.billingMethod" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-xs font-medium text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none cursor-pointer">
+              <option value="TIME">⏱️ Temps (Heures)</option>
+              <option value="QUANTITY">🔢 Quantité (Pièces)</option>
+              <option value="FIXED">🎯 Forfait (Projet / Jalon)</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Unité</label>
+            <input [(ngModel)]="newService.defaultUnit" placeholder="hour" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-xs font-mono text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Prix HT (TND)</label>
+            <input type="number" [(ngModel)]="newService.unitPrice" placeholder="100.000" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-xs font-mono font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">TVA (%)</label>
+            <input type="number" [(ngModel)]="newService.taxRate" placeholder="19" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-xs font-mono font-bold text-foreground focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none" />
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-3 border-t border-border/40">
+        <button (click)="showCreateModal = false" class="px-4 py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground rounded-xl transition cursor-pointer">Annuler</button>
+        <button (click)="saveService()" [disabled]="saving" class="btn-primary px-6 py-2.5 text-xs font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer shadow-lg">
+          {{ saving ? 'Enregistrement...' : 'Créer le service' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: UPDATE PRICE
+  ══════════════════════════════════════════════════════ -->
+  <div *ngIf="showPriceModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-card rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-4 shadow-2xl border border-border/60 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-border/40">
+        <div>
+          <h2 class="text-lg font-extrabold text-foreground flex items-center gap-2" style="font-family:'Outfit',sans-serif">
+            <span class="p-1.5 bg-warning/10 text-warning rounded-xl text-base">🏷️</span>
+            Ajuster le Tarif
+          </h2>
+          <p class="text-xs font-bold text-primary mt-1 font-mono">{{ selectedService?.name }} ({{ selectedService?.code }})</p>
+        </div>
+        <button (click)="showPriceModal = false" class="text-muted-foreground hover:text-foreground cursor-pointer p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <div class="p-3.5 bg-primary/10 rounded-2xl border border-primary/20 text-xs text-foreground space-y-1">
+        <p class="font-bold flex items-center gap-1.5 text-primary">
+          <span>🛡️ Versioning Immuable</span>
+        </p>
+        <p class="text-muted-foreground leading-relaxed">
+          La modification archive l'ancien prix et applique le nouveau aux futurs devis. Les devis et contrats existants conservent leur tarif historique.
+        </p>
+      </div>
+
+      <div class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Nouveau Prix Unitaire HT (TND)</label>
+          <input type="number" [(ngModel)]="priceUpdate.unitPrice" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-sm font-mono font-bold text-foreground focus:ring-2 focus:ring-warning focus:outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-foreground mb-1.5 uppercase tracking-wide font-mono">Taux TVA (%)</label>
+          <input type="number" [(ngModel)]="priceUpdate.taxRate" class="w-full px-3.5 py-2.5 bg-background border border-border/60 rounded-xl text-sm font-mono font-bold text-foreground focus:ring-2 focus:ring-warning focus:outline-none" />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-3 border-t border-border/40">
+        <button (click)="showPriceModal = false" class="px-4 py-2.5 text-xs font-bold text-muted-foreground hover:text-foreground rounded-xl transition cursor-pointer">Annuler</button>
+        <button (click)="savePrice()" [disabled]="saving" class="px-5 py-2.5 text-xs font-bold bg-warning hover:bg-warning/90 text-slate-950 rounded-xl shadow-md transition active:scale-95 disabled:opacity-50 cursor-pointer">
+          {{ saving ? 'Mise à jour...' : 'Appliquer le nouveau tarif' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

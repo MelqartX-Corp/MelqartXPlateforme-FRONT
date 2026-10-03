@@ -1,0 +1,553 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ═══ SUCCESS TOAST ═══ -->
+  <div *ngIf="saved"
+       class="fixed top-20 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border border-success/30 backdrop-blur-xl animate-fade-up"
+       style="background:hsl(var(--card)/0.95)">
+    <div class="w-8 h-8 rounded-xl bg-success/20 flex items-center justify-center shrink-0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div>
+      <p class="text-sm font-bold text-foreground">Profil mis à jour avec succès</p>
+      <p class="text-xs text-muted-foreground">Vos modifications ont été enregistrées sur la plateforme.</p>
+    </div>
+  </div>
+
+  <!-- ═══ ERROR ALERT ═══ -->
+  <div *ngIf="error"
+       class="p-4 rounded-2xl border border-destructive/30 bg-destructive/10 text-sm text-destructive font-medium flex items-center gap-3 shadow-lg">
+    <div class="w-8 h-8 rounded-xl bg-destructive/20 flex items-center justify-center shrink-0">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <span class="flex-1 font-semibold">{{ error }}</span>
+    <button (click)="error = ''" class="text-destructive hover:opacity-70">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <!-- ═══ 1. ADAPTIVE HERO HEADER ═══ -->
+  <!-- External Client "WOW" Banner -->
+  <div *ngIf="isExternalUser()" class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">
+        👤
+      </div>
+      <div>
+        <div class="client-header-tag">
+          Espace Compte &amp; Paramètres
+        </div>
+        <h1 class="client-header-title">
+          Mon Profil &amp; Informations
+        </h1>
+        <p class="client-header-subtitle">
+          Gérez vos coordonnées, adresse de livraison et préférences de compte MelqartX
+        </p>
+      </div>
+    </div>
+    <div class="relative z-10 flex items-center gap-2.5 self-start sm:self-center">
+      <a routerLink="/profile/security" class="client-header-btn-primary gap-2">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Sécurité &amp; Mot de passe</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Internal Staff / Admin Premium Header -->
+  <div *ngIf="!isExternalUser()" class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">👤</span>
+        <h1 class="page-title-premium">
+          Mon Profil Utilisateur
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Mettez à jour vos coordonnées professionnelles, informations personnelles et préférences
+      </p>
+    </div>
+    <div class="relative z-10">
+      <a routerLink="/profile/security" class="page-header-btn-action">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        <span>Sécurité &amp; Mot de passe</span>
+      </a>
+    </div>
+  </div>
+
+
+  <!-- ═══ 2. MAIN 2-COLUMN PROFILE WORKSPACE ═══ -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+
+    <!-- ── LEFT COLUMN: IDENTITY CARD & AVATAR STUDIO (4 cols) ── -->
+    <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+
+      <!-- Master Identity Showcase Card -->
+      <div class="glass-card rounded-3xl overflow-hidden shadow-xl border border-border/50 relative">
+        
+        <!-- Cover Header Gradient with subtle animated mesh -->
+        <div class="h-28 w-full relative overflow-hidden flex items-center justify-end p-4"
+             style="background: linear-gradient(135deg, hsl(var(--primary)/0.85) 0%, hsl(var(--accent)/0.75) 50%, hsl(217 91% 60%/0.9) 100%)">
+          <div class="absolute -top-10 -left-10 w-40 h-40 rounded-full opacity-30 pointer-events-none"
+               style="background: radial-gradient(circle, white 0%, transparent 70%); filter: blur(20px);"></div>
+          
+          <span class="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-black/25 backdrop-blur-md text-white border border-white/20">
+            Compte Actif
+          </span>
+        </div>
+
+        <!-- Avatar Overlap Section -->
+        <div class="px-6 pb-6 pt-0 relative">
+          
+          <!-- Avatar + Status indicator -->
+          <div class="flex items-end justify-between -mt-14 mb-4">
+            <div class="relative group">
+              <!-- Avatar Circle Preview with dynamic gradient -->
+              <div *ngIf="!profile.profileImage"
+                   class="w-24 h-24 rounded-2xl flex items-center justify-center text-3xl font-black text-white shadow-2xl border-4 border-card transition-all duration-300 group-hover:scale-105"
+                   [style.background]="selectedGradient">
+                {{ profile.avatar }}
+              </div>
+              <img *ngIf="profile.profileImage"
+                   [src]="getAvatarUrl()"
+                   alt="Avatar"
+                   class="w-24 h-24 rounded-2xl object-cover shadow-2xl border-4 border-card transition-transform duration-300 group-hover:scale-105 bg-white" />
+
+              <!-- Active Status Dot -->
+              <span class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full border-2 border-card bg-emerald-500 flex items-center justify-center shadow-md"
+                    title="En ligne">
+                <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              </span>
+
+              <!-- Floating Camera Button Attached to Avatar -->
+              <label *ngIf="profile.authProvider !== 'GOOGLE'"
+                     class="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl flex items-center justify-center cursor-pointer shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 border-2 border-card z-10"
+                     style="background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent))); color: white"
+                     title="Changer la photo de profil">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <input type="file" class="hidden" accept="image/*" (change)="onAvatarSelected($event)" />
+              </label>
+
+            </div>
+
+            <!-- Compact Pretty Changer Pill -->
+            <div *ngIf="profile.authProvider !== 'GOOGLE'" class="flex items-center gap-2">
+              <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border cursor-pointer transition-all duration-200 hover:scale-105 shadow-sm"
+                     style="background: hsl(var(--primary)/0.08); color: hsl(var(--primary)); border-color: hsl(var(--primary)/0.25)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Changer</span>
+                <input type="file" class="hidden" accept="image/*" (change)="onAvatarSelected($event)" />
+              </label>
+
+              <button *ngIf="profile.profileImage"
+                      (click)="removeAvatar()"
+                      type="button"
+                      class="w-7 h-7 rounded-full text-destructive hover:bg-destructive/10 border border-destructive/20 flex items-center justify-center shadow-xs transition-colors"
+                      title="Supprimer la photo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Google Auth notice if Google Provider -->
+          <div *ngIf="profile.authProvider === 'GOOGLE'" class="mb-4 flex items-center gap-2.5 p-3 rounded-2xl border border-blue-500/20 bg-blue-500/5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="shrink-0">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <p class="text-[11px] text-muted-foreground font-medium">Avatar synchronisé avec votre compte Google Workspace</p>
+          </div>
+
+          <!-- Color Swatches (if no custom photo) -->
+          <div *ngIf="!profile.profileImage && profile.authProvider !== 'GOOGLE'" class="mb-5 p-3.5 rounded-2xl bg-secondary/30 border border-border/40 space-y-2">
+            <div class="flex items-center justify-between">
+              <p class="text-[10px] text-muted-foreground uppercase tracking-wider font-extrabold flex items-center gap-1.5">
+                <span>🎨 Thème &amp; Ambiance de l'Avatar</span>
+              </p>
+              <span class="text-[10px] font-bold text-primary">Personnalisable</span>
+            </div>
+            <div class="flex items-center gap-2 pt-1">
+              <button *ngFor="let t of avatarThemes"
+                      type="button"
+                      (click)="selectTheme(t.gradient)"
+                      class="w-7 h-7 rounded-xl transition-all duration-200 hover:scale-110 shadow-sm relative flex items-center justify-center cursor-pointer border border-white/20"
+                      [style.background]="t.gradient"
+                      [class.ring-2]="selectedGradient === t.gradient"
+                      [class.ring-primary]="selectedGradient === t.gradient"
+                      [class.scale-110]="selectedGradient === t.gradient"
+                      [title]="t.label">
+                <svg *ngIf="selectedGradient === t.gradient" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- User Name & Email display -->
+          <div class="space-y-1">
+            <h2 class="text-xl font-black text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+              {{ profile.prenom }} {{ profile.nom }}
+            </h2>
+            <p class="text-xs text-muted-foreground font-medium flex items-center gap-1.5 truncate">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="shrink-0"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span class="truncate">{{ profile.email }}</span>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Quick Security Shortcut Card -->
+      <div class="glass-card rounded-3xl p-5 border border-border/50 flex items-center justify-between gap-4 hover:border-primary/40 transition-all duration-200">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0" style="background: hsl(var(--accent)/0.12)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--accent))">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <div>
+            <p class="text-xs font-bold text-foreground">Sécurité &amp; Mot de passe</p>
+            <p class="text-[11px] text-muted-foreground">Sessions actives, appareils et mot de passe</p>
+          </div>
+        </div>
+        <a routerLink="/profile/security" class="btn-icon w-8 h-8 rounded-xl hover:bg-secondary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </a>
+      </div>
+
+    </div>
+
+
+    <!-- ── RIGHT COLUMN: FORM WORKSPACE (8 cols) ── -->
+    <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+      <!-- ════ FORM CARD 1: INFORMATIONS PERSONNELLES ════ -->
+      <div class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 space-y-6">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-border/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                 style="background: linear-gradient(135deg, hsl(var(--primary)/0.15), hsl(var(--accent)/0.15))">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--primary))">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+                Informations Personnelles
+              </h3>
+              <p class="text-xs text-muted-foreground">Coordonnées et adresse de contact</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-muted-foreground/60 hidden sm:inline-block">Section 1/2</span>
+        </div>
+
+        <!-- Personal fields grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          
+          <!-- Prénom -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+              <span>Prénom</span>
+              <span class="text-destructive">*</span>
+            </label>
+            <div class="relative">
+              <input class="input-base w-full text-sm font-medium py-3 px-4 rounded-xl border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                     [(ngModel)]="profile.prenom"
+                     name="prenom"
+                     placeholder="Votre prénom"
+                     required minlength="2" maxlength="50"
+                     #pPrenomRef="ngModel"/>
+            </div>
+            <p *ngIf="pPrenomRef.invalid && pPrenomRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="pPrenomRef.errors?.['required']">Le prénom est requis</span>
+              <span *ngIf="pPrenomRef.errors?.['minlength']">Minimum 2 caractères</span>
+            </p>
+          </div>
+
+          <!-- Nom -->
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+              <span>Nom</span>
+              <span class="text-destructive">*</span>
+            </label>
+            <div class="relative">
+              <input class="input-base w-full text-sm font-medium py-3 px-4 rounded-xl border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                     [(ngModel)]="profile.nom"
+                     name="nom"
+                     placeholder="Votre nom"
+                     required minlength="2" maxlength="50"
+                     #pNomRef="ngModel"/>
+            </div>
+            <p *ngIf="pNomRef.invalid && pNomRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="pNomRef.errors?.['required']">Le nom est requis</span>
+              <span *ngIf="pNomRef.errors?.['minlength']">Minimum 2 caractères</span>
+            </p>
+          </div>
+
+          <!-- Email (Read-only verified with ENVELOPE icon) -->
+          <div class="space-y-1.5 sm:col-span-2">
+            <div class="flex items-center justify-between">
+              <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                Adresse Email
+              </label>
+              <span class="text-[10px] font-extrabold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Compte Vérifié
+              </span>
+            </div>
+            <div class="relative flex items-center">
+              <span class="absolute left-4 text-muted-foreground">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </span>
+              <input type="email"
+                     class="input-base w-full pl-11 pr-4 py-3 rounded-xl opacity-75 cursor-not-allowed bg-secondary/30 font-medium text-sm"
+                     [value]="profile.email"
+                     disabled />
+            </div>
+            <p class="text-[11px] text-muted-foreground">L'adresse email est le garant de votre identité et ne peut être modifiée.</p>
+          </div>
+
+          <!-- Téléphone avec sélecteur pays -->
+          <div class="space-y-1.5 sm:col-span-2">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+              <span>Numéro de Téléphone</span>
+              <span class="text-destructive">*</span>
+            </label>
+            <div class="flex gap-2.5">
+              <div class="inline-flex items-center justify-center px-4 py-3 border border-border/60 rounded-xl bg-secondary/40 text-foreground text-xs font-bold flex-shrink-0 shadow-sm">
+                <img src="https://flagcdn.com/w20/tn.png" srcset="https://flagcdn.com/w40/tn.png 2x" alt="Tunisie" class="w-4 h-auto mr-2 rounded-[2px] shadow-xs">
+                +216
+              </div>
+              <input type="tel"
+                     class="input-base w-full py-3 px-4 rounded-xl border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/20 text-sm font-medium shadow-sm transition-all"
+                     [(ngModel)]="profile.telephone"
+                     name="telephone"
+                     placeholder="XX XXX XXX"
+                     required pattern="^[0-9]{8}$"
+                     maxlength="8"
+                     (keypress)="onDigitOnly($event)"
+                     #pTelRef="ngModel"/>
+            </div>
+            <p *ngIf="pTelRef.invalid && pTelRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="pTelRef.errors?.['required']">Le téléphone est obligatoire</span>
+              <span *ngIf="pTelRef.errors?.['pattern']">Le numéro tunisien doit comporter exactement 8 chiffres</span>
+            </p>
+          </div>
+
+          <!-- ── ADRESSE AVEC LOCALISATION GOOGLE MAPS INTERACTIVE ── -->
+          <div class="space-y-2 sm:col-span-2 pt-2">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center justify-between">
+              <span>Adresse &amp; Localisation Géographique</span>
+              <span *ngIf="profile.adresse" class="text-[10px] text-emerald-500 font-extrabold flex items-center gap-1">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                Position GPS Enregistrée
+              </span>
+            </label>
+
+            <!-- Interactive Map Trigger Card -->
+            <button type="button"
+                    id="open-map-btn-profile"
+                    (click)="openMap()"
+                    class="w-full text-left p-4 rounded-2xl border transition-all duration-300 group cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm hover:shadow-md"
+                    [style.background]="profile.adresse ? 'hsl(var(--card))' : 'hsl(var(--secondary)/0.3)'"
+                    [style.border-color]="profile.adresse ? 'hsl(var(--primary)/0.5)' : 'hsl(var(--border)/0.8)'">
+
+              <div class="flex items-center gap-3.5 min-w-0">
+                <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-110 shadow-sm"
+                     [style.background]="profile.adresse ? 'hsl(var(--primary)/0.15)' : 'hsl(var(--secondary)/0.6)'">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                       [style.color]="profile.adresse ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                  </svg>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-bold"
+                     [class.text-foreground]="profile.adresse"
+                     [class.text-muted-foreground]="!profile.adresse">
+                    {{ profile.adresse || 'Aucune adresse sélectionnée' }}
+                  </p>
+                  <p class="text-[11px] text-muted-foreground mt-0.5">
+                    {{ profile.adresse ? 'Cliquez pour modifier le pointage sur la carte interactive' : 'Cliquez pour pointer précisément votre adresse de livraison' }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 self-start sm:self-center shrink-0">
+                <span class="px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors flex items-center gap-1.5"
+                      [style.background]="profile.adresse ? 'hsl(var(--primary)/0.1)' : 'hsl(var(--primary))'"
+                      [style.color]="profile.adresse ? 'hsl(var(--primary))' : 'hsl(var(--primary-foreground))'"
+                      [style.border-color]="profile.adresse ? 'hsl(var(--primary)/0.3)' : 'transparent'">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+                  <span>{{ profile.adresse ? 'Modifier le point' : 'Ouvrir la carte' }}</span>
+                </span>
+              </div>
+            </button>
+
+            <!-- Coordinates chip if available -->
+            <div *ngIf="profile.latitude && profile.longitude" class="flex items-center gap-2 text-[10px] text-muted-foreground font-semibold px-2">
+              <span>Coordonnées GPS :</span>
+              <span class="px-2 py-0.5 rounded-md bg-secondary text-foreground font-mono">{{ profile.latitude | number:'1.4-4' }}, {{ profile.longitude | number:'1.4-4' }}</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+
+      <!-- ════ FORM CARD 2: IDENTITÉ DE L'ENTREPRISE (B2B CLIENT_ENTREPRISE UNIQUEMENT) ════ -->
+      <div *ngIf="profile.isEntreprise" class="glass-card rounded-3xl p-6 sm:p-8 shadow-xl border border-border/50 space-y-6">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-border/40">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm"
+                 style="background: linear-gradient(135deg, hsl(217 91% 60%/0.15), hsl(var(--accent)/0.15))">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500">
+                <rect x="3" y="3" width="13" height="18" rx="1"/><path d="M16 8h5l1 14H16"/>
+                <line x1="7" y1="7" x2="10" y2="7"/><line x1="7" y1="11" x2="10" y2="11"/>
+              </svg>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+                Identité de l'Entreprise (B2B)
+              </h3>
+              <p class="text-xs text-muted-foreground">Informations fiscales et logo pour vos factures officielles</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-semibold text-muted-foreground/60 hidden sm:inline-block">Section 2/2</span>
+        </div>
+
+        <!-- Logo Studio B2B -->
+        <div class="p-5 rounded-2xl border border-border/50 flex flex-col sm:flex-row items-start sm:items-center gap-5"
+             style="background:hsl(var(--secondary)/0.25)">
+          
+          <!-- Logo preview -->
+          <div class="shrink-0">
+            <div *ngIf="!profile.organisationLogo"
+                 class="w-24 h-24 rounded-2xl flex items-center justify-center shadow-md border-2 border-dashed border-border/60 bg-card text-center">
+              <div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mx-auto text-muted-foreground mb-1">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                <p class="text-[9px] text-muted-foreground font-bold">Logo</p>
+              </div>
+            </div>
+            <img *ngIf="profile.organisationLogo"
+                 [src]="getLogoUrl()"
+                 alt="Logo Entreprise"
+                 class="w-24 h-24 rounded-2xl object-contain p-2 shadow-md border border-border/50 bg-white" />
+          </div>
+
+          <!-- Logo info & upload action -->
+          <div class="flex-1 space-y-2.5">
+            <div>
+              <p class="text-sm font-bold text-foreground">Logo Officiel de l'Entreprise</p>
+              <p class="text-xs text-muted-foreground">Apparaîtra sur tous vos devis, ordres de fabrication et factures certifiées.</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="btn-primary text-xs py-2 px-3.5 rounded-xl font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Importer un logo</span>
+                <input type="file" class="hidden" accept="image/*" (change)="onLogoSelected($event)" />
+              </label>
+
+              <button *ngIf="profile.organisationLogo"
+                      (click)="removeLogo()"
+                      type="button"
+                      class="btn-icon w-9 h-9 rounded-xl text-destructive hover:bg-destructive/10 border border-destructive/20 shadow-sm"
+                      title="Supprimer le logo">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              </button>
+            </div>
+            <p class="text-[10px] text-muted-foreground font-medium">Formats acceptés : PNG, SVG, JPG. Max: 2MB.</p>
+          </div>
+        </div>
+
+        <!-- Organisation inputs -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+              <span>Raison Sociale</span>
+              <span class="text-destructive">*</span>
+            </label>
+            <input class="input-base w-full py-3 px-4 rounded-xl border border-border/60 focus:border-primary text-sm font-medium"
+                   [(ngModel)]="profile.raisonSociale"
+                   name="raisonSociale"
+                   placeholder="Ex: MelqartX Technologies SAS"
+                   required #raisonRef="ngModel"/>
+            <p *ngIf="raisonRef.invalid && raisonRef.touched" class="text-[11px] text-destructive font-semibold">
+              La raison sociale est obligatoire
+            </p>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-xs font-bold text-muted-foreground uppercase tracking-wide flex items-center gap-1">
+              <span>Matricule Fiscale</span>
+              <span class="text-destructive">*</span>
+            </label>
+            <input class="input-base w-full py-3 px-4 rounded-xl border border-border/60 focus:border-primary text-sm font-medium font-mono"
+                   [(ngModel)]="profile.matriculeFiscale"
+                   name="matriculeFiscale"
+                   placeholder="1234567/M/A/M/000"
+                   required pattern="^[0-9]{7}/[A-Z]/[A-Z]/[A-Z]/[0-9]{3}$"
+                   #matriculeRef="ngModel"/>
+            <p *ngIf="matriculeRef.invalid && matriculeRef.touched" class="text-[11px] text-destructive font-semibold">
+              <span *ngIf="matriculeRef.errors?.['required']">Le matricule fiscale est obligatoire</span>
+              <span *ngIf="matriculeRef.errors?.['pattern']">Format invalide (Ex: 1234567/M/A/M/000)</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- ════ STICKY BOTTOM SAVE / ACTION DOCK ════ -->
+      <div class="glass-card rounded-3xl p-5 sm:p-6 border border-border/50 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2.5 text-xs text-muted-foreground">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-emerald-500 shrink-0"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span class="font-medium">Modifications chiffrées et protégées par MelqartX Security</span>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <a routerLink="/" class="btn-secondary text-xs py-3 px-5 rounded-xl font-bold">
+            Annuler
+          </a>
+          <button (click)="save()"
+                  class="btn-primary text-xs py-3 px-6 rounded-xl font-extrabold flex items-center gap-2 shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+                  [disabled]="saving">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+            <svg *ngIf="!saving" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            <span>{{ saving ? 'Enregistrement en cours...' : 'Enregistrer les modifications' }}</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ── Map Picker Modal ── -->
+<app-map-picker
+  *ngIf="showMapModal"
+  [googleMapsKey]="googleMapsKey"
+  [initialAddress]="profile.adresse"
+  (locationSelected)="onLocationSelected($event)"
+  (closed)="closeMap()">
+</app-map-picker>

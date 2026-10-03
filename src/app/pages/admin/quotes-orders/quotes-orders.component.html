@@ -1,0 +1,125 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📋</span>
+        <h1 class="page-title-premium">
+          Gestion Devis & Commandes
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Vue d'ensemble globale de toutes les transactions commerciales et industrielles
+      </p>
+    </div>
+  </div>
+
+  <!-- Tab bar -->
+  <div class="tab-bar w-fit">
+    <button (click)="setActiveTab('quotes')" [class.active]="activeTab === 'quotes'" class="tab-item">
+      <span class="flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Devis
+      </span>
+    </button>
+    <button (click)="setActiveTab('orders')" [class.active]="activeTab === 'orders'" class="tab-item">
+      <span class="flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+        </svg>
+        Commandes
+      </span>
+    </button>
+  </div>
+
+  <!-- Filter -->
+  <div class="glass-card rounded-2xl p-4 flex items-center gap-4 flex-wrap">
+    <label class="text-sm font-medium text-muted-foreground whitespace-nowrap">Filtrer par client</label>
+    <select class="input-base max-w-xs" (change)="setFilterClient($event)">
+      <option value="all">Tous les clients</option>
+      <option value="client">Clients individuels</option>
+      <option value="enterprise">Entreprises</option>
+    </select>
+  </div>
+
+  <!-- Quotes Table -->
+  <div *ngIf="activeTab === 'quotes'" class="glass-card rounded-2xl overflow-hidden">
+    <div class="card-header">
+      <h3 class="font-semibold text-foreground">Liste des devis</h3>
+      <span class="badge-muted">{{quotes.length}} entrées</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full data-table">
+        <thead>
+          <tr class="border-b border-border/50 bg-secondary/20">
+            <th>Référence</th><th>Client</th><th>Type</th><th>Date</th><th>Statut</th><th>Montant</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let quote of quotes" class="group">
+            <td><span class="font-semibold text-foreground">{{quote.ref}}</span></td>
+            <td class="text-muted-foreground">{{quote.client}}</td>
+            <td><span class="badge-primary">{{quote.type}}</span></td>
+            <td class="text-muted-foreground text-xs">{{quote.date}}</td>
+            <td>
+              <span [ngClass]="{
+                'badge-warning': quote.status === 'SOUMIS' || quote.status === 'BROUILLON',
+                'badge-success': quote.status === 'VALIDE'
+              }" class="badge">{{quote.status}}</span>
+            </td>
+            <td><span class="font-bold" style="color:hsl(var(--primary))">{{quote.amount}} TND</span></td>
+            <td>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                <button class="btn-icon w-8 h-8" title="Détails" style="color:hsl(var(--muted-foreground))">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Orders Table -->
+  <div *ngIf="activeTab === 'orders'" class="glass-card rounded-2xl overflow-hidden">
+    <div class="card-header">
+      <h3 class="font-semibold text-foreground">Liste des commandes</h3>
+      <span class="badge-muted">{{orders.length}} entrées</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full data-table">
+        <thead>
+          <tr class="border-b border-border/50 bg-secondary/20">
+            <th>Référence</th><th>Client</th><th>Date</th><th>Statut</th><th>Montant</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" class="group">
+            <td><span class="font-semibold text-foreground">{{order.ref}}</span></td>
+            <td class="text-muted-foreground">{{order.client}}</td>
+            <td class="text-muted-foreground text-xs">{{order.date}}</td>
+            <td><span class="badge-primary">{{order.status}}</span></td>
+            <td><span class="font-bold" style="color:hsl(var(--primary))">{{order.amount}} TND</span></td>
+            <td>
+              <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                <button class="btn-icon w-8 h-8" title="Détails" style="color:hsl(var(--muted-foreground))">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>

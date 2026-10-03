@@ -1,0 +1,322 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">⏳</span>
+        <h1 class="page-title-premium">
+          Heures Supplémentaires
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Accorder et administrer l'accès en dehors des heures de bureau aux équipes internes
+      </p>
+    </div>
+  </div>
+
+  <!-- ══ MAIN FORM CARD ══ -->
+  <div class="glass-card rounded-2xl overflow-hidden">
+    <div class="card-header">
+      <div class="flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-warning">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <h2 class="font-semibold text-foreground text-sm">Nouvelle attribution</h2>
+      </div>
+    </div>
+
+    <div class="p-5 space-y-5">
+
+      <!-- ── USER SELECTOR (dropdown) ── -->
+      <div class="space-y-2">
+        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          Utilisateurs
+        </label>
+
+        <!-- Selected chips -->
+        <div *ngIf="selectedUsers.length > 0" class="flex flex-wrap gap-1.5 mb-2">
+          <div *ngFor="let su of selectedUsers"
+               class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-all duration-150"
+               style="background: hsl(var(--primary)/0.1); color: hsl(var(--primary))">
+            <span>{{ su.user.prenom }} {{ su.user.nom }}</span>
+            <button (click)="removeUser(su); $event.stopPropagation()"
+                    class="w-4 h-4 rounded-full flex items-center justify-center hover:bg-primary/20 transition-colors">
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+          <button *ngIf="selectedUsers.length > 1" (click)="deselectAll()"
+                  class="text-[10px] font-semibold text-destructive/70 hover:text-destructive px-1.5 py-1 transition-colors">
+            Tout retirer
+          </button>
+        </div>
+
+        <!-- Dropdown trigger -->
+        <div class="relative" id="userDropdown">
+          <div class="input-base flex items-center gap-2 cursor-pointer"
+               (click)="showDropdown = !showDropdown">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground shrink-0">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" class="flex-1 bg-transparent border-none outline-none text-sm text-foreground placeholder:text-muted-foreground"
+                   placeholder="Rechercher un utilisateur interne..."
+                   [(ngModel)]="searchTerm" name="searchTerm"
+                   (focus)="showDropdown = true"
+                   (click)="$event.stopPropagation()"/>
+            <svg class="shrink-0 transition-transform duration-200 text-muted-foreground"
+                 [class.rotate-180]="showDropdown"
+                 width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+
+          <!-- Dropdown panel -->
+          <div *ngIf="showDropdown"
+               class="absolute left-0 right-0 mt-1.5 rounded-xl border border-border/60 shadow-card-float z-50 overflow-hidden"
+               style="background: hsl(var(--card)); backdrop-filter: blur(20px); max-height: 260px;">
+
+            <!-- Loading -->
+            <div *ngIf="loadingUsers" class="flex justify-center py-6">
+              <div class="w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin"></div>
+            </div>
+
+            <!-- Empty -->
+            <div *ngIf="!loadingUsers && filteredUsers.length === 0" class="text-center py-6 text-xs text-muted-foreground">
+              Aucun utilisateur interne trouvé
+            </div>
+
+            <!-- Select all -->
+            <div *ngIf="!loadingUsers && filteredUsers.length > 0"
+                 class="px-3 py-2 border-b border-border/40 flex items-center justify-between"
+                 style="background: hsl(var(--secondary)/0.3)">
+              <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                {{ filteredUsers.length }} utilisateur(s)
+              </span>
+              <button (click)="selectAll()" class="text-[10px] font-bold text-primary hover:underline">
+                Tout sélectionner
+              </button>
+            </div>
+
+            <!-- Users list -->
+            <div class="overflow-y-auto" style="max-height: 200px;">
+              <div *ngFor="let su of filteredUsers"
+                   (click)="toggleUser(su)"
+                   class="flex items-center gap-3 px-3 py-2.5 cursor-pointer transition-colors hover:bg-secondary/40"
+                   [style.background]="su.selected ? 'hsl(var(--primary)/0.06)' : 'transparent'">
+                <!-- Checkbox -->
+                <div class="w-4 h-4 rounded border-2 flex items-center justify-center shrink-0 transition-all duration-150"
+                     [style.border-color]="su.selected ? 'hsl(var(--primary))' : 'hsl(var(--border))'"
+                     [style.background]="su.selected ? 'hsl(var(--primary))' : 'transparent'">
+                  <svg *ngIf="su.selected" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                </div>
+                <!-- User info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-sm font-medium text-foreground truncate">{{ su.user.prenom }} {{ su.user.nom }}</span>
+                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-md uppercase tracking-wider"
+                          [style.background]="getRoleBadgeColor(su.user.role) + '1a'"
+                          [style.color]="getRoleBadgeColor(su.user.role)">
+                      {{ getRoleBadge(su.user.role) }}
+                    </span>
+                  </div>
+                  <p class="text-[11px] text-muted-foreground truncate">{{ su.user.email }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── DATE / TIME FIELDS ── -->
+      <div class="grid grid-cols-2 gap-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date début</label>
+          <input type="date" class="input-base text-sm" [(ngModel)]="form.dateDebut" name="dateDebut"/>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date fin</label>
+          <input type="date" class="input-base text-sm" [(ngModel)]="form.dateFin" name="dateFin"/>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Heure début</label>
+          <input type="time" class="input-base text-sm" [(ngModel)]="form.heureDebut" name="heureDebut"/>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Heure fin</label>
+          <input type="time" class="input-base text-sm" [(ngModel)]="form.heureFin" name="heureFin"/>
+        </div>
+      </div>
+
+      <!-- Error -->
+      <div *ngIf="formError"
+           class="p-3 rounded-xl border border-destructive/30 bg-destructive/5 text-sm text-destructive font-medium">
+        {{ formError }}
+      </div>
+
+      <!-- Submit button -->
+      <button (click)="openConfirmModal()" [disabled]="submitting || selectedUsers.length === 0"
+              class="btn-primary w-full h-11 text-sm gap-2"
+              [class.opacity-50]="selectedUsers.length === 0">
+        <span *ngIf="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <svg *ngIf="!submitting" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {{ submitting
+          ? 'Attribution en cours...'
+          : selectedUsers.length === 0
+            ? 'Sélectionnez des utilisateurs'
+            : 'Accorder l\'overtime à ' + selectedUsers.length + ' utilisateur' + (selectedUsers.length > 1 ? 's' : '')
+        }}
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ══ CONFIRMATION MODAL ══ -->
+  <div *ngIf="showConfirmModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+       (click)="closeConfirmModal()">
+    <div class="glass-card rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-fade-up" (click)="$event.stopPropagation()">
+      <div class="h-1.5 w-full" style="background:linear-gradient(90deg,hsl(var(--warning)),hsl(var(--warning)/0.4))"></div>
+      <div class="p-6 space-y-5 text-center">
+        <!-- Icon -->
+        <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
+             style="background:hsl(var(--warning)/0.15)">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               style="color:hsl(var(--warning))">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </div>
+        
+        <!-- Texts -->
+        <div>
+          <h3 class="font-bold text-foreground text-lg">Confirmer l'attribution ?</h3>
+          <p class="text-sm text-muted-foreground mt-2 leading-relaxed">
+            Vous êtes sur le point de générer un code d'accès pour <strong class="text-foreground">{{ selectedUsers.length }} utilisateur(s)</strong>.
+          </p>
+        </div>
+
+        <!-- Recap Box -->
+        <div class="p-3 rounded-xl text-left space-y-2" style="background:hsl(var(--secondary)/0.5);border:1px solid hsl(var(--border)/0.5)">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-muted-foreground font-semibold">Période</span>
+            <span class="text-foreground font-bold">{{ form.dateDebut }} ➔ {{ form.dateFin }}</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-muted-foreground font-semibold">Horaires</span>
+            <span class="text-foreground font-bold">{{ form.heureDebut }} ➔ {{ form.heureFin }}</span>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-2.5 pt-2">
+          <button (click)="closeConfirmModal()" class="btn-secondary flex-1 text-sm">Annuler</button>
+          <button (click)="confirmSubmit()"
+                  class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02]"
+                  style="background:hsl(var(--warning))">
+            Oui, valider
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══ ACTIVE ACCESSES ══ -->
+  <div class="glass-card rounded-2xl overflow-hidden">
+    <div class="card-header">
+      <div class="flex items-center gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-success">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        <h2 class="font-semibold text-foreground text-sm">Accès overtime aujourd'hui</h2>
+      </div>
+      <span class="badge-muted text-[10px]">{{ activeAccesses.length }} accès</span>
+    </div>
+    <div class="p-4">
+      <div *ngIf="loadingAccesses" class="flex justify-center py-4">
+        <div class="w-5 h-5 border-2 border-success/30 border-t-success rounded-full animate-spin"></div>
+      </div>
+      <div *ngIf="!loadingAccesses && activeAccesses.length > 0" class="space-y-2">
+        <div *ngFor="let a of activeAccesses"
+             class="flex items-center justify-between p-3 rounded-xl transition-colors hover:bg-secondary/20"
+             style="background: hsl(var(--success)/0.04); border: 1px solid hsl(var(--success)/0.1)">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center"
+                 style="background: hsl(var(--success)/0.15)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: hsl(var(--success))">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-sm font-semibold text-foreground">{{ a.userName }}</p>
+              <p class="text-[10px] text-muted-foreground">
+                {{ a.heureDebut }} → {{ a.heureFin }}
+              </p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="badge-success text-[9px]">Autorisé</span>
+            <p class="text-[10px] text-muted-foreground mt-0.5">
+              jusqu'au {{ a.dateFin | date:'dd/MM/yyyy' }}
+            </p>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!loadingAccesses && activeAccesses.length === 0" class="text-center py-6 text-sm text-muted-foreground">
+        <p>Aucun accès overtime aujourd'hui</p>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="showResults"
+       class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+       (click)="closeResults()">
+    <div class="glass-card rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" (click)="$event.stopPropagation()">
+      <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--success)), hsl(var(--success)/0.3))"></div>
+      <div class="p-6 space-y-4">
+        <!-- Header -->
+        <div class="text-center">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3"
+               style="background: hsl(var(--success)/0.12)">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--success))">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-bold text-foreground">Overtime accordé !</h3>
+          <p class="text-xs text-muted-foreground mt-1">Codes d'accès générés avec succès</p>
+        </div>
+
+        <!-- Results list -->
+        <div class="space-y-2 max-h-60 overflow-y-auto">
+          <div *ngFor="let r of results"
+               class="flex items-center justify-between p-3 rounded-xl"
+               [style.background]="r.success ? 'hsl(var(--success)/0.06)' : 'hsl(var(--destructive)/0.06)'">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center"
+                   [style.background]="r.success ? 'hsl(var(--success)/0.15)' : 'hsl(var(--destructive)/0.15)'">
+                <svg *ngIf="r.success" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--success))">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <svg *ngIf="!r.success" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="color:hsl(var(--destructive))">
+                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+              </div>
+              <span class="text-sm font-medium text-foreground">{{ r.userName }}</span>
+            </div>
+            <span *ngIf="r.code" class="font-mono text-xs font-bold px-2 py-1 rounded-lg"
+                  style="background: hsl(var(--secondary)); color: hsl(var(--foreground))">
+              {{ r.code }}
+            </span>
+            <span *ngIf="r.error" class="text-xs text-destructive font-medium">{{ r.error }}</span>
+          </div>
+        </div>
+
+        <button (click)="closeResults()" class="btn-secondary w-full text-sm">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+</div>

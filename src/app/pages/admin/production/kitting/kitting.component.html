@@ -1,0 +1,492 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     PRÉPARATION DES BOBINES & KITTING — POSTE DE TRAVAIL ATELIER
+     Une page à part entière : le technicien la garde ouverte le temps
+     d'aller au magasin, et y revient sans repasser par le tableau.
+     ═══════════════════════════════════════════════════════════════ -->
+<div class="space-y-6 animate-fade-up pb-10">
+
+  <!-- ── Chargement de la commande ── -->
+  <div *ngIf="orderLoading()" class="flex flex-col items-center justify-center py-24 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+           style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-xs text-muted-foreground font-medium">Ouverture de la pr&eacute;paration&hellip;</p>
+  </div>
+
+  <!-- ── Commande introuvable / refus serveur ── -->
+  <div *ngIf="error()" class="flex items-start gap-3 p-4 rounded-2xl border"
+       style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <span class="text-lg shrink-0">&#9888;</span>
+    <div class="min-w-0 flex-1">
+      <p class="text-sm font-semibold" style="color:hsl(var(--destructive))">{{ error() }}</p>
+      <a routerLink="/production" class="text-xs font-bold text-primary hover:underline mt-1 inline-block">
+        Revenir au tableau de production
+      </a>
+    </div>
+  </div>
+
+  <ng-container *ngIf="order() as cmd">
+
+    <!-- ══ EN-TÊTE DE PAGE ══ -->
+    <div class="page-header-premium">
+      <div class="relative z-10 min-w-0">
+        <a routerLink="/production"
+           class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors mb-2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Retour au tableau de production
+        </a>
+
+        <!-- Kicker -->
+        <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-xs mb-2">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+          </span>
+          <span>Atelier &bull; Pr&eacute;paration Bobines &amp; Kitting</span>
+        </div>
+
+        <h1 class="page-title-premium truncate">{{ projetNom() }}</h1>
+
+        <!-- Metadata -->
+        <div class="flex flex-wrap items-center gap-2 mt-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 shadow-xs">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            {{ cmd.orderNumber }}
+          </span>
+
+          <span *ngIf="cmd.shipping?.method === 'EXPRESS'"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+            &#9889; Express
+          </span>
+
+          <span *ngIf="cmd.priorite"
+                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-black uppercase"
+                [style.background]="'hsl(' + (cmd.priorite === 'HAUTE' ? 'var(--destructive)' : cmd.priorite === 'MOYENNE' ? 'var(--warning)' : 'var(--accent)') + ' / 0.12)'"
+                [style.color]="'hsl(' + (cmd.priorite === 'HAUTE' ? 'var(--destructive)' : cmd.priorite === 'MOYENNE' ? 'var(--warning)' : 'var(--accent)') + ')'">
+            Priorit&eacute; {{ cmd.priorite }}
+          </span>
+
+          <span *ngIf="cmd.customerName"
+                class="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-medium px-1.5">
+            &#128100; {{ cmd.customerName }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 relative z-10 shrink-0">
+      <a *ngIf="projetId() as pid"
+         [routerLink]="['/production', cmd.id, 'tracabilite', pid]"
+         class="btn-secondary gap-2 relative z-10 shrink-0"
+         title="D'où viennent les pièces déjà montées sur ce projet">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Traçabilité
+      </a>
+      <button (click)="chargerKitting()"
+              [disabled]="kittingLoading()"
+              class="btn-secondary gap-2 relative z-10 shrink-0 disabled:opacity-50">
+        <svg class="w-3.5 h-3.5" [class.animate-spin]="kittingLoading()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Actualiser
+      </button>
+      </div>
+    </div>
+
+    <!-- ══ ONGLETS MULTI-PROJETS ══ -->
+    <div *ngIf="lignesCommande().length > 1"
+         class="glass-card-premium px-4 sm:px-5 py-3 flex items-center gap-2 overflow-x-auto">
+      <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 shrink-0">Projets :</span>
+      <button *ngFor="let l of lignesCommande()"
+              (click)="changerProjet(l.projectId)"
+              class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer"
+              [ngClass]="l.projectId === projetId()
+                ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 ring-2 ring-blue-500/30'
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'">
+        {{ l.projectName }}
+      </button>
+    </div>
+
+    <!-- ══ RUBAN DES KPIs ══ -->
+    <div *ngIf="!kittingLoading() && kitting().length > 0"
+         class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+
+      <div class="glass-card-premium p-4 stagger-1">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Bobines</span>
+          <span class="text-xs">&#128230;</span>
+        </div>
+        <p class="text-2xl font-black text-slate-900 dark:text-white tabular-nums mt-1">{{ kitting().length }}</p>
+        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate">{{ totalPiecesProjet() | number }} pcs totales</p>
+      </div>
+
+      <div class="glass-card-premium p-4 stagger-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-blue-500">&Agrave; sortir</span>
+          <span class="text-xs">&#128640;</span>
+        </div>
+        <p class="text-2xl font-black text-blue-600 dark:text-blue-400 tabular-nums mt-1">{{ aSortir().length }}</p>
+        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate">Magasin &amp; Stock</p>
+      </div>
+
+      <div class="glass-card-premium p-4 stagger-3">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-amber-500">En machine</span>
+          <span class="text-xs">&#9881;&#65039;</span>
+        </div>
+        <p class="text-2xl font-black text-amber-600 dark:text-amber-400 tabular-nums mt-1">{{ aRendre().length }}</p>
+        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate">&Agrave; d&eacute;compter</p>
+      </div>
+
+      <div class="glass-card-premium p-4 stagger-4">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-purple-500">THT &amp; Bloqu&eacute;es</span>
+          <span class="text-xs">&#8987;</span>
+        </div>
+        <p class="text-2xl font-black text-purple-600 dark:text-purple-400 tabular-nums mt-1">{{ traversants().length + bloquees().length }}</p>
+        <p class="text-[10.5px] text-slate-500 dark:text-slate-400 truncate">{{ traversants().length }} THT &bull; {{ bloquees().length }} retenues</p>
+      </div>
+    </div>
+
+    <!-- ══ ALERTES D'ACTION SERVEUR ══ -->
+    <div *ngIf="kittingInfo()" class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 text-xs font-semibold flex items-start gap-3 shadow-xs animate-in fade-in">
+      <span class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-sm shrink-0">&#10003;</span>
+      <div class="min-w-0 flex-1 pt-0.5">{{ kittingInfo() }}</div>
+    </div>
+
+    <div *ngIf="kittingError()" class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/25 text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-start gap-3 shadow-xs animate-in fade-in">
+      <span class="w-6 h-6 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400 text-sm shrink-0">&#10005;</span>
+      <div class="min-w-0 flex-1 pt-0.5">{{ kittingError() }}</div>
+    </div>
+
+    <!-- ══ ÉTAT 1 : CHARGEMENT DU KITTING ══ -->
+    <div *ngIf="kittingLoading()" class="py-16 px-4 flex flex-col items-center justify-center text-center animate-in fade-in">
+      <div class="relative w-24 h-24 mb-6 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl bg-blue-500/10 dark:bg-blue-500/20 animate-ping opacity-60"></div>
+        <div class="absolute inset-2 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 opacity-20 blur-md"></div>
+        <div class="relative w-16 h-16 rounded-2xl bg-white dark:bg-slate-800 border border-blue-500/30 shadow-xl flex items-center justify-center text-blue-600 dark:text-blue-400">
+          <svg class="w-8 h-8 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="16" class="opacity-25"/>
+            <circle cx="12" cy="12" r="10" stroke-dasharray="16" stroke-dashoffset="8"/>
+          </svg>
+        </div>
+      </div>
+      <h3 class="text-base font-black text-slate-900 dark:text-white tracking-tight" style="font-family:'Outfit',sans-serif">
+        Synchronisation du Kitting &amp; Stock en cours&hellip;
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mt-1.5 leading-relaxed">
+        R&eacute;cup&eacute;ration des r&eacute;servations, v&eacute;rification des machines CMS et contr&ocirc;le des quantit&eacute;s disponibles.
+      </p>
+
+      <div class="w-full max-w-lg mt-8 space-y-3">
+        <div class="h-16 rounded-2xl bg-slate-200/60 dark:bg-slate-800/60 animate-pulse border border-slate-200/40 dark:border-slate-800/40"></div>
+        <div class="h-16 rounded-2xl bg-slate-200/40 dark:bg-slate-800/40 animate-pulse border border-slate-200/30 dark:border-slate-800/30 delay-75"></div>
+        <div class="h-16 rounded-2xl bg-slate-200/30 dark:bg-slate-800/30 animate-pulse border border-slate-200/20 dark:border-slate-800/20 delay-150"></div>
+      </div>
+    </div>
+
+    <!-- ══ ÉTAT 2 : AUCUNE BOBINE RÉSERVÉE ══ -->
+    <div *ngIf="!kittingLoading() && kitting().length === 0 && !error()"
+         class="glass-card-premium py-16 px-6 flex flex-col items-center justify-center text-center animate-in fade-in">
+      <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 flex items-center justify-center text-3xl shadow-lg mb-4">
+        &#128230;
+      </div>
+      <h3 class="text-base font-black text-slate-900 dark:text-white" style="font-family:'Outfit',sans-serif">
+        Aucune bobine r&eacute;serv&eacute;e pour ce projet
+      </h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mt-2 leading-relaxed">
+        Les bobines sont automatiquement allou&eacute;es d&egrave;s le paiement de la commande lors du rapprochement de la nomenclature (BOM) avec les stocks disponibles.
+      </p>
+      <button (click)="chargerKitting()"
+              class="mt-6 px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-95">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        Actualiser la liste
+      </button>
+    </div>
+
+    <!-- ══ SECTION 1 : À SORTIR VERS LA PRODUCTION ══ -->
+    <section *ngIf="!kittingLoading() && aSortir().length > 0"
+             class="glass-card-premium p-5 sm:p-6 space-y-3.5 animate-in fade-in">
+      <div class="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center text-sm font-bold shadow-xs shrink-0">
+            &#128640;
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+              &Agrave; sortir vers la production
+              <span class="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+                {{ aSortir().length }}
+              </span>
+            </h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">&Agrave; pr&eacute;lever en magasin pour alimenter les chargeurs CMS</p>
+          </div>
+        </div>
+        <button (click)="toutSelectionner(aSortir())"
+                class="text-xs font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 hover:underline px-3 py-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-all cursor-pointer shrink-0">
+          {{ selectionDans(aSortir()) === aSortir().length ? 'Tout désélectionner' : 'Tout cocher' }}
+        </button>
+      </div>
+
+      <div class="space-y-2.5">
+        <div *ngFor="let l of aSortir()"
+             (click)="basculer(l.reelId)"
+             class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center gap-3.5"
+             [ngClass]="estSelectionnee(l.reelId)
+               ? 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/40 shadow-sm shadow-blue-500/10'
+               : 'bg-white dark:bg-slate-800/70 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'">
+
+          <div class="shrink-0 flex items-center justify-center">
+            <input type="checkbox"
+                   [checked]="estSelectionnee(l.reelId)"
+                   (click)="$event.stopPropagation()"
+                   (change)="basculer(l.reelId)"
+                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500 cursor-pointer accent-blue-600">
+          </div>
+
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60 shadow-2xs">
+                #{{ l.serialnumber }}
+              </span>
+              <span class="text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-md"
+                    [style.background]="'hsl(' + etatCouleur(l.state) + ' / 0.12)'"
+                    [style.color]="'hsl(' + etatCouleur(l.state) + ')'">
+                {{ etatLabel(l.state) }}
+              </span>
+              <span *ngIf="l.locationFullPath"
+                    class="inline-flex items-center gap-1 text-[10.5px] font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-900/60 px-2 py-0.5 rounded-md border border-slate-200/60 dark:border-slate-700/60">
+                &#128205; {{ l.locationFullPath }}
+              </span>
+            </div>
+
+            <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+              {{ l.componentMpn || 'MPN non spécifié' }}
+            </p>
+          </div>
+
+          <div class="text-right shrink-0">
+            <p class="text-sm font-black text-blue-600 dark:text-blue-400 tabular-nums">
+              {{ l.quantityForProject }}
+              <span class="text-[10px] font-bold text-slate-400 uppercase">pcs</span>
+            </p>
+            <p class="text-[10.5px] text-slate-400 dark:text-slate-500">
+              sur {{ l.quantityRemaining }} disp.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <button (click)="sortir()"
+              [disabled]="actionEnCours() || selectionDans(aSortir()) === 0"
+              class="w-full py-3.5 px-6 rounded-2xl text-xs font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2.5 shadow-lg shadow-blue-500/20 disabled:opacity-40 disabled:shadow-none cursor-pointer bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white active:scale-[0.99]">
+        <svg *ngIf="actionEnCours()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="16"/></svg>
+        <svg *ngIf="!actionEnCours()" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+        <span>Sortir {{ selectionDans(aSortir()) }} bobine(s) vers production</span>
+      </button>
+    </section>
+
+    <!-- ══ SECTION 2 : RETOUR EN STOCK PRODUCTION ══ -->
+    <section *ngIf="!kittingLoading() && aRendre().length > 0"
+             class="glass-card-premium p-5 sm:p-6 space-y-3.5 animate-in fade-in">
+      <div class="flex items-center justify-between gap-3 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center text-sm font-bold shadow-xs shrink-0">
+            &#8617;&#65039;
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+              Retour en stock production
+              <span class="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                {{ aRendre().length }}
+              </span>
+            </h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">Le d&eacute;compte r&eacute;el s'effectue ici et lib&egrave;re le reliquat pour l'inventaire</p>
+          </div>
+        </div>
+        <button (click)="toutSelectionner(aRendre())"
+                class="text-xs font-bold text-amber-600 dark:text-amber-400 hover:text-amber-700 hover:underline px-3 py-1.5 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-all cursor-pointer shrink-0">
+          {{ selectionDans(aRendre()) === aRendre().length ? 'Tout désélectionner' : 'Tout cocher' }}
+        </button>
+      </div>
+
+      <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 leading-relaxed flex items-start gap-2.5">
+        <span class="text-base shrink-0">&#8505;&#65039;</span>
+        <span>Chaque bobine rendue perd la quantit&eacute; que ce projet y avait r&eacute;serv&eacute;e, et le restant redevient imm&eacute;diatement disponible pour d'autres fabrications.</span>
+      </div>
+
+      <div class="space-y-3">
+        <div *ngFor="let l of aRendre()"
+             class="p-4 rounded-2xl border transition-all duration-200 space-y-3"
+             [ngClass]="estSelectionnee(l.reelId)
+               ? 'bg-amber-500/10 dark:bg-amber-500/15 border-amber-500/40 shadow-sm shadow-amber-500/10'
+               : 'bg-white dark:bg-slate-800/70 border-slate-200/80 dark:border-slate-800'">
+
+          <div class="flex items-center gap-3.5">
+            <input type="checkbox"
+                   [checked]="estSelectionnee(l.reelId)"
+                   (change)="basculer(l.reelId)"
+                   class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-amber-600 focus:ring-amber-500 cursor-pointer accent-amber-600">
+
+            <div class="min-w-0 flex-1 space-y-1">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="font-mono text-xs font-black px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-900 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700/60">
+                  #{{ l.serialnumber }}
+                </span>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/25">
+                  &#9201;&#65039; En machine depuis {{ joursRetenue(l) }} j
+                </span>
+              </div>
+              <p class="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">{{ l.componentMpn || '—' }}</p>
+            </div>
+
+            <div class="text-right shrink-0">
+              <p class="text-xs font-black text-rose-600 dark:text-rose-400 tabular-nums">
+                &minus;{{ l.quantityForProject }} pcs
+              </p>
+              <p class="text-[10.5px] text-slate-400 dark:text-slate-500">
+                reste {{ (l.quantityRemaining ?? 0) - l.quantityForProject }}
+              </p>
+            </div>
+          </div>
+
+          <div class="pt-2.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 shrink-0">Case atelier :</span>
+            <!-- Une case ne tient qu'une bobine : celle qu'une autre ligne
+                 vient de prendre disparaît d'ici, au lieu d'être refusée par
+                 le serveur une fois la série lancée. -->
+            <select [(ngModel)]="destinations[l.reelId]"
+                    class="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-medium focus:ring-2 focus:ring-amber-500/30 outline-none">
+              <option value="">S&eacute;lectionner l'emplacement atelier...</option>
+              <option *ngFor="let c of casesPour(l.reelId)" [value]="c.id">{{ c.fullPath }}</option>
+            </select>
+          </div>
+
+          <p *ngIf="casesPour(l.reelId).length === 0 && !destinations[l.reelId]"
+             class="text-[10.5px] font-semibold" style="color:hsl(var(--warning))">
+            &#9888; Plus aucune case atelier libre — lib&eacute;rez-en une ou rendez cette bobine plus tard.
+          </p>
+        </div>
+      </div>
+
+      <button (click)="rendre()"
+              [disabled]="actionEnCours() || selectionDans(aRendre()) === 0"
+              class="w-full py-3.5 px-6 rounded-2xl text-xs font-black uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 disabled:opacity-40 disabled:shadow-none cursor-pointer bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white active:scale-[0.99]">
+        <svg *ngIf="actionEnCours()" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="16"/></svg>
+        <svg *ngIf="!actionEnCours()" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+        <span>Rendre {{ selectionDans(aRendre()) }} bobine(s) &amp; d&eacute;compter le stock</span>
+      </button>
+    </section>
+
+    <!-- ══ SECTION 3 : COMPOSANTS TRAVERSANTS THT ══ -->
+    <section *ngIf="!kittingLoading() && traversants().length > 0"
+             class="glass-card-premium p-5 sm:p-6 space-y-3.5 animate-in fade-in">
+      <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 flex items-center justify-center text-sm font-bold shadow-xs shrink-0">
+          &#128268;
+        </div>
+        <div>
+          <h3 class="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white flex items-center gap-2">
+            Composants traversants (THT)
+            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
+              {{ traversants().length }}
+            </span>
+          </h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Pas de machine CMS : la sortie vaut consommation imm&eacute;diate</p>
+        </div>
+      </div>
+
+      <div class="space-y-2.5">
+        <div *ngFor="let l of traversants()"
+             class="p-3.5 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3.5">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-slate-900 dark:text-white">#{{ l.serialnumber }}</span>
+              <span *ngIf="l.locationFullPath" class="text-[10.5px] font-medium text-slate-500 dark:text-slate-400">
+                &#128205; {{ l.locationFullPath }}
+              </span>
+            </div>
+            <p class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{{ l.componentMpn || '—' }}</p>
+          </div>
+          <span class="text-sm font-black text-slate-900 dark:text-white shrink-0 tabular-nums">{{ l.quantityForProject }} pcs</span>
+          <button (click)="sortirTraversant(l)"
+                  [disabled]="actionEnCours()"
+                  class="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all disabled:opacity-40 cursor-pointer bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/20 active:scale-95">
+            Sortir
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 4 : RETENUES PAR UN AUTRE PROJET ══ -->
+    <section *ngIf="!kittingLoading() && bloquees().length > 0"
+             class="glass-card-premium p-5 sm:p-6 space-y-3.5 animate-in fade-in">
+      <div class="flex items-center gap-2.5 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div class="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center text-sm font-bold shadow-xs shrink-0">
+          &#8987;
+        </div>
+        <div>
+          <h3 class="text-xs font-black uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center gap-2">
+            Retenues par un autre projet
+            <span class="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20">
+              {{ bloquees().length }}
+            </span>
+          </h3>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Ces bobines sont sur ligne CMS pour une autre fabrication. Attendre leur retour.</p>
+        </div>
+      </div>
+
+      <div class="space-y-2.5">
+        <div *ngFor="let l of bloquees()"
+             class="p-3.5 rounded-2xl border border-rose-500/25 bg-rose-500/5 dark:bg-rose-500/10 flex items-center gap-3.5">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs font-bold text-slate-900 dark:text-white">#{{ l.serialnumber }}</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-600 dark:text-rose-400">
+                Occup&eacute;e
+              </span>
+            </div>
+            <p class="text-xs font-bold text-rose-700 dark:text-rose-300 truncate">
+              {{ l.componentMpn || '—' }} &bull; Projet : <strong class="text-slate-900 dark:text-white">{{ l.blockingProjetNom }}</strong>
+              <span *ngIf="l.issuedToProductionAt" class="opacity-80"> (depuis {{ joursRetenue(l) }} j)</span>
+            </p>
+          </div>
+          <span class="text-sm font-black text-slate-900 dark:text-white shrink-0 tabular-nums">{{ l.quantityForProject }} pcs</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 5 : HISTORIQUE / CONSOMMÉES ══ -->
+    <section *ngIf="!kittingLoading() && consommees().length > 0"
+             class="glass-card-premium p-5 sm:p-6 space-y-3 animate-in fade-in">
+      <div class="flex items-center gap-2 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <span class="text-xs">&#9989;</span>
+        <h3 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          Bobines d&eacute;j&agrave; trait&eacute;es &amp; d&eacute;compt&eacute;es ({{ consommees().length }})
+        </h3>
+      </div>
+
+      <div class="space-y-2">
+        <div *ngFor="let l of consommees()"
+             class="flex items-center gap-3 p-3 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 text-xs text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-slate-800/60">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-xs shrink-0">&#10003;</span>
+          <span class="font-mono font-bold text-slate-800 dark:text-slate-200">#{{ l.serialnumber }}</span>
+          <span class="truncate">{{ l.componentMpn }}</span>
+          <span class="ml-auto font-medium text-emerald-600 dark:text-emerald-400 shrink-0">{{ l.quantityForProject }} pcs d&eacute;compt&eacute;es</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ PIED DE PAGE ══ -->
+    <div class="flex items-center justify-between gap-3 pt-2 text-xs text-slate-400 dark:text-slate-500 font-medium">
+      <span>Syst&egrave;me de tra&ccedil;abilit&eacute; Kitting &bull; MELQARTX Atelier</span>
+      <a routerLink="/production" class="font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">
+        Retour au tableau
+      </a>
+    </div>
+
+  </ng-container>
+</div>

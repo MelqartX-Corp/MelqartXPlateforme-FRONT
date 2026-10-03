@@ -1,0 +1,462 @@
+<div class="gerber-viewer-page-container flex flex-col min-h-[calc(100vh-5rem)] bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 -m-4 sm:-m-6 lg:-m-8 p-4 sm:p-6 space-y-4 transition-colors duration-200">
+
+  <!-- ═════ 1. Top Header Toolbar (Luxury Industrial SaaS) ═════ -->
+  <div class="viewer-header-card">
+    
+    <!-- Left: Navigation & Project Info -->
+    <div class="flex items-center gap-3.5 min-w-0">
+      
+      <!-- Premium CAD / Circuit Vector Icon Box -->
+      <div class="viewer-header-icon-box" title="Visualiseur CAD Gerber PCB">
+        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="3" rx="3" />
+          <path d="M7 7h10v10H7z" />
+          <circle cx="7" cy="7" r="1" fill="currentColor" />
+          <circle cx="17" cy="7" r="1" fill="currentColor" />
+          <circle cx="7" cy="17" r="1" fill="currentColor" />
+          <circle cx="17" cy="17" r="1" fill="currentColor" />
+        </svg>
+      </div>
+
+      <div class="min-w-0 space-y-1">
+        <!-- Title & Badges Row -->
+        <div class="flex items-center gap-2.5 flex-wrap">
+          <h1 class="text-base sm:text-lg font-black tracking-tight text-foreground" style="font-family:'Outfit',sans-serif">
+            Gerber Viewer
+            <span class="text-xs font-bold text-primary/80 font-mono tracking-normal ml-1">(2D / 3D)</span>
+          </h1>
+
+          <!-- Project Name Pill -->
+          <span *ngIf="projet" 
+                class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase bg-primary/10 text-primary border border-primary/20 backdrop-blur-sm">
+            <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+            {{ projet.nom }}
+          </span>
+
+          <!-- Status Pill -->
+          <span *ngIf="projet?.statut" 
+                class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold tracking-wider uppercase bg-secondary/80 text-muted-foreground border border-border/80">
+            {{ projet?.statut }}
+          </span>
+        </div>
+
+        <!-- File & Upload Metadata -->
+        <div *ngIf="gerberDoc" class="flex items-center gap-2 flex-wrap text-[11px] text-muted-foreground">
+          <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/60 border border-border/60 text-foreground font-medium">
+            <svg class="w-3.5 h-3.5 text-primary shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M10 12v6"/>
+              <path d="M10 15h4"/>
+            </svg>
+            <span class="font-mono font-semibold">{{ gerberDoc.nomDocument }}</span>
+          </span>
+
+          <span *ngIf="gerberDoc.uploadedAt" class="flex items-center gap-1 opacity-80">
+            <svg class="w-3 h-3 text-muted-foreground/70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Téléversé le {{ gerberDoc.uploadedAt | date:'dd/MM/yyyy à HH:mm' }}
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right: Quick Actions -->
+    <div class="flex items-center gap-3">
+      
+      <!-- Download Button -->
+      <a *ngIf="gerberDoc?.fileUrl" 
+         [href]="gerberDoc?.fileUrl" 
+         target="_blank" 
+         download
+         title="Télécharger l'archive ZIP originale"
+         class="viewer-btn-secondary group">
+        <span class="viewer-download-icon-box">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </span>
+        <span>Télécharger Gerber</span>
+        <span class="text-[9px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-muted/80 text-muted-foreground border border-border/50">.zip</span>
+      </a>
+
+      <!-- Manage Files Button -->
+      <a *ngIf="projet" 
+         [routerLink]="['/client/projets', projet.id, 'upload-gerber']"
+         title="Mettre à jour ou remplacer les fichiers de fabrication"
+         class="viewer-btn-primary group">
+        <svg class="w-3.5 h-3.5 viewer-btn-icon-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+          <path d="M3 3v5h5"/>
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+          <path d="M16 21h5v-5"/>
+        </svg>
+        <span>Gérer Fichiers</span>
+      </a>
+
+    </div>
+
+  </div>
+
+  <!-- ═════ 2. Loading / Error States ═════ -->
+  <div *ngIf="loading" class="flex-1 flex flex-col items-center justify-center p-12 bg-white/80 dark:bg-slate-900/60 rounded-3xl border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-sm">
+    <div class="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+    <div class="space-y-1">
+      <h3 class="text-sm font-black text-slate-900 dark:text-white">Chargement du Projet & Fichiers Gerber...</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Préparation de l'environnement de visualisation 2D / 3D</p>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && error" class="flex-1 flex flex-col items-center justify-center p-8 sm:p-16 bg-white/90 dark:bg-slate-900/80 rounded-3xl border border-rose-500/30 text-center space-y-4 max-w-xl mx-auto shadow-sm">
+    <div class="w-16 h-16 rounded-3xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center text-3xl shadow-inner">
+      🗺️
+    </div>
+    <div class="space-y-2">
+      <h3 class="text-base font-black text-slate-900 dark:text-white">Aucun fichier Gerber disponible</h3>
+      <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{{ error }}</p>
+    </div>
+    <div class="flex items-center gap-3 pt-2">
+      <a *ngIf="projet" [routerLink]="['/client/projets', projet.id, 'upload-gerber']"
+         class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs shadow-lg transition-all">
+        ⬆️ Téléverser une archive Gerber
+      </a>
+      <button (click)="goBackToProjet()" class="px-4 py-2.5 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs transition-all">
+        Retour
+      </button>
+    </div>
+  </div>
+
+  <!-- ═════ 3. Main CAD Viewer & DFM Inspector Workspace ═════ -->
+  <div *ngIf="!loading && !error && gerberDoc" class="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4">
+    
+    <!-- Visualiseur Interactif Pleine Page (3 colonnes sur grand écran) -->
+    <div class="lg:col-span-3 rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 shadow-lg dark:shadow-2xl bg-white dark:bg-slate-950 flex flex-col transition-colors duration-200">
+      <app-pcb-viewer
+        [fileUrl]="signedUrl || gerberDoc.fileUrl"
+        [title]="gerberDoc.nomDocument"
+        height="calc(100vh - 13.5rem)"
+        [showHeader]="true"
+        [allowFullscreen]="true"
+        [defectMarkers]="defectMarkers"
+        [activeMarkerId]="activeMarkerId"
+        (markerClick)="onMarkerClick($event)"
+        (pcbLoaded)="onPcbLoaded($event)">
+      </app-pcb-viewer>
+    </div>
+
+    <!-- Panneau Latéral DFM & Spécifications (1 colonne) -->
+    <div class="lg:col-span-1 space-y-4">
+      
+      <!-- Card 1 : Spécifications Détectées (DFM Metrics) -->
+      <div class="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/90 shadow-sm dark:shadow-xl space-y-4 transition-colors duration-200">
+        
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="text-base">📐</span>
+            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">Spécifications PCB</h3>
+          </div>
+          <span class="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/25">
+            Auto-Detect
+          </span>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Dimensions (L x H)</span>
+            <span class="font-mono font-extrabold text-slate-900 dark:text-white">
+              {{ pcbData?.metadata?.widthMm || '...' }} x {{ pcbData?.metadata?.heightMm || '...' }} mm
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Surface totale</span>
+            <span class="font-mono font-extrabold text-blue-600 dark:text-cyan-400">
+              {{ formattedArea }}
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Nombre de Couches</span>
+            <span class="font-mono font-extrabold text-amber-600 dark:text-amber-400">
+              {{ pcbData?.metadata?.layerCount || 2 }} Couches (Layers)
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Épaisseur Substrat</span>
+            <span class="font-mono font-extrabold text-slate-900 dark:text-white">
+              {{ pcbData?.metadata?.thicknessMm || 1.6 }} mm (FR4)
+            </span>
+          </div>
+
+          <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800/80">
+            <span class="text-slate-500 dark:text-slate-400 font-medium">Épaisseur Cuivre</span>
+            <span class="font-mono font-extrabold text-slate-900 dark:text-white">
+              1 oz (35 µm)
+            </span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Card 2 : Guide de Contrôle CAO (repliable) -->
+      <div class="rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 shadow-sm dark:shadow-lg overflow-hidden transition-colors duration-200">
+        <button type="button" (click)="showNavTips = !showNavTips"
+                class="w-full px-5 py-3.5 flex items-center justify-between gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors">
+          <h4 class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-2">
+            <span>💡</span>
+            <span>Astuces de navigation</span>
+          </h4>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round"
+               class="text-slate-400 transition-transform duration-200"
+               [class.rotate-180]="showNavTips">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </button>
+        <ul *ngIf="showNavTips" class="px-5 pb-5 text-[11px] text-slate-600 dark:text-slate-400 space-y-2 leading-relaxed font-medium">
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 dark:text-blue-400 font-bold">•</span>
+            <span><strong>Clic gauche + glisser :</strong> Déplacer le PCB (Pan) en 2D ou pivoter en 3D.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 dark:text-blue-400 font-bold">•</span>
+            <span><strong>Molette souris :</strong> Zoom avant / arrière précis.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-blue-600 dark:text-blue-400 font-bold">•</span>
+            <span><strong>Onglet Layers :</strong> Activez/Désactivez les couches cuivre, vernis et perçages individuellement.</span>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- ═════ Analyse DFM / DRC par IA (pleine largeur, sous le visualiseur) ═════ -->
+    <div class="lg:col-span-4">
+      <div class="relative rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/80 shadow-lg dark:shadow-2xl overflow-hidden transition-colors duration-200">
+
+        <!-- Liseré dégradé supérieur -->
+        <div class="h-1 w-full bg-gradient-to-r from-blue-600 via-cyan-500 to-indigo-600"></div>
+
+        <!-- En-tête de section -->
+        <div class="px-6 py-5 flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800">
+          <div class="flex items-center gap-3.5 min-w-0">
+            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-blue-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4M12 18v4M4.9 4.9l2.9 2.9M16.2 16.2l2.9 2.9M2 12h4M18 12h4M4.9 19.1l2.9-2.9M16.2 7.8l2.9-2.9"></path>
+                <circle cx="12" cy="12" r="3.2"></circle>
+              </svg>
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight" style="font-family:'Outfit',sans-serif">
+                Analyse DFM / DRC par Intelligence Artificielle
+              </h2>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
+                Contrôle automatique de fabricabilité — pistes, isolation, perçages et bords de carte
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <button *ngIf="dfm?.status === 'COMPLETED'"
+                    (click)="downloadPdfReport()"
+                    title="Télécharger le rapport complet en PDF"
+                    class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-bold shadow-md shadow-blue-500/25 transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Rapport PDF</span>
+            </button>
+
+            <button (click)="relaunchAnalysis()"
+                    [disabled]="dfmLoading || dfm?.status === 'PENDING'"
+                    title="Relancer l'analyse DFM"
+                    class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                   [class.animate-spin]="dfmLoading || dfm?.status === 'PENDING'">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Relancer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ── État : analyse en cours ── -->
+        <div *ngIf="!dfm || dfm.status === 'PENDING'" class="px-6 py-14 flex flex-col items-center justify-center text-center gap-4">
+          <div class="relative w-14 h-14">
+            <div class="absolute inset-0 rounded-full border-4 border-blue-500/15"></div>
+            <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-500 animate-spin"></div>
+          </div>
+          <div class="space-y-1.5">
+            <h3 class="text-sm font-black text-slate-900 dark:text-white">Analyse en cours…</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+              Le moteur DFM rastérise vos couches cuivre et contrôle les règles de fabrication.
+              Le résultat s'affichera ici automatiquement.
+            </p>
+          </div>
+        </div>
+
+        <!-- ── État : échec ── -->
+        <div *ngIf="dfm?.status === 'FAILED' || dfmError" class="px-6 py-10 flex flex-col items-center text-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center justify-center text-2xl">⚠️</div>
+          <h3 class="text-sm font-black text-slate-900 dark:text-white">L'analyse n'a pas abouti</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md leading-relaxed">
+            {{ dfmError || dfm?.errorMessage || "Le moteur d'analyse n'a pas pu traiter cette archive Gerber." }}
+          </p>
+        </div>
+
+        <!-- ── État : résultat complet ── -->
+        <div *ngIf="dfm?.status === 'COMPLETED'" class="p-6 grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+          <!-- Colonne 1 : Score & répartition -->
+          <div class="space-y-4">
+
+            <!-- Jauge circulaire -->
+            <div class="p-6 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 flex flex-col items-center gap-4">
+              <div class="relative w-[136px] h-[136px]">
+                <svg class="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor"
+                          class="text-slate-200 dark:text-slate-800" stroke-width="11"></circle>
+                  <circle cx="60" cy="60" r="52" fill="none"
+                          [attr.stroke]="gradeStrokeColor(dfm?.grade)"
+                          stroke-width="11" stroke-linecap="round"
+                          stroke-dasharray="326.73"
+                          [attr.stroke-dashoffset]="scoreGaugeOffset"
+                          style="transition: stroke-dashoffset 1s cubic-bezier(0.16,1,0.3,1)"></circle>
+                </svg>
+                <div class="absolute inset-0 flex flex-col items-center justify-center">
+                  <span class="text-3xl font-black text-slate-900 dark:text-white leading-none" style="font-family:'Outfit',sans-serif">
+                    {{ dfm?.dfmScore ?? '—' }}
+                  </span>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">/ 100</span>
+                </div>
+              </div>
+
+              <div class="text-center space-y-2">
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border text-xs font-black"
+                     [ngClass]="gradeClasses(dfm?.grade)">
+                  <span>Grade {{ dfm?.grade || '—' }}</span>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Score de fabricabilité
+                </p>
+              </div>
+            </div>
+
+            <!-- Répartition par sévérité -->
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="p-3.5 rounded-2xl bg-rose-500/5 border border-rose-500/20 text-center">
+                <p class="text-xl font-black text-rose-600 dark:text-rose-400 leading-none">{{ severityCounts.high }}</p>
+                <p class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1.5">Critiques</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-orange-500/5 border border-orange-500/20 text-center">
+                <p class="text-xl font-black text-orange-600 dark:text-orange-400 leading-none">{{ severityCounts.medium }}</p>
+                <p class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1.5">Moyens</p>
+              </div>
+              <div class="p-3.5 rounded-2xl bg-blue-500/5 border border-blue-500/20 text-center">
+                <p class="text-xl font-black text-blue-600 dark:text-blue-400 leading-none">{{ severityCounts.low }}</p>
+                <p class="text-[9.5px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mt-1.5">Mineurs</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Colonne 2 : Liste des violations -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 flex flex-col overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Violations détectées
+              </h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {{ dfm?.violations?.length || 0 }}
+              </span>
+            </div>
+
+            <div *ngIf="!dfm?.violations?.length" class="flex-1 flex flex-col items-center justify-center py-12 text-center gap-2 px-4">
+              <div class="w-11 h-11 rounded-2xl bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center justify-center text-xl">✓</div>
+              <p class="text-xs font-bold text-slate-700 dark:text-slate-300">Aucune violation détectée</p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">Votre carte respecte les règles de fabrication contrôlées.</p>
+            </div>
+
+            <div *ngIf="dfm?.violations?.length" class="overflow-y-auto max-h-[420px] divide-y divide-slate-200 dark:divide-slate-800">
+              <button *ngFor="let v of dfm?.violations; let i = index"
+                      type="button"
+                      [id]="'dfm-violation-' + i"
+                      (click)="selectViolation(i)"
+                      class="w-full text-left px-4 py-3 flex items-start gap-3 transition-colors cursor-pointer hover:bg-white dark:hover:bg-slate-800/50"
+                      [ngClass]="activeMarkerId === i ? 'bg-white dark:bg-slate-800/70' : ''">
+                <span class="w-1 self-stretch rounded-full shrink-0" [ngClass]="severityBarClass(v.severity)"></span>
+                <div class="min-w-0 flex-1 space-y-1.5">
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-[11.5px] font-black text-slate-900 dark:text-white truncate">
+                      {{ violationTypeLabel(v.type) }}
+                    </p>
+                    <span class="px-2 py-0.5 rounded-full border text-[9px] font-black uppercase shrink-0"
+                          [ngClass]="severityPillClasses(v.severity)">
+                      {{ severityLabel(v.severity) }}
+                    </span>
+                  </div>
+                  <p class="text-[10.5px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                    {{ v.description }}
+                  </p>
+                  <div class="flex items-center gap-3 text-[10px] font-mono text-slate-500 dark:text-slate-400 flex-wrap">
+                    <span>Mesuré <strong class="text-slate-800 dark:text-slate-200">{{ v.measuredMm }}{{ violationUnit(v.type) }}</strong></span>
+                    <span *ngIf="hasThreshold(v.type)">{{ violationThresholdLabel(v.type) }} <strong class="text-slate-800 dark:text-slate-200">{{ v.minRequiredMm }}{{ violationUnit(v.type) }}</strong></span>
+                    <span class="opacity-75">{{ v.layer }}</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Colonne 3 : Rapport de l'IA -->
+          <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-gradient-to-b from-slate-50 to-white dark:from-slate-950/60 dark:to-slate-900/40 flex flex-col overflow-hidden">
+            <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2">
+              <span class="w-6 h-6 rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center text-[11px]">🤖</span>
+              <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                Synthèse de l'ingénieur IA
+              </h3>
+            </div>
+
+            <div *ngIf="!reportBlocks.length" class="flex-1 flex items-center justify-center py-12 px-4 text-center">
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Aucun commentaire généré pour cette analyse.
+              </p>
+            </div>
+
+            <div *ngIf="reportBlocks.length" class="overflow-y-auto max-h-[420px] px-4 py-4 space-y-2.5">
+              <ng-container *ngFor="let block of reportBlocks">
+                <h4 *ngIf="block.type === 'h'"
+                    class="text-[11.5px] font-black text-slate-900 dark:text-white pt-2 first:pt-0">
+                  {{ block.text }}
+                </h4>
+                <div *ngIf="block.type === 'li'" class="flex items-start gap-2">
+                  <span class="mt-[6px] w-1.5 h-1.5 rounded-full bg-cyan-500 shrink-0"></span>
+                  <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ block.text }}</p>
+                </div>
+                <p *ngIf="block.type === 'p'" class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {{ block.text }}
+                </p>
+              </ng-container>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

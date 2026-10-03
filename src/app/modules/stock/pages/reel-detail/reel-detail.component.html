@@ -1,0 +1,223 @@
+<div class="space-y-6 animate-fade-up">
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+  </div>
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="reel && !loading">
+
+    <!-- Header -->
+    <div class="page-header-premium">
+      <div class="relative z-10">
+        <a routerLink="/stock/reels" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors mb-2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Retour aux bobines
+        </a>
+        <h1 class="page-title-premium font-mono">{{ reel.serialnumber }}</h1>
+        <p class="text-sm text-muted-foreground mt-1 font-medium">
+          <span *ngIf="reel.componentMpn" class="text-foreground font-semibold">{{ reel.componentMpn }}</span>
+          <span *ngIf="reel.manufacturer" class="text-muted-foreground"> · {{ reel.manufacturer }}</span>
+        </p>
+      </div>
+      <button *ngIf="canManage" (click)="openEdit()" class="btn-primary gap-2 relative z-10">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Modifier
+      </button>
+    </div>
+
+    <!-- Status + Quantity + Location -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+      <!-- Status -->
+      <div class="glass-card-premium p-5 stagger-1">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-3">Statut</p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center" [style.background]="statusBg(reel.status)">
+            <span class="text-xl">{{ statusEmoji(reel.status) }}</span>
+          </div>
+          <div>
+            <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">{{ statusLabel(reel.status) }}</p>
+            <p *ngIf="reel.openedDate" class="text-[10px] text-muted-foreground mt-0.5">Ouvert le {{ reel.openedDate | date:'dd/MM/yyyy' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quantity with ring -->
+      <div class="glass-card-premium p-5 stagger-2">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-3">Quantité</p>
+        <div class="flex items-center gap-4">
+          <div class="relative w-16 h-16 shrink-0">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="hsl(var(--secondary))" stroke-width="4"/>
+              <circle cx="22" cy="22" r="18" fill="none"
+                      [attr.stroke]="usagePercent > 20 ? 'hsl(var(--success))' : 'hsl(var(--destructive))'"
+                      stroke-width="4" stroke-linecap="round"
+                      [attr.stroke-dasharray]="circumference"
+                      [attr.stroke-dashoffset]="circumference - (circumference * usagePercent / 100)"
+                      class="transition-all duration-1000"/>
+            </svg>
+            <div class="absolute inset-0 flex items-center justify-center">
+              <span class="text-sm font-black" [class]="usagePercent > 20 ? 'text-foreground' : 'text-destructive'">{{ usagePercent }}%</span>
+            </div>
+          </div>
+          <div>
+            <p class="text-3xl font-black text-foreground" style="font-family:'Outfit',sans-serif;letter-spacing:-0.04em">{{ reel.quantityRemaining }}</p>
+            <p class="text-xs text-muted-foreground">sur {{ reel.quantityInitial }} initiales</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="glass-card-premium p-5 stagger-3">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-3">Emplacement</p>
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,hsl(var(--primary)/0.12),hsl(var(--primary)/0.04))">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <p class="text-base font-bold font-mono" [class]="reel.locationFullPath ? 'text-primary' : 'text-muted-foreground/50'">{{ reel.locationFullPath || 'Non assigné' }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail grid -->
+    <div class="glass-card-premium stagger-4">
+      <div class="card-header-premium">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <h3>Informations détaillées</h3>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Composant MPN</p>
+            <p class="text-sm font-mono font-semibold text-foreground px-2 py-1 rounded-lg inline-block" style="background:hsl(var(--secondary)/0.5)">{{ reel.componentMpn || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Fabricant</p>
+            <p class="text-sm font-semibold text-foreground">{{ reel.manufacturer || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Lot ID</p>
+            <p class="text-sm font-mono text-foreground">{{ reel.lotId }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Composant ID</p>
+            <p class="text-sm font-mono text-foreground">{{ reel.componentId }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Créé le</p>
+            <p class="text-sm text-foreground">{{ reel.createdAt ? (reel.createdAt | date:'dd/MM/yyyy à HH:mm') : '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Dernière modification</p>
+            <p class="text-sm text-foreground">{{ reel.updatedAt ? (reel.updatedAt | date:'dd/MM/yyyy à HH:mm') : '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Date d'ouverture</p>
+            <p class="text-sm text-foreground">{{ reel.openedDate ? (reel.openedDate | date:'dd/MM/yyyy à HH:mm') : 'Non ouvert' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Consommation</p>
+            <p class="text-sm font-semibold" [class]="consumed > 0 ? 'text-warning' : 'text-muted-foreground'">{{ consumed }} pièces utilisées</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Marque</p>
+            <p class="text-sm font-semibold text-foreground">{{ reel.marque || '—' }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Prix unitaire</p>
+            <p class="text-sm font-mono font-semibold" [class]="reel.prix ? 'text-foreground' : 'text-muted-foreground'">{{ reel.prix ? (reel.prix | number:'1.2-2') + ' DT' : '—' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- Edit Modal -->
+  <!-- ═══ Historique : ce que la bobine a servi, et a qui ═══
+       C'est lui qui rend le stock verifiable — la quantite restante doit
+       valoir la quantite initiale moins la somme des consommations. -->
+  <div *ngIf="!loading && reel" class="glass-card-premium">
+    <div class="card-header-premium">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--accent)/0.1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--accent))"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <h3>Historique des mouvements</h3>
+      </div>
+      <span class="badge-glow-accent">{{ totalConsomme }} pièce(s) consommée(s)</span>
+    </div>
+
+    <div *ngIf="movementsLoading" class="p-6 text-center text-xs text-muted-foreground">Chargement...</div>
+
+    <div *ngIf="!movementsLoading && movements.length === 0" class="p-8 text-center space-y-1.5">
+      <p class="text-sm font-semibold text-foreground">Aucun mouvement</p>
+      <p class="text-xs text-muted-foreground">Cette bobine n'est encore jamais partie en production.</p>
+    </div>
+
+    <div *ngIf="!movementsLoading && movements.length > 0" class="overflow-x-auto">
+      <table class="w-full data-table-premium">
+        <thead><tr><th>Date</th><th>Mouvement</th><th>Projet</th><th>Quantité</th><th>Vers</th><th>Par</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let m of movements">
+            <td class="text-xs text-muted-foreground whitespace-nowrap">{{ m.createdAt | date:'dd/MM/yy HH:mm' }}</td>
+            <td>
+              <span class="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-lg"
+                    [style.color]="movementColor(m)">
+                {{ movementLabel(m) }}
+              </span>
+            </td>
+            <td class="text-xs font-mono text-muted-foreground">{{ m.projetId || '—' }}</td>
+            <td>
+              <span *ngIf="m.quantity > 0" class="text-xs font-mono font-bold" style="color:hsl(var(--destructive))">&minus;{{ m.quantity }}</span>
+              <span *ngIf="m.quantity === 0" class="text-xs text-muted-foreground/40">—</span>
+            </td>
+            <td class="text-xs font-mono text-muted-foreground">{{ m.toLocationPath || (m.type === 'ISSUE' ? 'Machine' : '—') }}</td>
+            <td class="text-xs font-mono text-muted-foreground/70">{{ m.userId || '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div *ngIf="showEditModal" class="modal-overlay-premium" (click)="closeEdit()">
+    <div class="modal-content-premium max-w-md" (click)="$event.stopPropagation()">
+      <div class="card-header-premium"><h3>Modifier la bobine</h3><button (click)="closeEdit()" class="btn-icon w-8 h-8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="card-body space-y-4">
+        <div class="p-3 rounded-xl border border-border/30" style="background:hsl(var(--secondary)/0.3)">
+          <p class="text-xs text-muted-foreground">Bobine <span class="font-mono font-semibold text-foreground">{{ reel?.serialnumber }}</span></p>
+        </div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Statut</label>
+          <select class="input-base" [(ngModel)]="editForm.status"><option value="INTACT">🟢 Intact (Magasin)</option><option value="OUVERT">🟠 Ouvert (Production)</option><option value="VIDE">🔴 Vide</option></select>
+        </div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Quantité restante</label><input type="number" class="input-base" [(ngModel)]="editForm.quantityRemaining" [max]="reel?.quantityInitial ?? 0"/></div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Emplacement</label>
+          <select class="input-base" [(ngModel)]="editForm.storageLocationId">
+            <option [ngValue]="undefined">Aucun</option>
+            <option *ngFor="let loc of allLocations"
+                    [value]="loc.id"
+                    [disabled]="!isLocationAvailable(loc)">{{ locationStatusIcon(loc) }} {{ loc.fullPath || loc.warehouse }} {{ !isLocationAvailable(loc) ? '(occupé)' : '' }}</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Marque</label><input class="input-base" placeholder="Ex: Samsung, Yageo..." [(ngModel)]="editForm.marque"/></div>
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Prix (DT)</label><input type="number" step="0.01" class="input-base" placeholder="0.00" [(ngModel)]="editForm.prix"/></div>
+        </div>
+        <div *ngIf="saveError" class="p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)"><span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError }}</span></div>
+        <div class="flex gap-2 pt-2">
+          <button (click)="saveEdit()" class="btn-primary flex-1" [disabled]="saving">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button (click)="closeEdit()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

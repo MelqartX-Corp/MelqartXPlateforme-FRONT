@@ -1,0 +1,202 @@
+<div class="space-y-8 animate-fade-up">
+
+  <div *ngIf="loading()" class="space-y-4">
+    <div class="skeleton skeleton-card h-32 rounded-2xl"></div>
+    <div class="skeleton skeleton-card h-80 rounded-2xl"></div>
+  </div>
+
+  <div *ngIf="error()" class="empty-state-premium">
+    <div class="text-4xl mb-3">🔍</div>
+    <h3 class="text-base font-bold text-foreground mb-1.5">{{ error() }}</h3>
+    <a routerLink="/client/orders" class="btn-ghost text-xs mt-3">Retour à mes commandes</a>
+  </div>
+
+  <ng-container *ngIf="order() as cmd">
+
+    <!-- ═══ En-tête ═══ -->
+    <div class="client-header-hero">
+      <div class="relative z-10 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+        <div class="client-header-icon-box">📦</div>
+        <div class="space-y-1.5 flex-1 min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="client-header-tag">
+              <span class="client-header-tag-dot"></span>
+              Suivi de commande
+            </span>
+            <span *ngIf="cmd.priorite === 'HAUTE'" class="badge-glow-destructive">Prioritaire</span>
+          </div>
+          <h1 class="client-header-title">{{ cmd.orderNumber }}</h1>
+          <p class="text-xs text-muted-foreground font-medium">
+            Passée le {{ cmd.placedAt | date:'longDate':'':'fr' }} ·
+            {{ cmd.lines.length }} projet(s) · {{ totalCartes }} carte(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Paiement en attente ═══ -->
+    <div *ngIf="enAttentePaiement()" class="glass-card rounded-2xl p-5 flex flex-wrap items-center gap-4"
+         style="border-color: hsl(var(--warning) / 0.4); background: hsl(var(--warning) / 0.07);">
+      <span class="text-2xl">⏳</span>
+      <div class="flex-1 min-w-[200px]">
+        <p class="text-sm font-bold" style="color: hsl(var(--warning));">
+          En attente de règlement
+        </p>
+        <p class="text-xs text-muted-foreground mt-0.5">
+          La fabrication démarre dès réception du paiement de la facture
+          {{ cmd.invoiceNumber }}.
+        </p>
+      </div>
+      <a [routerLink]="['/client/billing/pay', cmd.invoiceId]" class="btn-primary text-xs">
+        Régler maintenant
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+      <!-- ═══ La timeline ═══ -->
+      <div class="lg:col-span-2 glass-card-premium">
+        <div class="card-header-premium">
+          <h3>Avancement en atelier</h3>
+          <span *ngIf="livree()" class="badge-glow-success">Livrée</span>
+          <span *ngIf="annulee()" class="badge-glow-destructive">Annulée</span>
+        </div>
+
+        <div class="p-6">
+          <div class="timeline">
+            <!-- Trait de progression, superposé au rail gris -->
+            <span class="timeline-fill" [style.height.%]="progressPercent()"></span>
+
+            <div *ngFor="let step of steps(); let i = index"
+                 class="timeline-step"
+                 [class.timeline-step-reached]="step.reached">
+
+              <span class="timeline-node"
+                    [class.timeline-node-done]="step.reached && !step.active"
+                    [class.timeline-node-active]="step.active">
+                <svg *ngIf="step.reached && !step.active" class="w-3 h-3"
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+                <span *ngIf="!step.reached" class="text-[10px] font-extrabold">{{ i + 1 }}</span>
+                <span *ngIf="step.active" class="w-1.5 h-1.5 rounded-full bg-current"></span>
+              </span>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                  <p class="timeline-title">{{ step.meta.label }}</p>
+                  <span *ngIf="step.active" class="badge-glow-primary">En cours</span>
+                </div>
+                <p class="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                  {{ step.meta.description }}
+                </p>
+                <p *ngIf="step.at" class="timeline-meta">
+                  {{ step.at | date:'d MMM yyyy · HH:mm':'':'fr' }}
+                </p>
+                <p *ngIf="step.note" class="timeline-note">
+                  <b>Retour en arrière :</b> {{ step.note }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Numéro de suivi, dès que le colis est parti -->
+          <div *ngIf="cmd.shipping?.trackingNumber"
+               class="mt-6 rounded-xl p-4 flex flex-wrap items-center gap-3"
+               style="background: hsl(var(--success) / 0.08); border: 1px solid hsl(var(--success) / 0.25);">
+            <span class="text-xl">🚚</span>
+            <div class="flex-1 min-w-[180px]">
+              <p class="text-xs font-bold" style="color: hsl(var(--success));">
+                Colis remis à {{ cmd.shipping.transporteur }}
+              </p>
+              <p class="text-[11px] text-muted-foreground mt-0.5">
+                Numéro de suivi
+                <b class="font-mono text-foreground">{{ cmd.shipping.trackingNumber }}</b>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ Colonne latérale ═══ -->
+      <div class="space-y-6">
+
+        <!-- Livraison -->
+        <div class="glass-card-premium">
+          <div class="card-header-premium">
+            <h3>Livraison</h3>
+            <span class="badge-glow-accent">
+              {{ cmd.shipping.method === 'EXPRESS' ? 'Express' : 'Standard' }}
+            </span>
+          </div>
+          <div class="p-5 space-y-3">
+            <div>
+              <p class="section-label">Adresse</p>
+              <p class="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {{ cmd.shipping.contactNom }}<br/>
+                {{ cmd.shipping.adresse }}<br/>
+                {{ cmd.shipping.gouvernorat }}
+                <span *ngIf="cmd.shipping.codePostal">· {{ cmd.shipping.codePostal }}</span><br/>
+                {{ cmd.shipping.contactTelephone }}
+              </p>
+            </div>
+
+            <div class="pt-3 border-t" style="border-color: hsl(var(--border) / 0.4);">
+              <div class="money-row">
+                <span class="money-row-label">Délai de transport</span>
+                <span class="font-bold text-foreground">
+                  {{ cmd.shipping.delaiMinJours }}–{{ cmd.shipping.delaiMaxJours }} j après expédition
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Montants -->
+        <div class="glass-card-premium">
+          <div class="card-header-premium"><h3>Montants</h3></div>
+          <div class="p-5 space-y-1">
+            <div *ngFor="let line of cmd.lines" class="money-row">
+              <span class="money-row-label truncate max-w-[150px]">{{ line.projectName }}</span>
+              <span class="font-bold text-foreground">
+                {{ line.totalTtc | number:'1.3-3' }}
+              </span>
+            </div>
+            <div class="money-row">
+              <span class="money-row-label">Frais de port</span>
+              <span class="font-bold text-foreground">
+                {{ cmd.shipping.fraisTtc | number:'1.3-3' }}
+              </span>
+            </div>
+            <div class="money-row-total">
+              <span>Total TTC</span>
+              <span>{{ cmd.totalTtc | number:'1.3-3' }} {{ cmd.currency }}</span>
+            </div>
+
+            <a *ngIf="cmd.invoiceId" [routerLink]="['/client/billing/invoices']"
+               class="btn-ghost w-full justify-center mt-3 text-xs">
+              Facture {{ cmd.invoiceNumber }}
+            </a>
+          </div>
+        </div>
+
+        <!-- Projets de la commande -->
+        <div class="glass-card-premium">
+          <div class="card-header-premium"><h3>Projets</h3></div>
+          <div class="p-5 space-y-2">
+            <a *ngFor="let line of cmd.lines"
+               [routerLink]="['/client/projets', line.projectId]"
+               class="flex items-center justify-between gap-3 rounded-xl px-3 py-2.5 transition-colors duration-150"
+               style="background: hsl(var(--secondary) / 0.3);">
+              <span class="text-xs font-bold text-foreground truncate">{{ line.projectName }}</span>
+              <span class="text-[11px] font-semibold text-muted-foreground shrink-0">
+                {{ line.quantity }} u.
+              </span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

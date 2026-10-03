@@ -1,0 +1,361 @@
+<div class="space-y-6 animate-fade-up relative">
+
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0">
+    <div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full opacity-30"
+         style="background:radial-gradient(circle, hsl(217 91% 58%/0.18) 0%,transparent 70%);filter:blur(80px);animation:blob1 14s ease-in-out infinite"></div>
+    <div class="absolute bottom-[10%] left-[-8%] w-[400px] h-[400px] rounded-full opacity-25"
+         style="background:radial-gradient(circle, hsl(168 84% 36%/0.15) 0%,transparent 70%);filter:blur(70px);animation:blob2 18s ease-in-out infinite"></div>
+  </div>
+
+  <!-- ══ EN-TÊTE HERO (CADRE COULEUR INTERNE) ══ -->
+  <div class="page-header-premium relative z-10">
+
+    <!-- Subtle Technical PCB Vector Traces (Internal Colors: Primary & Accent) -->
+    <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.05] dark:opacity-[0.10]" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1000 240">
+      <defs>
+        <pattern id="pcbGridSupport" width="40" height="40" patternUnits="userSpaceOnUse">
+          <circle cx="20" cy="20" r="1" fill="hsl(var(--primary))" opacity="0.3" />
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="hsl(var(--border))" stroke-width="0.5" opacity="0.35" />
+        </pattern>
+        <linearGradient id="pcbTraceGradSupport" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="hsl(var(--primary))" stop-opacity="0.2" />
+          <stop offset="50%" stop-color="hsl(var(--primary))" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="hsl(var(--accent))" stop-opacity="0.4" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#pcbGridSupport)" />
+      <path d="M 50 120 L 220 120 L 280 180 L 520 180 L 560 140 L 780 140 L 820 100 L 950 100" fill="none" stroke="url(#pcbTraceGradSupport)" stroke-width="1.8" stroke-dasharray="8 4" />
+      <path d="M 120 30 L 300 30 L 350 70 L 680 70 L 720 35 L 890 35" fill="none" stroke="hsl(var(--primary))" stroke-width="1.2" opacity="0.3" />
+      <circle cx="280" cy="180" r="3" fill="hsl(var(--primary))" opacity="0.9" />
+      <circle cx="560" cy="140" r="3" fill="hsl(var(--accent))" opacity="0.9" />
+    </svg>
+
+    <!-- Left: Greeting and dynamic status -->
+    <div class="relative z-10 space-y-1.5">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground" style="font-family:'Outfit',sans-serif">
+        Bonjour<span *ngIf="userName()">, {{ userName() }}</span> <span style="color:hsl(var(--primary))">.</span>
+      </h1>
+
+      <div class="flex items-center gap-2">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60"
+                [style.background]="alerte() ? 'hsl(var(--destructive))' : 'hsl(var(--success))'"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2"
+                [style.background]="alerte() ? 'hsl(var(--destructive))' : 'hsl(var(--success))'"></span>
+        </span>
+        <p class="text-xs text-muted-foreground font-medium" *ngIf="chargement()">Chargement de la file…</p>
+        <p class="text-xs font-medium" *ngIf="analyse() as a"
+           [hidden]="chargement()"
+           [style.color]="alerte() ? 'hsl(var(--destructive))' : 'hsl(var(--muted-foreground))'">
+          <ng-container *ngIf="a.slaBreaches > 0">
+            {{ a.slaBreaches }} ticket(s) hors délai — à traiter en priorité
+          </ng-container>
+          <ng-container *ngIf="a.slaBreaches === 0 && a.backlog > 0">
+            {{ a.backlog }} ticket(s) en file, tous dans les délais
+          </ng-container>
+          <ng-container *ngIf="a.slaBreaches === 0 && a.backlog === 0">
+            File vide — rien en attente
+          </ng-container>
+          <span *ngIf="majAffichee()"> · {{ majAffichee() }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Right: Internal Actions -->
+    <div class="flex items-center gap-2.5 relative z-10 self-start md:self-center">
+      <button class="header-action-btn-primary" routerLink="/support/tickets">
+        <app-dash-icon nom="headphones" [taille]="15" />
+        <span>Tous les tickets</span>
+      </button>
+      <button class="header-action-btn-secondary" routerLink="/client/projets">
+        <app-dash-icon nom="kanban" [taille]="15" />
+        <span>Projets</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ TUILES ══ -->
+  <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3" *ngIf="chargement()">
+    <div *ngFor="let s of [1,2,3,4,5,6,7,8]" class="stat-card animate-pulse" style="min-height:148px">
+      <div class="w-10 h-10 rounded-xl" style="background:hsl(var(--muted))"></div>
+      <div class="h-6 w-20 rounded mt-4" style="background:hsl(var(--muted))"></div>
+      <div class="h-3 w-16 rounded mt-2" style="background:hsl(var(--muted))"></div>
+    </div>
+  </div>
+
+  <div class="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3" *ngIf="!chargement()">
+    <div *ngFor="let t of tuiles(); let i = index"
+         [class]="'animate-fade-up stagger-' + ((i % 8) + 1)"
+         [class.cursor-pointer]="!!t.lien"
+         (click)="allerA(t.lien)">
+      <app-stat-tile [tuile]="t" />
+    </div>
+  </div>
+
+  <!-- ══ LA FILE DE TRAVAIL ══ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-3">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Par quoi commencer</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            Les tickets sans réponse d'abord, puis par priorité et par ancienneté
+          </p>
+        </div>
+        <a routerLink="/support/tickets" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-blue-500/25 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 transition-all">Tout voir</a>
+      </div>
+      <div class="card-body">
+        <p class="text-xs text-muted-foreground py-8 text-center" *ngIf="echoue('support')">
+          Service support indisponible.
+        </p>
+        <p class="text-xs text-muted-foreground py-8 text-center"
+           *ngIf="!echoue('support') && !chargement() && !fileDeTravail().length">
+          Aucun ticket en attente. La file est vide.
+        </p>
+        <div class="space-y-1.5">
+          <button *ngFor="let t of fileDeTravail()" (click)="ouvrirTicket(t)"
+                  class="w-full text-left flex items-start gap-3 p-2.5 rounded-xl transition-colors hover:bg-secondary/40">
+            <!-- La barre de priorité double le badge : sur une liste dense, la
+                 couleur seule ne suffit pas à trier du regard. -->
+            <span class="w-1 self-stretch rounded-full shrink-0"
+                  [style.background]="tonPriorite(t.priorite)"></span>
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                 [style.background]="tonPriorite(t.priorite) + '1f'"
+                 [style.color]="tonPriorite(t.priorite)">
+              <app-dash-icon [nom]="muet(t) ? 'message' : 'headphones'" [taille]="13" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold text-foreground truncate">{{ t.sujet }}</p>
+              <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                <span class="badge text-[9px] font-bold"
+                      [style.background]="tonPriorite(t.priorite) + '1a'"
+                      [style.color]="tonPriorite(t.priorite)">
+                  {{ traduire(LIBELLES_PRIORITE_TICKET, t.priorite) }}
+                </span>
+                <span class="badge-muted text-[9px]">{{ traduire(LIBELLES_STATUT_TICKET, t.statut) }}</span>
+                <span *ngIf="muet(t)" class="badge text-[9px] font-bold"
+                      style="background:hsl(var(--warning)/0.14);color:hsl(var(--warning))">
+                  Jamais répondu
+                </span>
+              </div>
+            </div>
+            <span class="text-[10px] text-muted-foreground whitespace-nowrap shrink-0 mt-1">
+              {{ ilYA(t.createdAt) }}
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-2">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Qualité de service</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">Délai de réponse et résolution</p>
+        </div>
+      </div>
+      <div class="card-body space-y-4" *ngIf="analyse() as a">
+        <div class="grid grid-cols-2 gap-4">
+          <app-chart-gauge [valeur]="a.slaCompliance" libelle="Délai tenu"
+                           [taille]="128" [seuilAlerte]="70" [seuilBon]="90" />
+          <app-chart-gauge [valeur]="a.resolutionRate" libelle="Résolus"
+                           [taille]="128" [seuilAlerte]="60" [seuilBon]="85" />
+        </div>
+        <div class="pt-3 border-t border-border/40">
+          <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+            Ancienneté de la file
+          </p>
+          <app-chart-ranking [slices]="partsAge()" [trier]="false" unite="tickets" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TENDANCE ══ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-3">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Entrées et sorties</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            Tant que la courbe verte reste sous la bleue, la file grossit
+          </p>
+        </div>
+        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-blue-500/25 bg-blue-500/10 text-blue-600 dark:text-blue-400">14 jours</span>
+      </div>
+      <div class="card-body pt-2">
+        <app-chart-area *ngIf="joursEvolution().length"
+                        [series]="serieEvolution()" [categories]="joursEvolution()"
+                        [hauteur]="210" unite="tickets" />
+        <div class="flex flex-wrap gap-x-6 gap-y-2 mt-3 pt-3 border-t border-border/40"
+             *ngIf="analyse() as a">
+          <div>
+            <p class="text-[10px] text-muted-foreground">Reçus cette semaine</p>
+            <p class="text-sm font-extrabold text-foreground tabular-nums">{{ a.createdThisWeek }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground">Résolus cette semaine</p>
+            <p class="text-sm font-extrabold tabular-nums"
+               [style.color]="a.resolvedThisWeek >= a.createdThisWeek ? 'hsl(var(--success))' : 'hsl(var(--warning))'">
+              {{ a.resolvedThisWeek }}
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground">Solde</p>
+            <p class="text-sm font-extrabold tabular-nums"
+               [style.color]="a.resolvedThisWeek >= a.createdThisWeek ? 'hsl(var(--success))' : 'hsl(var(--destructive))'">
+              {{ a.resolvedThisWeek - a.createdThisWeek >= 0 ? '+' : '' }}{{ a.resolvedThisWeek - a.createdThisWeek }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-2">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Statuts</h3>
+          <p class="text-xs text-muted-foreground mt-0.5" *ngIf="analyse() as a">
+            {{ a.total }} ticket(s) au total
+          </p>
+        </div>
+      </div>
+      <div class="card-body">
+        <app-chart-donut *ngIf="partsStatut().length"
+                         [slices]="partsStatut()" libelleTotal="tickets" unite="tickets" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RÉPARTITIONS ══ -->
+  <div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <div class="glass-card-premium rounded-2xl">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Priorités</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">Toutes périodes confondues</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <app-chart-ranking [slices]="partsPriorite()" [trier]="false" unite="tickets" />
+      </div>
+    </div>
+
+    <div class="glass-card-premium rounded-2xl">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Nature des demandes</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">Consultation ou réclamation</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <app-chart-donut *ngIf="partsType().length" [taille]="150"
+                         [slices]="partsType()" libelleTotal="tickets" unite="tickets" />
+      </div>
+    </div>
+
+    <div class="glass-card-premium rounded-2xl">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Résolutions par agent</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">Et leur délai moyen</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-xs text-muted-foreground py-8 text-center"
+           *ngIf="!chargement() && !agents().length">
+          Aucun ticket résolu pour l'instant.
+        </p>
+        <div class="space-y-2.5">
+          <div *ngFor="let a of agents(); let i = index" class="flex items-center gap-3">
+            <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-extrabold shrink-0 shadow-sm"
+                  [style.background]="i === 0 ? 'linear-gradient(135deg, #2563eb, #06b6d4)' : 'hsl(var(--secondary))'"
+                  [style.color]="i === 0 ? 'white' : 'hsl(var(--muted-foreground))'">{{ i + 1 }}</span>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold text-foreground truncate">{{ a.name }}</p>
+              <p class="text-[10px] text-muted-foreground">{{ dureeCourte(a.avgResolutionHours) }} en moyenne</p>
+            </div>
+            <span class="text-xs font-extrabold text-foreground tabular-nums shrink-0">{{ a.resolved }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ QUAND ARRIVENT LES DEMANDES + PROJETS ══ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-5 gap-4">
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-3">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Quand arrivent les demandes</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">
+            Par heure d'ouverture, sur tout l'historique — utile pour placer les permanences
+          </p>
+        </div>
+      </div>
+      <div class="card-body">
+        <app-chart-heatstrip *ngIf="chargeHoraire().length"
+                             [valeurs]="chargeHoraire()" [libelles]="heuresLibelles()"
+                             unite="tickets" />
+      </div>
+    </div>
+
+    <div class="glass-card-premium rounded-2xl lg:col-span-2">
+      <div class="card-header">
+        <div>
+          <h3 class="font-bold text-foreground text-sm">Projets à contacter</h3>
+          <p class="text-xs text-muted-foreground mt-0.5">L'autre file du support</p>
+        </div>
+      </div>
+      <div class="card-body">
+        <p class="text-xs text-muted-foreground py-8 text-center"
+           *ngIf="!chargement() && !projetsAContacter().length">
+          Aucun projet en attente de contact.
+        </p>
+        <div class="space-y-2">
+          <button *ngFor="let p of projetsAContacter()" (click)="ouvrirProjet(p)"
+                  class="w-full text-left flex items-start gap-3 p-2.5 rounded-xl transition-colors hover:bg-secondary/40">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25">
+              <app-dash-icon nom="kanban" [taille]="13" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-xs font-semibold text-foreground truncate">{{ p.nom }}</p>
+              <p class="text-[10px] text-muted-foreground truncate">
+                {{ traduire(LIBELLES_ETAPE_PROJET, p.stage || '') }}
+              </p>
+            </div>
+            <app-dash-icon nom="arrow-right" [taille]="13" class="text-muted-foreground shrink-0 mt-1" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DERNIÈRES RÉSOLUTIONS ══ -->
+  <div class="glass-card-premium rounded-2xl relative z-10" *ngIf="recemmentResolus().length">
+    <div class="card-header">
+      <div>
+        <h3 class="font-bold text-foreground text-sm">Dernières résolutions</h3>
+        <p class="text-xs text-muted-foreground mt-0.5">Ce qui vient d'être clôturé</p>
+      </div>
+    </div>
+    <div class="card-body space-y-1">
+      <button *ngFor="let t of recemmentResolus()" (click)="ouvrirTicket(t)"
+              class="w-full text-left flex items-center gap-3 p-2.5 rounded-xl transition-colors hover:bg-secondary/40">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25">
+          <app-dash-icon nom="check" [taille]="13" />
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-semibold text-foreground truncate">{{ t.sujet }}</p>
+          <p class="text-[10px] text-muted-foreground">{{ traduire(LIBELLES_STATUT_TICKET, t.statut) }}</p>
+        </div>
+        <span class="text-[10px] text-muted-foreground whitespace-nowrap shrink-0">{{ ilYA(t.resolvedAt) }}</span>
+      </button>
+    </div>
+  </div>
+
+</div>

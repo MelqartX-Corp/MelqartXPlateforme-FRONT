@@ -1,0 +1,130 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ En-tête ═══ -->
+  <div class="page-header-premium">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-5">
+      <div class="flex items-center gap-4 flex-1">
+        <div class="client-header-icon-box">🚚</div>
+        <div class="space-y-1">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Administration
+          </span>
+          <h1 class="page-title-premium">Frais de livraison</h1>
+          <p class="text-xs text-muted-foreground font-medium">
+            Livraison sur toute la Tunisie, facturée par tranche de poids —
+            comme le facturent les transporteurs.
+          </p>
+        </div>
+      </div>
+      <button type="button" class="btn-refresh shrink-0" (click)="reload()">Actualiser</button>
+    </div>
+  </div>
+
+  <!-- ═══ Comment le poids est obtenu ═══ -->
+  <div class="glass-card rounded-2xl p-5">
+    <div class="flex items-start gap-3">
+      <span class="text-xl">📐</span>
+      <div class="text-xs text-muted-foreground leading-relaxed space-y-1.5">
+        <p>
+          <b class="text-foreground">Le poids vient du fichier Gerber.</b>
+          Les dimensions du contour donnent la surface, l'épaisseur du stratifié et la
+          densité du FR-4 donnent le poids nu, et un coefficient couvre les composants —
+          1,0 pour des cartes nues, 1,3 pour des cartes assemblées.
+        </p>
+        <p>
+          Un projet sans Gerber exploitable bascule sur une estimation forfaitaire,
+          signalée au client comme au service expédition.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error()" class="glass-card rounded-2xl p-4"
+       style="border-color: hsl(var(--destructive) / 0.35); background: hsl(var(--destructive) / 0.07);">
+    <p class="text-xs font-semibold" style="color: hsl(var(--destructive));">{{ error() }}</p>
+  </div>
+
+  <div *ngIf="loading()" class="skeleton skeleton-card h-64 rounded-2xl"></div>
+
+  <div *ngIf="!loading()" class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+
+    <!-- ═══ Une carte par méthode ═══ -->
+    <ng-container *ngFor="let bloc of [
+        { titre: 'Standard', emoji: '📦', delai: '3 à 5 jours ouvrés', rates: standard() },
+        { titre: 'Express',  emoji: '⚡', delai: '24 à 48 heures',     rates: express() }]">
+
+      <div class="glass-card-premium">
+        <div class="card-header-premium">
+          <h3>{{ bloc.emoji }} Livraison {{ bloc.titre }}</h3>
+          <span class="badge-glow-accent">{{ bloc.delai }}</span>
+        </div>
+
+        <div class="p-5 space-y-3">
+          <div *ngFor="let rate of bloc.rates"
+               class="rounded-xl border p-4 space-y-3 transition-all duration-200"
+               [style.border-color]="saved() === rate.id
+                  ? 'hsl(var(--success) / 0.5)' : 'hsl(var(--border) / 0.5)'"
+               [style.background]="saved() === rate.id
+                  ? 'hsl(var(--success) / 0.06)' : 'hsl(var(--card) / 0.5)'">
+
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-sm font-bold text-foreground">{{ trancheLabel(rate) }}</p>
+                <p class="text-[11px] text-muted-foreground mt-0.5">{{ exempleCartes(rate) }}</p>
+              </div>
+              <span *ngIf="saved() === rate.id" class="badge-glow-success">Enregistré</span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label class="section-label">Prix HT</label>
+                <input type="number" step="0.001" class="input-base w-full mt-1"
+                       [(ngModel)]="rate.prixHt"/>
+              </div>
+              <div>
+                <label class="section-label">Franco dès</label>
+                <input type="number" step="1" class="input-base w-full mt-1"
+                       [(ngModel)]="rate.seuilFranco" placeholder="—"/>
+              </div>
+              <div>
+                <label class="section-label">Délai min</label>
+                <input type="number" step="1" class="input-base w-full mt-1"
+                       [(ngModel)]="rate.delaiMinJours"/>
+              </div>
+              <div>
+                <label class="section-label">Délai max</label>
+                <input type="number" step="1" class="input-base w-full mt-1"
+                       [(ngModel)]="rate.delaiMaxJours"/>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between gap-3">
+              <label class="flex items-center gap-2 text-[11px] font-semibold text-muted-foreground cursor-pointer">
+                <input type="checkbox" [(ngModel)]="rate.actif"/>
+                Tranche active
+              </label>
+              <button type="button" class="btn-primary text-xs"
+                      [disabled]="savingId() === rate.id"
+                      (click)="save(rate)">
+                {{ savingId() === rate.id ? 'Enregistrement…' : 'Enregistrer' }}
+              </button>
+            </div>
+          </div>
+
+          <p *ngIf="bloc.rates.length === 0" class="text-xs text-muted-foreground text-center py-6">
+            Aucune tranche configurée. Elles sont semées au démarrage du service
+            lorsque <span class="font-mono">billing.seed-shipping-rates</span> vaut
+            <span class="font-mono">true</span>.
+          </p>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <p class="text-[11px] text-muted-foreground leading-relaxed px-1">
+    Le franco de port ne s'applique qu'au mode standard : offrir l'express reviendrait à
+    payer le transport le plus cher précisément sur les grosses commandes, celles où il
+    pèse le plus.
+  </p>
+</div>

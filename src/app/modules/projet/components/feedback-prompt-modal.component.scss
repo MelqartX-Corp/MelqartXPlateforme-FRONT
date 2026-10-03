@@ -1,0 +1,162 @@
+/* ════════════════════════════════════════════════════════════════
+   FEEDBACK PROMPT MODAL — panneau latéral droit
+   ════════════════════════════════════════════════════════════════ */
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(24px) scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+/* Voile très léger et sans flou : la page reste lisible derrière */
+.feedback-overlay {
+  background: rgba(15, 23, 42, 0.10);
+}
+
+:host-context(.dark) .feedback-overlay {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ── Carte ── */
+.feedback-modal {
+  animation: slideInRight 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  background: linear-gradient(160deg, #FFFFFF 0%, #FBFBFE 55%, #F4F5FD 100%);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow:
+    0 30px 70px -20px rgba(15, 23, 42, 0.28),
+    0 8px 20px -12px rgba(15, 23, 42, 0.15);
+
+  /* barre de défilement discrète si le contenu dépasse sur petit écran */
+  scrollbar-width: thin;
+}
+
+:host-context(.dark) .feedback-modal {
+  background: linear-gradient(160deg, #1E2230 0%, #1A1D27 60%, #171A24 100%);
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 30px 70px -20px rgba(0, 0, 0, 0.65);
+}
+
+/* ── Titre : « beaucoup ♡ » en dégradé ── */
+.title-accent {
+  background: linear-gradient(100deg, #2563EB 0%, #6366F1 45%, #22D3EE 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Georgia', serif;
+  font-weight: 400;
+  font-style: italic;
+}
+
+/* ── Bouton fermer ── */
+.close-btn {
+  background: rgba(241, 245, 249, 0.9);
+  color: #64748B;
+
+  &:hover {
+    background: #E2E8F0;
+    color: #334155;
+  }
+}
+
+:host-context(.dark) .close-btn {
+  background: rgba(255, 255, 255, 0.10);
+  color: #CBD5E1;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #FFFFFF;
+  }
+}
+
+/* ── Bloc notation ── */
+.rating-panel {
+  background: rgba(248, 250, 252, 0.85);
+  border: 1px solid rgba(241, 245, 249, 1);
+}
+
+:host-context(.dark) .rating-panel {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.star-btn:hover svg {
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.8));
+}
+
+.star-active-glow {
+  filter: drop-shadow(0 2px 6px rgba(245, 158, 11, 0.45));
+}
+
+/* ── Ligne d'axe de notation ── */
+.critere-row {
+  transition: background-color 0.18s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.75);
+  }
+}
+
+:host-context(.dark) .critere-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Champ commentaire ── */
+.comment-box {
+  background: rgba(248, 250, 252, 0.6);
+  border: 1px solid #E2E8F0;
+
+  &:focus-within {
+    background: #FFFFFF;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+}
+
+:host-context(.dark) .comment-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.10);
+
+  &:focus-within {
+    background: #131620;
+    border-color: #3B82F6;
+  }
+}
+
+/* ── Bouton d'envoi ── */
+.btn-gradient-submit {
+  background: linear-gradient(135deg, #2563EB 0%, #6366F1 50%, #06B6D4 100%);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #1D4ED8 0%, #4F46E5 50%, #0891B2 100%);
+    transform: translateY(-1px);
+  }
+}
+
+/* ── Mobile : la carte reprend toute la largeur ── */
+@media (max-width: 640px) {
+  .feedback-overlay {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feedback-modal,
+  .animate-fadeIn {
+    animation: none;
+  }
+}

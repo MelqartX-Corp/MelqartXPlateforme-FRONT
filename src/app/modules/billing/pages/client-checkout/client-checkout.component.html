@@ -1,0 +1,324 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ═══ En-tête ═══ -->
+  <div class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">🚚</div>
+      <div class="space-y-1.5">
+        <span class="client-header-tag">
+          <span class="client-header-tag-dot"></span>
+          Passage de commande
+        </span>
+        <h1 class="client-header-title">Livraison &amp; paiement</h1>
+        <p class="text-xs text-muted-foreground font-medium">
+          Livraison dans les 24 gouvernorats — standard sous 3 à 5 jours, express en 24 à 48 h.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Fil des étapes ═══ -->
+  <div class="glass-card rounded-2xl p-4">
+    <div class="checkout-steps">
+      <button type="button" class="checkout-step"
+              [class.checkout-step-on]="step() === 1"
+              [class.checkout-step-done]="step() > 1"
+              (click)="goTo(1)">
+        <span class="checkout-step-num">{{ step() > 1 ? '✓' : '1' }}</span>
+        <span class="hidden sm:inline">Récapitulatif</span>
+      </button>
+      <span class="checkout-step-bar" [class.checkout-step-bar-done]="step() > 1"></span>
+
+      <button type="button" class="checkout-step"
+              [class.checkout-step-on]="step() === 2"
+              [class.checkout-step-done]="step() > 2"
+              (click)="goTo(2)">
+        <span class="checkout-step-num">{{ step() > 2 ? '✓' : '2' }}</span>
+        <span class="hidden sm:inline">Livraison</span>
+      </button>
+      <span class="checkout-step-bar" [class.checkout-step-bar-done]="step() > 2"></span>
+
+      <button type="button" class="checkout-step"
+              [class.checkout-step-on]="step() === 3"
+              [disabled]="!adresseValide()"
+              (click)="goTo(3)">
+        <span class="checkout-step-num">3</span>
+        <span class="hidden sm:inline">Paiement</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ Prix modifié — le client doit accepter avant de payer ═══ -->
+  <div *ngIf="prixChange()" class="glass-card rounded-2xl p-5"
+       style="border-color: hsl(var(--warning) / 0.4); background: hsl(var(--warning) / 0.07);">
+    <div class="flex items-start gap-3">
+      <span class="text-2xl">⚠️</span>
+      <div class="flex-1 space-y-3">
+        <p class="text-sm font-bold" style="color: hsl(var(--warning));">Le prix a changé</p>
+        <p class="text-xs text-muted-foreground leading-relaxed">{{ prixChange() }}</p>
+        <div class="flex flex-wrap gap-2">
+          <button type="button" class="btn-primary text-xs" (click)="accepterNouveauPrix()">
+            Accepter le nouveau montant
+          </button>
+          <a routerLink="/client/panier" class="btn-ghost text-xs">Revenir au panier</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Erreur ═══ -->
+  <div *ngIf="error()" class="glass-card rounded-2xl p-4 flex items-start gap-3"
+       style="border-color: hsl(var(--destructive) / 0.35); background: hsl(var(--destructive) / 0.07);">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color: hsl(var(--destructive));"
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.33 16a2 2 0 001.74 3z"/>
+    </svg>
+    <p class="text-xs font-semibold leading-relaxed" style="color: hsl(var(--destructive));">
+      {{ error() }}
+    </p>
+  </div>
+
+  <div *ngIf="loading()" class="skeleton skeleton-card h-64 rounded-2xl"></div>
+
+  <div *ngIf="!loading()" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+    <div class="lg:col-span-2 space-y-6">
+
+      <!-- ═══ Étape 1 — Récapitulatif ═══ -->
+      <div *ngIf="step() === 1" class="glass-card-premium animate-fade-up">
+        <div class="card-header-premium">
+          <h3>Ce que vous commandez</h3>
+          <span class="badge-glow-primary">{{ lines().length }} projet(s)</span>
+        </div>
+        <div class="p-5 space-y-3">
+          <div *ngFor="let line of lines()"
+               class="flex items-center justify-between gap-4 py-2.5 border-b last:border-0"
+               style="border-color: hsl(var(--border) / 0.4);">
+            <div class="min-w-0">
+              <p class="text-sm font-bold text-foreground truncate">{{ line.projectName }}</p>
+              <p class="text-[11px] font-mono text-muted-foreground mt-0.5">
+                {{ line.quoteNumber }} · {{ line.quantity }} carte(s)
+              </p>
+            </div>
+            <span class="text-sm font-extrabold text-foreground tabular-nums shrink-0">
+              {{ line.snapshotTotalTtc | number:'1.3-3' }} {{ currency() }}
+            </span>
+          </div>
+
+          <button type="button" class="btn-primary w-full justify-center mt-4" (click)="goTo(2)">
+            Choisir la livraison
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═══ Étape 2 — Adresse et mode de livraison ═══ -->
+      <ng-container *ngIf="step() === 2">
+
+        <div class="glass-card-premium animate-fade-up">
+          <div class="card-header-premium"><h3>Adresse de livraison</h3></div>
+          <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2">
+              <label class="section-label">Adresse complète</label>
+              <input class="input-base w-full mt-1.5" [(ngModel)]="form.adresse"
+                     placeholder="Rue, immeuble, étage…"/>
+            </div>
+            <div>
+              <label class="section-label">Gouvernorat</label>
+              <select class="input-base w-full mt-1.5" [(ngModel)]="form.gouvernorat">
+                <option value="" disabled>Choisir…</option>
+                <option *ngFor="let g of gouvernorats" [value]="g">{{ g }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="section-label">Code postal</label>
+              <input class="input-base w-full mt-1.5" [(ngModel)]="form.codePostal"
+                     placeholder="Optionnel"/>
+            </div>
+            <div>
+              <label class="section-label">Contact à la livraison</label>
+              <input class="input-base w-full mt-1.5" [(ngModel)]="form.contactNom"
+                     placeholder="Nom et prénom"/>
+            </div>
+            <div>
+              <label class="section-label">Téléphone</label>
+              <input class="input-base w-full mt-1.5" [(ngModel)]="form.contactTelephone"
+                     placeholder="Le transporteur appelle avant de passer"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card-premium animate-fade-up stagger-2">
+          <div class="card-header-premium">
+            <h3>Mode d'expédition</h3>
+          </div>
+
+          <div class="p-5 space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              <!-- Standard -->
+              <button type="button" class="ship-option"
+                      [class.ship-option-on]="method() === 'STANDARD'"
+                      (click)="choose('STANDARD')">
+                <ng-container *ngIf="optionFor('STANDARD') as opt">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">📦</span>
+                    <span class="text-xs font-extrabold uppercase tracking-[0.12em] text-foreground">
+                      Standard
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground">
+                    {{ opt.delaiMinJours }} à {{ opt.delaiMaxJours }} jours ouvrés
+                    après expédition
+                  </p>
+                  <p [class]="opt.francoDePort ? 'ship-option-free' : 'ship-option-price'">
+                    {{ opt.francoDePort ? 'Offerte' : (ttcDe(opt) | number:'1.3-3') + ' ' + currency() }}
+                  </p>
+                  <!-- Le client paie le TTC : c'est lui qu'on annonce. Le HT
+                       reste lisible pour qui rapproche avec la facture. -->
+                  <p *ngIf="!opt.francoDePort" class="text-[10px] text-muted-foreground">
+                    TTC &middot; {{ opt.prixHt | number:'1.3-3' }} {{ currency() }} HT
+                  </p>
+                </ng-container>
+              </button>
+
+              <!-- Express -->
+              <button type="button" class="ship-option"
+                      [class.ship-option-on]="method() === 'EXPRESS'"
+                      (click)="choose('EXPRESS')">
+                <ng-container *ngIf="optionFor('EXPRESS') as opt">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">⚡</span>
+                    <span class="text-xs font-extrabold uppercase tracking-[0.12em] text-foreground">
+                      Express
+                    </span>
+                  </div>
+                  <p class="text-xs text-muted-foreground">
+                    {{ opt.delaiMinJours * 24 }} à {{ opt.delaiMaxJours * 24 }} heures
+                    après expédition
+                  </p>
+                  <p class="ship-option-price">
+                    {{ ttcDe(opt) | number:'1.3-3' }} {{ currency() }}
+                  </p>
+                  <p class="text-[10px] text-muted-foreground">
+                    TTC &middot; {{ opt.prixHt | number:'1.3-3' }} {{ currency() }} HT
+                  </p>
+                </ng-container>
+              </button>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button type="button" class="btn-ghost text-xs" (click)="goTo(1)">Retour</button>
+              <button type="button" class="btn-primary flex-1 justify-center"
+                      [disabled]="!adresseValide()" (click)="goTo(3)">
+                Vérifier et payer
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+              </button>
+            </div>
+            <p *ngIf="!adresseValide()" class="text-[11px] text-muted-foreground">
+              Renseignez l'adresse, le gouvernorat, le nom et le téléphone du contact.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- ═══ Étape 3 — Vérification avant paiement ═══ -->
+      <div *ngIf="step() === 3" class="glass-card-premium animate-fade-up">
+        <div class="card-header-premium"><h3>Vérifiez avant de payer</h3></div>
+        <div class="p-5 space-y-5">
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-xl p-4" style="background: hsl(var(--secondary) / 0.3);">
+              <p class="section-label mb-2">Livré à</p>
+              <p class="text-sm font-bold text-foreground">{{ form.contactNom }}</p>
+              <p class="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {{ form.adresse }}<br/>
+                {{ form.gouvernorat }} <span *ngIf="form.codePostal">· {{ form.codePostal }}</span><br/>
+                {{ form.contactTelephone }}
+              </p>
+            </div>
+
+            <div class="rounded-xl p-4" style="background: hsl(var(--secondary) / 0.3);"
+                 *ngIf="choisie() as opt">
+              <p class="section-label mb-2">Expédition</p>
+              <p class="text-sm font-bold text-foreground">
+                {{ opt.method === 'EXPRESS' ? 'Express' : 'Standard' }}
+              </p>
+              <p class="text-xs text-muted-foreground mt-1 leading-relaxed">
+                {{ opt.delaiMinJours }}–{{ opt.delaiMaxJours }} jour(s) après expédition
+              </p>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <button type="button" class="btn-ghost text-xs" (click)="goTo(2)">Modifier</button>
+            <button type="button" class="btn-primary flex-1 justify-center"
+                    [disabled]="submitting()" (click)="submit()">
+              <svg *ngIf="submitting()" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              <span>{{ submitting() ? 'Validation…' : 'Valider et payer' }}</span>
+            </button>
+          </div>
+
+          <p class="text-[11px] text-muted-foreground leading-relaxed">
+            Nous revérifions à cet instant que le chiffrage est validé, que le prix n'a pas
+            bougé et que les composants sont toujours disponibles. Vous ne payez que si les
+            trois sont vrais.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Total, visible à toutes les étapes ═══ -->
+    <div class="glass-card-premium lg:sticky lg:top-6">
+      <div class="card-header-premium"><h3>Total</h3></div>
+      <div class="p-5 space-y-1">
+        <!-- Tout est annoncé hors taxe, puis la TVA sur sa propre ligne.
+             Mélanger les deux bases donnait deux montants pour un seul choix
+             et faisait croire que la TVA ne frappait que le transport. -->
+        <div class="money-row">
+          <span class="money-row-label">Fabrication ({{ lines().length }} projet(s))</span>
+          <span class="font-bold text-foreground">
+            {{ fabricationHt() | number:'1.3-3' }}
+          </span>
+        </div>
+
+        <div class="money-row" *ngIf="choisie() as opt">
+          <span class="money-row-label">
+            Livraison {{ opt.method === 'EXPRESS' ? 'express' : 'standard' }}
+          </span>
+          <span class="font-bold" [style.color]="opt.francoDePort ? 'hsl(var(--success))' : ''">
+            {{ opt.francoDePort ? 'Offerte' : (livraisonHt() | number:'1.3-3') }}
+          </span>
+        </div>
+
+        <div class="money-row border-t border-border/40 pt-2 mt-1">
+          <span class="money-row-label font-bold">Sous-total HT</span>
+          <span class="font-bold text-foreground">{{ sousTotalHt() | number:'1.3-3' }}</span>
+        </div>
+
+        <div class="money-row">
+          <span class="money-row-label">TVA 19 %</span>
+          <span class="font-bold text-foreground">{{ tva() | number:'1.3-3' }}</span>
+        </div>
+
+        <div class="money-row-total">
+          <span>À régler TTC</span>
+          <span>{{ totalTtc() | number:'1.3-3' }} {{ currency() }}</span>
+        </div>
+
+        <p class="text-[11px] text-muted-foreground pt-2 leading-relaxed">
+          Un timbre fiscal de 1,000 {{ currency() }} sera ajouté sur la facture,
+          conformément à la réglementation.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

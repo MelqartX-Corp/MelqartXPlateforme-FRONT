@@ -1,0 +1,703 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ═══ CLIENT "WOW" PAGE HEADER (External Users Only) ═══ -->
+  <div *ngIf="isExternalUser()" class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <!-- 3D/Glass Icon Squircle -->
+      <div class="client-header-icon-box">
+        📁
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Espace Client
+          </span>
+        </div>
+        <h1 class="client-header-title">
+          Mes projets
+        </h1>
+        <!-- Modern Stat Chips -->
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <div class="client-header-chip">
+            <span class="client-chip-dot bg-slate-400"></span>
+            <span class="font-bold text-foreground">{{ countAll }}</span>
+            <span class="text-muted-foreground">au total</span>
+          </div>
+          <div class="client-header-chip" *ngIf="countPending > 0">
+            <span class="client-chip-dot bg-amber-500 animate-pulse"></span>
+            <span class="font-bold text-amber-500">{{ countPending }}</span>
+            <span class="text-muted-foreground">en attente</span>
+          </div>
+          <div class="client-header-chip" *ngIf="countQuoted > 0">
+            <span class="client-chip-dot bg-blue-500"></span>
+            <span class="font-bold text-blue-500">{{ countQuoted }}</span>
+            <span class="text-muted-foreground">quoted</span>
+          </div>
+          <div class="client-header-chip" *ngIf="countConfirmed > 0">
+            <span class="client-chip-dot bg-emerald-500"></span>
+            <span class="font-bold text-emerald-500">{{ countConfirmed }}</span>
+            <span class="text-muted-foreground">confirmés</span>
+          </div>
+          <div class="client-header-chip" *ngIf="countInProgress > 0">
+            <span class="client-chip-dot bg-indigo-500"></span>
+            <span class="font-bold text-indigo-500">{{ countInProgress }}</span>
+            <span class="text-muted-foreground">en cours</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Primary CTA -->
+    <a *ngIf="!lectureSeule" routerLink="/client/projets/new" class="client-header-btn-primary self-start md:self-center z-10">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Nouveau projet</span>
+    </a>
+  </div>
+
+  <!-- ═══ INTERNAL WORKSPACE HEADER (Staff / Internal Users Only) ═══ -->
+  <div *ngIf="!isExternalUser()" class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📁</span>
+        <h1 class="page-title-premium">
+          Workspace Projets
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <ng-container *ngIf="userRole === 'SUPPORT_TECHNIQUE'; else standardCounts">
+          <span class="text-warning font-bold">{{ countPending }} projets en attente</span>
+        </ng-container>
+        <ng-template #standardCounts>
+          <span>{{ countAll }} projets au total</span>
+          <span class="text-muted-foreground/30">•</span>
+          <span class="text-warning font-bold">{{ countPending }} en attente</span>
+          <span class="text-muted-foreground/30">•</span>
+          <span class="text-primary font-bold">{{ countQuoted }} quoted</span>
+          <span class="text-muted-foreground/30">•</span>
+          <span class="text-success font-bold">{{ countConfirmed }} confirmés</span>
+          <span class="text-muted-foreground/30">•</span>
+          <span class="text-indigo-400 font-bold">{{ countInProgress }} en cours</span>
+        </ng-template>
+      </p>
+    </div>
+  </div>
+  
+  <!-- ═══ Workspace Projects View Switcher (Internal CP/ST Only) ═══ -->
+  <div *ngIf="!isExternalUser() && userRole !== 'ADMINISTRATEUR'" class="flex items-center gap-2 mb-2 animate-fade-up">
+    <button (click)="toggleAssignedFilter(false)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 border"
+            [style.background]="!showAllProjects ? 'hsl(var(--primary)/0.08)' : 'transparent'"
+            [style.color]="!showAllProjects ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+            [style.border-color]="!showAllProjects ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.4)'">
+      💼 Mes projets assignés
+    </button>
+    <button (click)="toggleAssignedFilter(true)" class="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 border"
+            [style.background]="showAllProjects ? 'hsl(var(--primary)/0.08)' : 'transparent'"
+            [style.color]="showAllProjects ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+            [style.border-color]="showAllProjects ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.4)'">
+      📁 Tous les projets 
+    </button>
+  </div>
+
+  <!-- ═══ Success Toast ═══ -->
+  <div *ngIf="successMsg" class="flex items-center gap-3 p-4 rounded-2xl border animate-fade-up"
+       style="background:hsl(var(--success)/0.08);border-color:hsl(var(--success)/0.3)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:hsl(var(--success))"><polyline points="20 6 9 17 4 12"/></svg>
+    <p class="text-sm font-semibold" style="color:hsl(var(--success))">{{ successMsg }}</p>
+  </div>
+
+  <!-- ═══ Error ═══ -->
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <!-- ═══ STATS OVERVIEW CARDS ═══ -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4" *ngIf="!loading">
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Projets</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ countAll }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: hsl(var(--primary)/0.08); border: 1px solid hsl(var(--primary)/0.15)">
+        <span class="text-lg">📁</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">En Attente</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ countPending }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: hsl(var(--warning)/0.08); border: 1px solid hsl(var(--warning)/0.15)">
+        <span class="text-lg">🔍</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Quoted</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ countQuoted }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: hsl(var(--primary)/0.08); border: 1px solid hsl(var(--primary)/0.15)">
+        <span class="text-lg">⏳</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Confirmés</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ countConfirmed }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: hsl(var(--success)/0.08); border: 1px solid hsl(var(--success)/0.15)">
+        <span class="text-lg">✅</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Recherche — par client d'abord, mais le nom du projet marche aussi ═══ -->
+  <div class="relative" *ngIf="!loading && projets.length > 0">
+    <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </span>
+    <input type="text" [(ngModel)]="recherche" (ngModelChange)="onRecherche()"
+           placeholder="Rechercher un client, un projet…"
+           class="w-full pl-10 pr-24 py-2.5 rounded-2xl border border-border/50 bg-card text-sm text-foreground
+                  placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/25 outline-none transition-all"/>
+    <div class="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+      <span *ngIf="recherche.trim()" class="text-[11px] font-bold text-muted-foreground tabular-nums">
+        {{ filteredProjets.length }} résultat(s)
+      </span>
+      <button *ngIf="recherche.trim()" (click)="effacerRecherche()" type="button"
+              class="w-6 h-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-all cursor-pointer"
+              title="Effacer la recherche">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Les onglets comptent tout ; la recherche, elle, retranche. On le dit,
+       plutot que de laisser croire a un onglet vide. -->
+  <p *ngIf="!loading && masquesParRecherche > 0" class="text-[11px] text-muted-foreground -mt-3">
+    {{ masquesParRecherche }} projet(s) de cet onglet ne correspondent pas à « <strong class="text-foreground">{{ recherche }}</strong> ».
+  </p>
+
+  <!-- ═══ Dynamic Tabs & View Switcher (Notion/Linear style) ═══ -->
+  <div class="flex items-center justify-between border-b border-border/20 pb-3 gap-4 flex-wrap" *ngIf="!loading">
+    <!-- Dynamic Tabs for user role -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button *ngFor="let t of getTabsForRole()" (click)="switchTab(t.id)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 border hover:bg-secondary/40"
+              [style.background]="activeTab === t.id ? 'hsl(var(--primary)/0.08)' : 'transparent'"
+              [style.color]="activeTab === t.id ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+              [style.border-color]="activeTab === t.id ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.4)'">
+        <span>{{ t.icon }}</span> {{ t.label }}
+        <span class="px-1.5 py-0.2 rounded-md text-[10px] ml-1 font-bold bg-secondary text-foreground">{{ getTabCount(t.id) }}</span>
+      </button>
+    </div>
+
+    <!-- View Switcher -->
+    <div class="flex items-center gap-1 p-0.5 rounded-xl border bg-secondary/10" style="border-color: hsl(var(--border)/0.4);">
+      <button (click)="switchView('list')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5"
+              [class]="currentView === 'list' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+        <span>📋</span> Liste
+      </button>
+      <button (click)="switchView('kanban')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5"
+              [class]="currentView === 'kanban' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+        <span>🟪</span> Kanban
+      </button>
+      <button (click)="switchView('timeline')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 flex items-center gap-1.5"
+              [class]="currentView === 'timeline' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'">
+        <span>📅</span> Gantt
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ Loading ═══ -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement des projets…</p>
+  </div>
+
+  <!-- ═══ PROJECTS LIST SECTION ═══ -->
+  <div *ngIf="!loading" class="space-y-4">
+    <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">📁</span>
+        <h3 class="text-base font-bold text-foreground" style="font-family:'Outfit',sans-serif">Liste des projets</h3>
+      </div>
+      <span class="text-xs font-semibold text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-border/20">
+        {{ filteredProjets.length }} {{ filteredProjets.length > 1 ? 'projets trouvés' : 'projet trouvé' }}
+      </span>
+    </div>
+
+    <!-- 🟦 LIST VIEW -->
+    <div *ngIf="currentView === 'list'" class="space-y-4">
+      <div *ngFor="let p of filteredProjets; let i = index" 
+           class="group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-primary/45"
+           [style.background]="'hsl(var(--card))'"
+           [style.border]="(!isExternalUser() && (!p.assignments || p.assignments.length === 0) && p.statut === 'PENDING') ? '1px solid hsl(var(--warning)/0.6)' : '1px solid hsl(var(--border)/0.5)'"
+           [class]="'stagger-' + ((i % 8) + 1)">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+          <!-- Left: Icon & Project Info (col-span-5) -->
+          <div class="md:col-span-5 flex items-center gap-4">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 font-extrabold text-sm tracking-wider shadow-inner transition-all duration-300 group-hover:scale-105" 
+                 [ngStyle]="getAvatarStyle(p.nom)">
+              {{ getProjectInitials(p.nom) }}
+            </div>
+            <div class="space-y-1.5 flex-1 min-w-0">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <a [routerLink]="'/client/projets/' + p.id" 
+                   class="font-black text-base tracking-tight text-foreground transition-all duration-300 hover:text-primary truncate" 
+                   style="font-family:'Outfit',sans-serif">
+                  {{ p.nom }}
+                </a>
+                <span class="inline-flex items-center gap-1 text-[10px] text-muted-foreground font-semibold px-2 py-0.5 rounded-md" 
+                      style="background: hsl(var(--secondary)/0.5); border: 1px solid hsl(var(--border)/0.3);">
+                  Créé le {{ p.createdAt ? (p.createdAt | date:'dd/MM/yyyy') : '—' }}
+                </span>
+                <!-- Le client, sur la carte : chercher par un nom qu'on ne voit
+                     nulle part obligeait a ouvrir la fiche pour verifier. -->
+                <span *ngIf="!isExternalUser() && p.clientNom"
+                      class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md"
+                      style="background: hsl(var(--primary)/0.1); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)/0.2);"
+                      [title]="p.clientEmail || ''">
+                  👤 {{ p.clientNom }}
+                </span>
+                <span *ngIf="!isExternalUser() && getAssignmentStatus(p).label" 
+                      class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md"
+                      [style.background]="getAssignmentStatus(p).bg"
+                      [style.color]="getAssignmentStatus(p).color"
+                      [style.border]="getAssignmentStatus(p).border">
+                  {{ getAssignmentStatus(p).label }}
+                </span>
+              </div>
+              
+              <!-- Assigned Staff Subtext -->
+              <p *ngIf="!isExternalUser() && p.assignments && p.assignments.length > 0" class="text-[10px] text-muted-foreground/80 flex flex-wrap gap-x-3 gap-y-1">
+                <ng-container *ngFor="let a of p.assignments">
+                  <span class="flex items-center gap-1">
+                    {{ a.role === 'CHEF_DE_PROJET' ? '👨‍💼 CP:' : (a.role === 'SUPPORT_TECHNIQUE' ? '🛠️ Support:' : '🔧 Tech:') }}
+                    <strong class="text-foreground">{{ a.userNom }}</strong>
+                  </span>
+                </ng-container>
+              </p>
+              <p *ngIf="!isExternalUser() && (!p.assignments || p.assignments.length === 0) && p.statut !== 'BROUILLON'" class="text-[10px] text-warning font-semibold flex items-center gap-1">
+                ⚠️ Aucune équipe assignée
+              </p>
+
+              <p class="text-xs text-muted-foreground/80 line-clamp-1 max-w-sm">{{ p.description || 'Aucune description fournie.' }}</p>
+            </div>
+          </div>
+
+          <!-- Center: Progress & Step Label (col-span-3) -->
+          <div class="md:col-span-3 flex flex-col gap-1.5 w-full">
+            <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">{{ getProjectProgressLabel(p) }}</span>
+            <div class="flex items-center gap-3">
+              <div class="relative flex-1 h-2 rounded-full overflow-hidden" style="background: hsl(var(--border)/0.3)">
+                <div class="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out" 
+                     [style.width]="projectProgress(p) + '%'"
+                     style="background: linear-gradient(90deg, #2563eb, #06b6d4)"></div>
+              </div>
+              <span class="text-xs font-bold text-foreground">{{ projectProgress(p) }}%</span>
+            </div>
+          </div>
+
+          <!-- Right: Status & Actions (col-span-4) -->
+          <div class="md:col-span-4 flex flex-col md:items-end gap-2.5 w-full">
+            <!-- Status Pill -->
+            <div class="flex items-center justify-between md:justify-end w-full md:w-auto">
+              <span class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"
+                    [style.background]="statusBg(p.statut)"
+                    [style.color]="statusColor(p.statut)"
+                    [style.border]="'1px solid ' + statusColor(p.statut)"
+                    style="backdrop-filter: blur(10px);">
+                <span class="w-1.5 h-1.5 rounded-full inline-block animate-pulse" 
+                      [style.background-color]="statusColor(p.statut)"></span>
+                {{ statusLabel(p.statut) }}
+              </span>
+            </div>
+
+            <!-- Actions Row -->
+            <div class="flex items-center justify-between md:justify-end gap-3 w-full">
+              <!-- Quick Action buttons group -->
+              <div class="flex items-center gap-0.5 p-0.5 rounded-xl border opacity-100 md:opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 md:translate-y-0 group-hover:translate-y-0"
+                   style="background: hsl(var(--secondary)/0.2); border-color: hsl(var(--border)/0.4);">
+                <a [routerLink]="'/client/projets/' + p.id" 
+                   class="w-8 h-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-card transition-all" 
+                   title="Voir détails">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </a>
+                <button *ngIf="isExternalUser() && !lectureSeule" (click)="openEdit(p)" 
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-primary hover:text-primary-foreground hover:bg-primary/10 transition-all" 
+                        title="Modifier">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                <button *ngIf="isExternalUser() && !lectureSeule && p.statut === 'COMPLETED'" (click)="confirmArchive(p)" 
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-accent hover:text-accent-foreground hover:bg-accent/10 transition-all" 
+                        title="Archiver le projet" style="color: #6366f1;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                    <rect x="1" y="3" width="22" height="5" rx="1"></rect>
+                    <line x1="10" y1="12" x2="14" y2="12"></line>
+                  </svg>
+                </button>
+                <button *ngIf="isExternalUser() && !lectureSeule && supprimable(p)" (click)="confirmDelete(p.id)" 
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-destructive hover:text-destructive-foreground hover:bg-destructive/10 transition-all" 
+                        title="Supprimer">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                </button>
+              </div>
+
+              <!-- Cadrage / BOM primary action -->
+              <a *ngIf="needsCadrage(p) && isExternalUser()" [routerLink]="getCadrageActionRoute(p)"
+                 class="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold text-white tracking-wide shadow-md transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+                 style="background: linear-gradient(135deg, #4f46e5, #2563eb); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                <span>{{ getCadrageActionLabel(p) }}</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform group-hover:translate-x-0.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+
+              <!-- Déposer fichier pour Idée & Faisabilité -->
+              <a *ngIf="(p.cadrage?.objectif === 'IDEE' || p.cadrage?.objectif === 'FAISABILITE') && !hasIdeaDocuments(p) && isExternalUser()" 
+                 [routerLink]="'/client/projets/' + p.id"
+                 class="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold text-white tracking-wide shadow-md transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+                 style="background: linear-gradient(135deg, #4f46e5, #2563eb); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+                <span>Déposer fichier</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="transition-transform group-hover:translate-x-0.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🟪 KANBAN BOARD VIEW -->
+    <div *ngIf="currentView === 'kanban'" class="grid grid-cols-1 md:grid-cols-5 gap-5 items-start overflow-x-auto pb-6">
+      
+      <!-- Column: BROUILLON -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">📝 Brouillons</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('BROUILLON').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let p of getProjetsByStatut('BROUILLON')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Brouillon</span>
+              <span>{{ projectProgress(p) }}%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full bg-warning" [style.width]="projectProgress(p) + '%'"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('BROUILLON').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+      <!-- Column: PENDING -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">🔍 En attente</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('PENDING').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+
+          <div *ngFor="let p of getProjetsByStatut('PENDING')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Étude consultative</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full bg-warning" style="width: 100%"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('PENDING').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+      <!-- Column: QUOTED -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">⏳ Quoted</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('QUOTED').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let p of getProjetsByStatut('QUOTED')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Attente paiement</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full bg-primary" style="width: 100%"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('QUOTED').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+      <!-- Column: CONFIRMED -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">✅ Confirmés</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('CONFIRMED').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let p of getProjetsByStatut('CONFIRMED')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Confirmé</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full bg-success" style="width: 100%"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('CONFIRMED').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+      <!-- Column: IN_PROGRESS -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">⚙️ En cours</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('IN_PROGRESS').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let p of getProjetsByStatut('IN_PROGRESS')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>En cours de fab</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full" style="background:#6366f1; width: 100%"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('IN_PROGRESS').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+      <!-- Column: COMPLETED -->
+      <div class="flex flex-col gap-4 min-w-[280px] bg-secondary/5 p-4 rounded-2xl border border-border/20">
+        <div class="flex items-center justify-between border-b border-border/20 pb-2">
+          <span class="text-xs font-black text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">🚀 Terminés</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-secondary text-foreground">{{ getProjetsByStatut('COMPLETED').length }}</span>
+        </div>
+        <div class="space-y-3 max-h-[500px] overflow-y-auto">
+          <div *ngFor="let p of getProjetsByStatut('COMPLETED')" class="p-4 rounded-xl border bg-card hover:shadow-md transition-all duration-200 cursor-pointer space-y-3 border-border/40" [routerLink]="'/client/projets/' + p.id">
+            <h4 class="font-bold text-sm text-foreground truncate">{{ p.nom }}</h4>
+            <div class="flex justify-between items-center text-[10px] text-muted-foreground font-semibold">
+              <span>Terminé</span>
+              <span>100%</span>
+            </div>
+            <div class="w-full h-1.5 rounded-full bg-secondary/30 overflow-hidden">
+              <div class="h-full bg-success" style="width: 100%"></div>
+            </div>
+          </div>
+          <div *ngIf="getProjetsByStatut('COMPLETED').length === 0" class="border-2 border-dashed border-border/20 rounded-xl p-6 text-center text-xs text-muted-foreground">Aucun projet</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 📅 GANTT / TIMELINE VIEW -->
+    <div *ngIf="currentView === 'timeline'" class="glass-card-premium p-6 rounded-2xl border overflow-x-auto" style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5);">
+      <div class="min-w-[800px] space-y-4">
+        <div class="grid grid-cols-12 pb-3 border-b border-border/20 text-xs font-black text-muted-foreground uppercase tracking-wider">
+          <div class="col-span-4">Projet</div>
+          <div class="col-span-8 grid grid-cols-5 text-center">
+            <div>1. Industrie</div>
+            <div>2. Objectif</div>
+            <div>3. Besoins</div>
+            <div>4. Engagement</div>
+            <div>5. Chrono</div>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div *ngFor="let p of filteredProjets" class="grid grid-cols-12 items-center py-4 border-b border-border/10 last:border-none">
+            <!-- Left Project Details -->
+            <div class="col-span-4 flex items-center gap-3">
+              <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs shrink-0" [ngStyle]="getAvatarStyle(p.nom)">
+                {{ getProjectInitials(p.nom) }}
+              </div>
+              <div class="min-w-0">
+                <a [routerLink]="'/client/projets/' + p.id" class="font-bold text-sm hover:text-primary transition truncate block">{{ p.nom }}</a>
+                <span class="text-[10px] text-muted-foreground">Créé le {{ p.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+
+            <!-- Steps Progress Timeline -->
+            <div class="col-span-8 grid grid-cols-5 gap-1 items-center relative">
+              <div class="absolute left-[10%] right-[10%] h-0.5 bg-border/25 z-0"></div>
+
+              <!-- Step 1: Industrie -->
+              <div class="flex flex-col items-center z-10">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black" 
+                      [style.background]="projectProgress(p) >= 20 ? 'hsl(var(--success)/0.15)' : 'hsl(var(--secondary)/0.5)'"
+                      [style.color]="projectProgress(p) >= 20 ? 'hsl(var(--success))' : 'hsl(var(--muted-foreground))'"
+                      [style.border]="projectProgress(p) >= 20 ? '1px solid hsl(var(--success)/0.4)' : '1px solid hsl(var(--border)/0.4)'">
+                  ✓
+                </span>
+              </div>
+
+              <!-- Step 2: Objectif -->
+              <div class="flex flex-col items-center z-10">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black" 
+                      [style.background]="projectProgress(p) >= 40 ? 'hsl(var(--success)/0.15)' : (projectProgress(p) === 20 ? 'hsl(var(--primary)/0.15)' : 'hsl(var(--secondary)/0.5)')"
+                      [style.color]="projectProgress(p) >= 40 ? 'hsl(var(--success))' : (projectProgress(p) === 20 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))')"
+                      [style.border]="projectProgress(p) >= 40 ? '1px solid hsl(var(--success)/0.4)' : (projectProgress(p) === 20 ? '1px solid hsl(var(--primary)/0.4)' : '1px solid hsl(var(--border)/0.4)')">
+                  {{ projectProgress(p) >= 40 ? '✓' : '2' }}
+                </span>
+              </div>
+
+              <!-- Step 3: Besoins -->
+              <div class="flex flex-col items-center z-10">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black" 
+                      [style.background]="projectProgress(p) >= 60 ? 'hsl(var(--success)/0.15)' : (projectProgress(p) === 40 ? 'hsl(var(--primary)/0.15)' : 'hsl(var(--secondary)/0.5)')"
+                      [style.color]="projectProgress(p) >= 60 ? 'hsl(var(--success))' : (projectProgress(p) === 40 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))')"
+                      [style.border]="projectProgress(p) >= 60 ? '1px solid hsl(var(--success)/0.4)' : (projectProgress(p) === 40 ? '1px solid hsl(var(--primary)/0.4)' : '1px solid hsl(var(--border)/0.4)')">
+                  {{ projectProgress(p) >= 60 ? '✓' : '3' }}
+                </span>
+              </div>
+
+              <!-- Step 4: Engagement -->
+              <div class="flex flex-col items-center z-10">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black" 
+                      [style.background]="projectProgress(p) >= 80 ? 'hsl(var(--success)/0.15)' : (projectProgress(p) === 60 ? 'hsl(var(--primary)/0.15)' : 'hsl(var(--secondary)/0.5)')"
+                      [style.color]="projectProgress(p) >= 80 ? 'hsl(var(--success))' : (projectProgress(p) === 60 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))')"
+                      [style.border]="projectProgress(p) >= 80 ? '1px solid hsl(var(--success)/0.4)' : (projectProgress(p) === 60 ? '1px solid hsl(var(--primary)/0.4)' : '1px solid hsl(var(--border)/0.4)')">
+                  {{ projectProgress(p) >= 80 ? '✓' : '4' }}
+                </span>
+              </div>
+
+              <!-- Step 5: Chrono -->
+              <div class="flex flex-col items-center z-10">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black" 
+                      [style.background]="projectProgress(p) >= 100 ? 'hsl(var(--success)/0.15)' : (projectProgress(p) === 80 ? 'hsl(var(--primary)/0.15)' : 'hsl(var(--secondary)/0.5)')"
+                      [style.color]="projectProgress(p) >= 100 ? 'hsl(var(--success))' : (projectProgress(p) === 80 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))')"
+                      [style.border]="projectProgress(p) >= 100 ? '1px solid hsl(var(--success)/0.4)' : (projectProgress(p) === 80 ? '1px solid hsl(var(--primary)/0.4)' : '1px solid hsl(var(--border)/0.4)')">
+                  {{ projectProgress(p) >= 100 ? '✓' : '5' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredProjets.length === 0" class="glass-card-premium p-12 text-center rounded-2xl" 
+         style="background: hsl(var(--card)/0.5); border: 1px solid hsl(var(--border)/0.3); backdrop-filter: blur(10px);">
+      <div class="empty-state-premium flex flex-col items-center justify-center space-y-4">
+        <div class="empty-icon w-16 h-16 rounded-2xl flex items-center justify-center" style="background: hsl(var(--primary)/0.06);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.5)"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">Aucun projet trouvé</p>
+        <p class="text-sm text-muted-foreground max-w-sm">Il n'y a aucun projet correspondant à ce statut pour le moment.</p>
+        <a *ngIf="isExternalUser() && !lectureSeule" routerLink="/client/projets/new" class="btn-primary gap-2 text-xs" style="height: 38px; border-radius: 10px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          Nouveau projet
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Modals divider ═══ -->
+
+
+  <!-- ═══ Edit Modal ═══ -->
+  <div *ngIf="showEditModal" class="modal-overlay-premium" (click)="closeModal()">
+    <div class="modal-content-premium max-w-lg" (click)="$event.stopPropagation()">
+      <div class="card-header-premium"><h3 class="font-semibold text-lg text-foreground">Modifier le projet</h3><button (click)="closeModal()" class="btn-icon w-8 h-8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="card-body space-y-4">
+        <div class="p-3 rounded-xl border border-border/30" style="background:hsl(var(--secondary)/0.3)">
+          <p class="text-xs text-muted-foreground">Projet <span class="font-semibold text-foreground">{{ editingProjet?.nom }}</span></p>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nom *</label>
+          <input class="input-base" placeholder="Nom du projet" [(ngModel)]="editForm.nom"/>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description</label>
+          <textarea class="input-base" rows="3" placeholder="Description du projet..." [(ngModel)]="editForm.description"></textarea>
+        </div>
+        <div *ngIf="saveError" class="flex items-center gap-2 p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError }}</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button (click)="saveEdit()" class="btn-primary flex-1" [disabled]="saving || !editForm.nom">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button (click)="closeModal()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Delete Confirm Modal ═══ -->
+  <div *ngIf="showDeleteModal" class="modal-overlay-premium">
+    <div class="modal-content-premium max-w-sm" style="border:1px solid hsl(var(--destructive)/0.25)">
+      <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--destructive)), hsl(var(--destructive)/0.4))"></div>
+      <div class="p-6 space-y-5 text-center">
+        <div class="flex justify-center">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:hsl(var(--destructive)/0.12)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--destructive))"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+          </div>
+        </div>
+        <h3 class="font-bold text-foreground text-xl" style="font-family:'Outfit',sans-serif">Supprimer ce projet ?</h3>
+        <p class="text-sm text-muted-foreground">Cette action est irréversible. Toutes les données du projet seront perdues.</p>
+        <div class="flex gap-2.5 pt-1">
+          <button (click)="cancelDelete()" class="btn-secondary flex-1 text-sm">Annuler</button>
+          <button (click)="doDelete()" [disabled]="deleting" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all" style="background:hsl(var(--destructive));color:#fff">
+            {{ deleting ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Archive Confirm Modal ═══ -->
+  <div *ngIf="showArchiveModal" class="modal-overlay-premium">
+    <div class="modal-content-premium max-w-sm" style="border:1px solid rgba(99, 102, 241, 0.25)">
+      <div class="h-1.5 w-full" style="background: linear-gradient(90deg, #6366f1, #818cf8)"></div>
+      <div class="p-6 space-y-5 text-center">
+        <div class="flex justify-center">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:rgba(99, 102, 241, 0.12)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="21 8 21 21 3 21 3 8"></polyline>
+              <rect x="1" y="3" width="22" height="5" rx="1"></rect>
+              <line x1="10" y1="12" x2="14" y2="12"></line>
+            </svg>
+          </div>
+        </div>
+        <h3 class="font-bold text-foreground text-xl" style="font-family:'Outfit',sans-serif">Archiver le projet ?</h3>
+        <p class="text-sm text-muted-foreground leading-relaxed font-medium">
+          Voulez-vous vraiment archiver le projet <span class="font-semibold text-foreground">{{ archivingProjet?.nom }}</span> ? <br>
+          Il sera déplacé dans vos archives et ne pourra plus être modifié.
+        </p>
+        <div class="flex gap-2.5 pt-1">
+          <button (click)="cancelArchive()" class="btn-secondary flex-1 text-sm font-semibold">Annuler</button>
+          <button (click)="doArchive()" [disabled]="archiving" 
+                  class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all text-white hover:opacity-90 shadow-sm"
+                  style="background:#6366f1">
+            {{ archiving ? 'Archivage...' : 'Archiver le projet' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

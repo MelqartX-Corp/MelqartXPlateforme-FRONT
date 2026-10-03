@@ -1,0 +1,143 @@
+<div class="min-h-screen flex items-center justify-center p-4"
+         style="background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--secondary)/0.4) 100%)">
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center space-y-4">
+        <div class="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <p class="text-muted-foreground font-medium animate-pulse">Vérification de l'invitation...</p>
+      </div>
+
+      <!-- Invalid / expired / cancelled -->
+      <div *ngIf="!loading && !invitation?.valid" class="glass-card rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--destructive)), hsl(var(--destructive)/0.3))"></div>
+        <div class="p-8 text-center space-y-5">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
+               style="background: hsl(var(--destructive)/0.12)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 style="color: hsl(var(--destructive))">
+              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/>
+              <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-foreground">Invitation invalide</h2>
+            <p class="text-sm text-muted-foreground mt-2">{{ invitation?.message || 'Cette invitation est invalide.' }}</p>
+          </div>
+          <a routerLink="/login" class="btn-primary inline-flex items-center gap-2 px-6 py-2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Aller à la connexion
+          </a>
+        </div>
+      </div>
+
+      <!-- Valid — show password form -->
+      <div *ngIf="!loading && invitation?.valid && !accepted" class="glass-card rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--primary)/0.3))"></div>
+        <div class="p-8 space-y-6">
+          <!-- Header -->
+          <div class="text-center space-y-3">
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"
+                 style="background: linear-gradient(135deg, hsl(var(--primary)/0.15), hsl(var(--primary)/0.05))">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   style="color: hsl(var(--primary))">
+                <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
+              </svg>
+            </div>
+            <h1 class="text-2xl font-extrabold text-foreground">Compléter votre inscription</h1>
+            <p class="text-sm text-muted-foreground leading-relaxed">
+              Bonjour <span class="font-semibold text-foreground">{{ invitation?.prenom }}</span>,<br>
+              <span class="font-semibold text-foreground">{{ invitation?.inviterName }}</span>
+              vous a invité à rejoindre
+              <span class="font-semibold text-primary">{{ invitation?.organisationName }}</span>.
+            </p>
+          </div>
+
+          <!-- Info pill -->
+          <div class="flex items-center gap-3 px-4 py-3 rounded-xl" style="background: hsl(var(--primary)/0.06); border: 1px solid hsl(var(--primary)/0.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--primary))" class="shrink-0">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <p class="text-xs text-muted-foreground">
+              En rejoignant, vous aurez accès aux projets, devis et commandes de l'organisation.
+            </p>
+          </div>
+
+          <!-- Password form -->
+          <form (ngSubmit)="onSubmit()" class="space-y-4">
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Mot de passe</label>
+              <div class="relative">
+                <input [type]="showPwd ? 'text' : 'password'" class="input-base pr-10" placeholder="••••••••"
+                       [(ngModel)]="password" name="password" required minlength="8"
+                       pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z\d]).{8,}$" #pwdRef="ngModel"/>
+                <button type="button" (click)="showPwd = !showPwd"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg hover:bg-secondary/60 transition-colors text-muted-foreground">
+                  <svg *ngIf="!showPwd" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg *ngIf="showPwd" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+              <p *ngIf="pwdRef.invalid && pwdRef.touched" class="text-[10px] text-destructive">
+                Min 8 car, majuscule, minuscule, chiffre et caractère spécial
+              </p>
+            </div>
+
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Confirmation</label>
+              <input [type]="showPwd ? 'text' : 'password'" class="input-base" placeholder="••••••••"
+                     [(ngModel)]="confirmPassword" name="confirmPassword" required #confirmRef="ngModel"/>
+              <p *ngIf="confirmPassword && password !== confirmPassword" class="text-[10px] text-destructive">
+                Les mots de passe ne correspondent pas
+              </p>
+            </div>
+
+            <div *ngIf="error" class="p-3 rounded-xl border border-destructive/30 bg-destructive/5 text-sm text-destructive font-medium">
+              {{ error }}
+            </div>
+
+            <button type="submit" class="btn-primary w-full h-11 text-sm font-semibold gap-2"
+                    [disabled]="submitting || pwdRef.invalid || !confirmPassword || password !== confirmPassword">
+              <span *ngIf="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {{ submitting ? 'Création du compte...' : 'Créer mon compte' }}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div *ngIf="accepted" class="glass-card rounded-3xl w-full max-w-md shadow-2xl overflow-hidden">
+        <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--success)), hsl(var(--success)/0.3))"></div>
+        <div class="p-8 text-center space-y-5">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto animate-bounce"
+               style="background: hsl(var(--success)/0.12)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 style="color: hsl(var(--success))">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold text-foreground">Compte créé avec succès !</h2>
+            <p class="text-sm text-muted-foreground mt-2">
+              Vous avez rejoint <span class="font-semibold text-primary">{{ invitation?.organisationName }}</span>.
+              Vous pouvez maintenant vous connecter.
+            </p>
+          </div>
+          <a routerLink="/login" class="btn-primary inline-flex items-center gap-2 px-6 py-2.5">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            Se connecter
+          </a>
+        </div>
+      </div>
+    </div>

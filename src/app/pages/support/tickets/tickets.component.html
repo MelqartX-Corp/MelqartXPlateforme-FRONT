@@ -1,0 +1,91 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div>
+    <h1 class="text-3xl text-foreground mb-2">File d'attente Support</h1>
+    <p class="text-muted-foreground">Gérez les tickets de support clients</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="glass-card rounded-xl p-4">
+      <div class="text-center">
+        <p class="text-2xl text-warning mb-1">4</p>
+        <p class="text-sm text-muted-foreground">Tickets ouverts</p>
+      </div>
+    </div>
+    <div class="glass-card rounded-xl p-4">
+      <div class="text-center">
+        <p class="text-2xl text-primary mb-1">2</p>
+        <p class="text-sm text-muted-foreground">En cours</p>
+      </div>
+    </div>
+    <div class="glass-card rounded-xl p-4">
+      <div class="text-center">
+        <p class="text-2xl text-success mb-1">15</p>
+        <p class="text-sm text-muted-foreground">Résolus aujourd'hui</p>
+      </div>
+    </div>
+    <div class="glass-card rounded-xl p-4">
+      <div class="text-center">
+        <p class="text-2xl text-destructive mb-1">3</p>
+        <p class="text-sm text-muted-foreground">Non lus</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets List -->
+  <div class="space-y-4">
+    <div *ngFor="let ticket of tickets" class="glass-card rounded-xl p-6 hover:shadow-md transition-shadow" [ngClass]="ticket.unread ? 'border-l-4 border-l-primary' : ''">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center space-x-3 mb-2">
+            <svg *ngIf="ticket.priority === 'urgent'" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-destructive"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>
+            <h3 class="text-foreground font-medium">{{ticket.subject}}</h3>
+            <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold" [ngClass]="ticket.status === 'OUVERT' ? 'bg-secondary text-secondary-foreground' : 'bg-primary/20 text-primary'">
+              {{ticket.status}}
+            </div>
+            <span *ngIf="ticket.unread" class="w-2 h-2 bg-primary rounded-full"></span>
+          </div>
+          
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-3">
+            <div>
+              <span class="text-muted-foreground">ID: </span>
+              <span class="text-foreground">{{ticket.id}}</span>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Client: </span>
+              <span class="text-foreground">{{ticket.client}}</span>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Commande: </span>
+              <span class="text-foreground">{{ticket.orderRef || 'N/A'}}</span>
+            </div>
+            <div>
+              <span class="text-muted-foreground">Priorité: </span>
+              <span class="capitalize" [ngClass]="ticket.priority === 'urgent' ? 'text-destructive' : (ticket.priority === 'high' ? 'text-warning' : 'text-muted-foreground')">
+                {{ticket.priority}}
+              </span>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-4 text-sm text-muted-foreground">
+            <span>Créé: {{ticket.created}}</span>
+            <span class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+              {{ticket.lastMessage}}
+            </span>
+          </div>
+        </div>
+        
+        <div class="flex space-x-2">
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-3 border border-border">
+            Voir conversation
+          </button>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors  btn-primary  h-9 px-3">
+            Répondre
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

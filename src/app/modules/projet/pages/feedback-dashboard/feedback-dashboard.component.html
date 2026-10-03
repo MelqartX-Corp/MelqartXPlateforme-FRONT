@@ -1,0 +1,274 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🌟</span>
+        <h1 class="page-title-premium">
+          Avis Clients
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Retours des clients sur l'expérience projet globale, une fois leurs projets livrés
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ Erreur ═══ -->
+  <div *ngIf="error" class="fb-alert flex items-center gap-3 rounded-2xl p-4">
+    <span class="text-lg">⚠️</span>
+    <p class="text-sm font-semibold" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <!-- ═══ Chargement ═══ -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center gap-4 py-24">
+    <div class="relative h-12 w-12">
+      <div class="h-12 w-12 rounded-full border-4" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent"
+           style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-sm font-medium text-muted-foreground">Chargement des avis…</p>
+  </div>
+
+  <ng-container *ngIf="!loading">
+
+    <!-- ═══ KPI — note globale, volume, satisfaction, alertes ═══ -->
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+
+      <div class="fb-kpi fb-kpi-hero rounded-2xl p-6">
+        <p class="fb-kpi-label">Note moyenne</p>
+        <div class="mt-1 flex items-end gap-1.5">
+          <span class="text-4xl font-black leading-none text-foreground" style="font-family:'Outfit',sans-serif">
+            {{ averageNote || '—' }}
+          </span>
+          <span class="pb-0.5 text-sm font-bold text-muted-foreground">/ 5</span>
+        </div>
+        <div class="mt-2 flex items-center gap-0.5">
+          <span *ngFor="let s of [1,2,3,4,5]" class="text-sm" [style.opacity]="s <= averageNoteArrondie ? 1 : 0.22">⭐</span>
+        </div>
+      </div>
+
+      <div class="fb-kpi rounded-2xl p-6">
+        <p class="fb-kpi-label">Total avis reçus</p>
+        <div class="mt-1 text-4xl font-black leading-none text-foreground" style="font-family:'Outfit',sans-serif">
+          {{ stats ? stats.total : totalElements }}
+        </div>
+        <p class="mt-2 text-[11px] font-semibold text-muted-foreground">projets livrés et notés</p>
+      </div>
+
+      <div class="fb-kpi rounded-2xl p-6">
+        <p class="fb-kpi-label">Clients satisfaits</p>
+        <div class="mt-1 text-4xl font-black leading-none" style="font-family:'Outfit',sans-serif"
+             [style.color]="feedbacks.length ? couleurNote(tauxSatisfaction / 20) : 'hsl(var(--foreground))'">
+          {{ feedbacks.length ? tauxSatisfaction + '%' : '—' }}
+        </div>
+        <p class="mt-2 text-[11px] font-semibold text-muted-foreground">avis à 4 / 5 ou plus</p>
+      </div>
+
+      <div class="fb-kpi rounded-2xl p-6" [class.fb-kpi-danger]="avisCritiques.length > 0">
+        <p class="fb-kpi-label">Avis critiques</p>
+        <div class="mt-1 text-4xl font-black leading-none" style="font-family:'Outfit',sans-serif"
+             [style.color]="avisCritiques.length ? 'hsl(var(--destructive))' : 'hsl(var(--success))'">
+          {{ nbAvisCritiques }}
+        </div>
+        <button *ngIf="nbAvisCritiques > 0" type="button" (click)="setFiltre('critiques')"
+                class="fb-kpi-link mt-2 text-[11px] font-bold">
+          Les afficher →
+        </button>
+        <p *ngIf="nbAvisCritiques === 0" class="mt-2 text-[11px] font-semibold text-muted-foreground">
+          aucun avis ≤ 2 / 5
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ Répartition + moyenne par critère ═══ -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" *ngIf="feedbacks.length > 0">
+
+      <div class="fb-card rounded-2xl p-6">
+        <h3 class="fb-card-title">Répartition des notes</h3>
+        <div class="mt-4 space-y-2.5">
+          <div *ngFor="let bar of distribution" class="flex items-center gap-3">
+            <span class="flex w-9 shrink-0 items-center gap-0.5 text-xs font-black text-muted-foreground">
+              {{ bar.note }}<span class="text-[11px]">★</span>
+            </span>
+            <div class="fb-bar-track h-2.5 flex-1 overflow-hidden rounded-full">
+              <div class="fb-bar-fill h-full rounded-full"
+                   [style.width.%]="bar.pourcentage"
+                   [style.background]="couleurNote(bar.note)"></div>
+            </div>
+            <span class="w-14 shrink-0 text-right text-xs font-bold text-muted-foreground">
+              {{ bar.count }} <span class="font-normal">({{ bar.pourcentage }}%)</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fb-card rounded-2xl p-6">
+        <h3 class="fb-card-title">Moyenne par critère</h3>
+        <div class="mt-4 space-y-4">
+          <div *ngFor="let c of critereAverages">
+            <div class="flex items-center justify-between text-xs">
+              <span class="flex items-center gap-2 font-bold text-foreground">
+                <span class="text-sm">{{ c.icone }}</span>{{ c.label }}
+              </span>
+              <span class="font-black" [style.color]="couleurNote(c.moyenne)">{{ c.moyenne || '—' }} / 5</span>
+            </div>
+            <div class="fb-bar-track mt-1.5 h-2 overflow-hidden rounded-full">
+              <div class="fb-bar-fill h-full rounded-full"
+                   [style.width.%]="largeurNote(c.moyenne)"
+                   [style.background]="couleurNote(c.moyenne)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Classements par agent ═══ -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2" *ngIf="feedbacks.length > 0">
+
+      <div class="fb-card rounded-2xl p-6">
+        <h3 class="fb-card-title">Qualité support — par agent</h3>
+        <div class="mt-4 space-y-2">
+          <div *ngFor="let a of supportAverages; let i = index" class="fb-agent flex items-center gap-3 rounded-xl p-2.5">
+            <span class="fb-rank" [class.fb-rank-top]="i === 0">{{ i + 1 }}</span>
+            <span class="fb-avatar">{{ initiales(a.nom) }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-xs font-bold text-foreground">{{ a.nom }}</div>
+              <div class="fb-bar-track mt-1 h-1.5 overflow-hidden rounded-full">
+                <div class="fb-bar-fill h-full rounded-full"
+                     [style.width.%]="largeurNote(a.moyenne)"
+                     [style.background]="couleurNote(a.moyenne)"></div>
+              </div>
+            </div>
+            <div class="shrink-0 text-right">
+              <div class="text-sm font-black" [style.color]="couleurNote(a.moyenne)">{{ a.moyenne }}</div>
+              <div class="text-[9.5px] font-semibold text-muted-foreground">{{ a.count }} avis</div>
+            </div>
+          </div>
+          <p *ngIf="supportAverages.length === 0" class="fb-empty-inline">Aucun agent support noté</p>
+        </div>
+      </div>
+
+      <div class="fb-card rounded-2xl p-6">
+        <h3 class="fb-card-title">Communication &amp; délais — par chef de projet</h3>
+        <div class="mt-4 space-y-2">
+          <div *ngFor="let a of cdpAverages; let i = index" class="fb-agent flex items-center gap-3 rounded-xl p-2.5">
+            <span class="fb-rank" [class.fb-rank-top]="i === 0">{{ i + 1 }}</span>
+            <span class="fb-avatar">{{ initiales(a.nom) }}</span>
+            <div class="min-w-0 flex-1">
+              <div class="truncate text-xs font-bold text-foreground">{{ a.nom }}</div>
+              <div class="fb-bar-track mt-1 h-1.5 overflow-hidden rounded-full">
+                <div class="fb-bar-fill h-full rounded-full"
+                     [style.width.%]="largeurNote(a.moyenne)"
+                     [style.background]="couleurNote(a.moyenne)"></div>
+              </div>
+            </div>
+            <div class="shrink-0 text-right">
+              <div class="text-sm font-black" [style.color]="couleurNote(a.moyenne)">{{ a.moyenne }}</div>
+              <div class="text-[9.5px] font-semibold text-muted-foreground">{{ a.count }} avis</div>
+            </div>
+          </div>
+          <p *ngIf="cdpAverages.length === 0" class="fb-empty-inline">Aucun chef de projet noté</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ Filtres + recherche ═══ -->
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between" *ngIf="feedbacks.length > 0">
+      <div class="fb-segment inline-flex rounded-xl p-1">
+        <button type="button" (click)="setFiltre('tous')" [class.fb-segment-on]="filtre === 'tous'" class="fb-segment-btn">
+          Tous <span class="opacity-60">({{ feedbacks.length }})</span>
+        </button>
+        <button type="button" (click)="setFiltre('positifs')" [class.fb-segment-on]="filtre === 'positifs'" class="fb-segment-btn">
+          Positifs
+        </button>
+        <button type="button" (click)="setFiltre('critiques')" [class.fb-segment-on]="filtre === 'critiques'" class="fb-segment-btn">
+          Critiques <span class="opacity-60">({{ nbAvisCritiques }})</span>
+        </button>
+      </div>
+
+      <div class="fb-search flex items-center gap-2 rounded-xl px-3 py-2 sm:w-72">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" class="shrink-0 text-muted-foreground">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input [(ngModel)]="recherche" type="text" placeholder="Rechercher un projet, un agent, un mot…"
+               class="w-full bg-transparent text-xs font-medium text-foreground placeholder:text-muted-foreground focus:outline-none" />
+        <button *ngIf="recherche" type="button" (click)="recherche = ''" class="shrink-0 text-muted-foreground hover:text-foreground">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ Liste des avis ═══ -->
+    <div class="space-y-3">
+      <div *ngFor="let f of feedbacksFiltres; let i = index"
+           [class]="'fb-review rounded-2xl p-5 stagger-' + ((i % 8) + 1)"
+           [class.fb-review-critique]="estCritique(f.moyenne)">
+
+        <div class="flex flex-wrap items-start justify-between gap-4">
+          <div class="flex min-w-0 items-start gap-3">
+            <span class="fb-avatar fb-avatar-lg">{{ initiales(f.projetNom) }}</span>
+            <div class="min-w-0 space-y-2">
+              <p class="truncate text-[15px] font-black text-foreground" style="font-family:'Outfit',sans-serif">
+                {{ f.projetNom || 'Projet supprimé' }}
+              </p>
+
+              <div class="flex flex-wrap gap-x-5 gap-y-1.5">
+                <div class="flex items-center gap-1.5">
+                  <span class="fb-critere-label">🎧 Support</span>
+                  <span *ngFor="let s of [1,2,3,4,5]" class="text-[11px]" [style.opacity]="s <= f.noteSupport ? 1 : 0.2">⭐</span>
+                  <span *ngIf="f.supportNom" class="fb-agent-tag">{{ f.supportNom }}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="fb-critere-label">💬 Communication</span>
+                  <span *ngFor="let s of [1,2,3,4,5]" class="text-[11px]" [style.opacity]="s <= f.noteCommunication ? 1 : 0.2">⭐</span>
+                  <span *ngIf="f.chefDeProjetNom" class="fb-agent-tag">{{ f.chefDeProjetNom }}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <span class="fb-critere-label">📦 Produit</span>
+                  <span *ngFor="let s of [1,2,3,4,5]" class="text-[11px]" [style.opacity]="s <= f.noteProduit ? 1 : 0.2">⭐</span>
+                </div>
+              </div>
+
+              <blockquote *ngIf="f.commentaire" class="fb-quote">{{ f.commentaire }}</blockquote>
+            </div>
+          </div>
+
+          <div class="shrink-0 space-y-1.5 text-right">
+            <span class="fb-note-badge" [style.color]="couleurNote(f.moyenne)"
+                  [style.background]="'color-mix(in srgb, ' + couleurNote(f.moyenne) + ' 12%, transparent)'">
+              {{ f.moyenne | number:'1.1-1' }} / 5
+            </span>
+            <div class="whitespace-nowrap text-[11px] font-semibold text-muted-foreground">
+              {{ f.createdAt | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aucun résultat après filtrage -->
+      <div *ngIf="feedbacks.length > 0 && feedbacksFiltres.length === 0" class="fb-card rounded-2xl p-10 text-center">
+        <p class="text-sm font-bold text-foreground">Aucun avis ne correspond</p>
+        <p class="mt-1 text-xs text-muted-foreground">Modifiez la recherche ou le filtre sélectionné.</p>
+      </div>
+
+      <!-- Aucun avis du tout -->
+      <div *ngIf="feedbacks.length === 0" class="fb-card rounded-2xl p-12 text-center">
+        <div class="flex flex-col items-center justify-center space-y-4">
+          <div class="flex h-16 w-16 items-center justify-center rounded-2xl" style="background: hsl(var(--primary)/0.06)">
+            <span class="text-3xl">🌟</span>
+          </div>
+          <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">Aucun avis pour le moment</p>
+          <p class="max-w-sm text-sm text-muted-foreground">
+            Les avis apparaîtront ici dès que des clients auront noté leurs projets livrés.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

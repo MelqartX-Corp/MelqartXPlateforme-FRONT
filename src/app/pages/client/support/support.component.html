@@ -1,0 +1,62 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl text-foreground mb-2">Support</h1>
+      <p class="text-muted-foreground">Obtenez de l'aide de notre équipe</p>
+    </div>
+    <button (click)="toggleNewTicket()" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors  btn-primary  h-10 px-4 py-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 mr-2"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>
+      Nouveau ticket
+    </button>
+  </div>
+
+  <!-- New Ticket Form -->
+  <div *ngIf="showNewTicket" class="glass-card rounded-xl p-6 mb-6">
+    <div class="border-b border-border pb-4 mb-4">
+      <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Créer un nouveau ticket</h3>
+    </div>
+    <div class="space-y-4">
+      <div class="space-y-2">
+        <label class="text-sm font-medium leading-none">Sujet</label>
+        <input class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" placeholder="Décrivez brièvement votre problème" />
+      </div>
+      <div class="space-y-2">
+        <label class="text-sm font-medium leading-none">Description</label>
+        <textarea class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" placeholder="Expliquez en détail votre demande..." rows="6"></textarea>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors  btn-primary  h-10 px-4 py-2">Envoyer</button>
+        <button (click)="hideNewTicket()" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 border border-border">Annuler</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets List -->
+  <div class="space-y-4">
+    <div *ngFor="let ticket of tickets" class="glass-card rounded-xl p-6 hover:shadow-md transition-shadow cursor-pointer">
+      <div class="flex items-start justify-between">
+        <div class="flex-1">
+          <div class="flex items-center space-x-3 mb-2">
+            <h3 class="text-foreground font-medium">{{ticket.subject}}</h3>
+            <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold" [ngClass]="{'bg-success/10 text-success': ticket.status === 'OUVERT', 'bg-warning/10 text-warning': ticket.status === 'EN_COURS', 'bg-secondary text-secondary-foreground': ticket.status === 'RESOLU'}">
+              {{ticket.status}}
+            </div>
+          </div>
+          <div class="flex items-center space-x-4 text-sm text-muted-foreground">
+            <span>ID: {{ticket.id}}</span>
+            <span>Créé: {{ticket.created}}</span>
+            <span>Dernière réponse: {{ticket.lastReply}}</span>
+            <span class="flex items-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-1"><path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/></svg>
+              {{ticket.messages}} messages
+            </span>
+          </div>
+        </div>
+        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80 h-9 px-3 border border-border">
+          Voir la conversation
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

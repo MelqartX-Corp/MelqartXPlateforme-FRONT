@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>MELQARTX — Plateforme PCB/PCBA</title>
+  <base href="/">
+  <script>
+    window.global = window;
+    window.process = window.process || {
+      env: { DEBUG: undefined },
+      nextTick: function(fn) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        setTimeout(function() { fn.apply(null, args); }, 0);
+      },
+      browser: true,
+      version: ''
+    };
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MELQARTX — Plateforme complète de fabrication de circuits imprimés PCB et assemblage PCBA en Tunisie. Devis instantanés, suivi en temps réel, qualité garantie.">
+  <meta name="theme-color" content="#414A37" media="(prefers-color-scheme: light)">
+  <link rel="icon" type="image/png" href="rima-logo.png">
+  <link rel="shortcut icon" type="image/png" href="rima-logo.png">
+  <link rel="apple-touch-icon" href="rima-logo.png">
+
+  <!-- Preconnect for performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Outfit (headings) + Inter (body) + JetBrains Mono (Tech data) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="mat-typography">
+  <app-root></app-root>
+</body>
+</html>

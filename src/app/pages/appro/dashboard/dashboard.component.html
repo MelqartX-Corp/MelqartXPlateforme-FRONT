@@ -1,0 +1,289 @@
+<div class="space-y-6 animate-fade-up pb-10">
+
+  <!-- ═══ EN-TÊTE ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5 min-w-0">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📦</span>
+        <h1 class="page-title-premium">Tableau de bord Approvisionnement</h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Ce qui manque, ce qui est promis, et ce qui n'arrive pas
+      </p>
+    </div>
+    <button (click)="charger()" [disabled]="chargement()"
+            class="btn-secondary gap-2 relative z-10 shrink-0 disabled:opacity-50">
+      <svg class="w-3.5 h-3.5" [class.animate-spin]="chargement()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+      </svg>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="chargement()" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+           style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-xs text-muted-foreground font-medium">Lecture du stock et des livraisons&hellip;</p>
+  </div>
+
+  <div *ngIf="erreur()" class="flex items-start gap-3 p-4 rounded-2xl border"
+       style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <span class="text-lg shrink-0">&#9888;</span>
+    <p class="text-sm font-semibold" style="color:hsl(var(--destructive))">{{ erreur() }}</p>
+  </div>
+
+  <ng-container *ngIf="!chargement() && !erreur()">
+
+    <!-- ═══ LES QUATRE CHIFFRES QUI APPELLENT UNE ACTION ═══ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Sous le seuil -->
+      <a routerLink="/stock/components"
+         class="glass-card-premium p-5 space-y-2 stagger-1 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Sous le seuil</span>
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: hsl(var(--destructive)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--destructive))">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="sousSeuil().length ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))'">
+          {{ sousSeuil().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">
+          {{ sousSeuil().length === 0 ? 'Aucune référence à recommander' : 'référence(s) à recommander' }}
+        </p>
+      </a>
+
+      <!-- Entièrement réservées -->
+      <a routerLink="/stock/reels"
+         class="glass-card-premium p-5 space-y-2 stagger-2 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Tout est promis</span>
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: hsl(var(--warning)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--warning))">
+              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="entierementReservees().length ? 'hsl(var(--warning))' : 'hsl(var(--foreground))'">
+          {{ entierementReservees().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">réf. sans disponible restant</p>
+      </a>
+
+      <!-- Livraisons en attente -->
+      <a routerLink="/stock/lots"
+         class="glass-card-premium p-5 space-y-2 stagger-3 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Livraisons attendues</span>
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: hsl(var(--primary)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--primary))">
+              <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 6v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-black text-foreground tabular-nums">{{ lotsEnAttente().length }}</p>
+        <p class="text-[11px] text-muted-foreground">
+          {{ piecesAttendues() | number }} pièce(s) en route
+        </p>
+      </a>
+
+      <!-- Retards -->
+      <a routerLink="/stock/lots"
+         class="glass-card-premium p-5 space-y-2 stagger-4 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Livraisons en retard</span>
+          <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: hsl(var(--destructive)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: hsl(var(--destructive))">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="lotsEnRetard().length ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))'">
+          {{ lotsEnRetard().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">date estimée dépassée</p>
+      </a>
+    </div>
+
+    <!-- ═══ DISPONIBLE VS RÉSERVÉ ═══
+         Le chiffre que l'appro n'avait nulle part : le stock physique ne dit
+         pas ce qui est encore à prendre. Ce qu'un projet payé a mis de côté
+         est là, sur la bobine, et pourtant plus disponible pour personne. -->
+    <div class="glass-card-premium p-5 sm:p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div>
+          <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+            Disponible réel du magasin
+          </h2>
+          <p class="text-[11px] text-muted-foreground mt-0.5">
+            Les pièces réservées sont physiquement là, mais promises à un projet réglé — elles ne sont plus à prendre.
+          </p>
+        </div>
+        <span class="text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shrink-0"
+              [style.background]="tauxEngagement() >= 50 ? 'hsl(var(--warning) / 0.15)' : 'hsl(var(--success) / 0.15)'"
+              [style.color]="tauxEngagement() >= 50 ? 'hsl(var(--warning))' : 'hsl(var(--success))'">
+          {{ tauxEngagement() }} % engagé
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="p-4 rounded-2xl border border-border/50 bg-card">
+          <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Physique</p>
+          <p class="text-2xl font-black text-foreground tabular-nums mt-1">{{ totalPhysique() | number }}</p>
+          <p class="text-[10.5px] text-muted-foreground">pièces sur les bobines</p>
+        </div>
+        <div class="p-4 rounded-2xl border" style="border-color:hsl(var(--warning)/0.3);background:hsl(var(--warning)/0.06)">
+          <p class="text-[10px] font-bold uppercase tracking-wider" style="color:hsl(var(--warning))">Réservé</p>
+          <p class="text-2xl font-black tabular-nums mt-1" style="color:hsl(var(--warning))">{{ totalReserve() | number }}</p>
+          <p class="text-[10.5px] text-muted-foreground">promis à des projets réglés</p>
+        </div>
+        <div class="p-4 rounded-2xl border" style="border-color:hsl(var(--success)/0.3);background:hsl(var(--success)/0.06)">
+          <p class="text-[10px] font-bold uppercase tracking-wider" style="color:hsl(var(--success))">Disponible</p>
+          <p class="text-2xl font-black tabular-nums mt-1" style="color:hsl(var(--success))">{{ totalDisponible() | number }}</p>
+          <p class="text-[10.5px] text-muted-foreground">réellement à prendre</p>
+        </div>
+      </div>
+
+      <!-- Barre d'engagement -->
+      <div class="h-2.5 w-full rounded-full overflow-hidden flex" style="background:hsl(var(--secondary))">
+        <div class="h-full transition-all duration-700" style="background:hsl(var(--warning))"
+             [style.width.%]="tauxEngagement()"></div>
+        <div class="h-full transition-all duration-700" style="background:hsl(var(--success))"
+             [style.width.%]="100 - tauxEngagement()"></div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+      <!-- ═══ RÉFÉRENCES À SURVEILLER ═══ -->
+      <div class="glass-card-premium p-5 sm:p-6 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-border/40">
+          <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+            Références à surveiller
+          </h2>
+          <a routerLink="/stock/components" class="text-[11px] font-bold text-primary hover:underline">
+            Catalogue →
+          </a>
+        </div>
+
+        <div *ngIf="aSurveiller().length === 0" class="py-8 text-center">
+          <span class="text-2xl">✅</span>
+          <p class="text-xs text-muted-foreground mt-2">Aucune référence tendue — le magasin tient.</p>
+        </div>
+
+        <div *ngFor="let s of aSurveiller()"
+             class="p-3.5 rounded-2xl border border-border/50 bg-card space-y-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-mono text-xs font-black text-foreground">{{ s.componentMpn }}</span>
+            <span *ngIf="s.belowThreshold"
+                  class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md"
+                  style="background:hsl(var(--destructive)/0.12);color:hsl(var(--destructive))">
+              sous seuil · {{ s.reelCount }}/{{ s.seuilMinReels }} bobines
+            </span>
+            <span class="text-[10.5px] text-muted-foreground ml-auto shrink-0">{{ s.manufacturer }}</span>
+          </div>
+
+          <div class="flex items-center gap-3 text-[11px]">
+            <span class="text-muted-foreground">
+              <span class="font-bold" style="color:hsl(var(--success))">{{ disponible(s) | number }}</span> dispo
+            </span>
+            <span class="text-muted-foreground">
+              <span class="font-bold" style="color:hsl(var(--warning))">{{ reserve(s) | number }}</span> réservé
+            </span>
+            <span class="text-muted-foreground ml-auto tabular-nums">{{ s.totalQuantityRemaining | number }} physique</span>
+          </div>
+
+          <div class="h-1.5 w-full rounded-full overflow-hidden" style="background:hsl(var(--secondary))">
+            <div class="h-full rounded-full transition-all duration-700"
+                 style="background:hsl(var(--warning))"
+                 [style.width.%]="partReservee(s)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ LIVRAISONS FOURNISSEURS ═══ -->
+      <div class="glass-card-premium p-5 sm:p-6 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-border/40">
+          <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+            Livraisons fournisseurs
+          </h2>
+          <a routerLink="/stock/lots" class="text-[11px] font-bold text-primary hover:underline">
+            Tous les lots →
+          </a>
+        </div>
+
+        <div *ngIf="lotsRecents().length === 0" class="py-8 text-center">
+          <span class="text-2xl">📭</span>
+          <p class="text-xs text-muted-foreground mt-2">Aucun lot enregistré.</p>
+        </div>
+
+        <a *ngFor="let l of lotsRecents()"
+           [routerLink]="['/stock/lots']"
+           class="p-3.5 rounded-2xl border bg-card flex items-center gap-3 hover:shadow-sm transition-shadow"
+           [style.border-color]="enRetard(l) ? 'hsl(var(--destructive)/0.35)' : 'hsl(var(--border)/0.5)'">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-xs font-bold text-foreground truncate">
+                {{ l.supplierName || l.manufacturerLot || 'Lot' }}
+              </span>
+              <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md"
+                    [style.background]="'hsl(' + statutLot(l).couleur + ' / 0.12)'"
+                    [style.color]="'hsl(' + statutLot(l).couleur + ')'">
+                {{ statutLot(l).label }}
+              </span>
+              <span *ngIf="enRetard(l)"
+                    class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md"
+                    style="background:hsl(var(--destructive)/0.12);color:hsl(var(--destructive))">
+                ⏱ {{ joursDeRetard(l) }} j de retard
+              </span>
+            </div>
+            <p class="text-[10.5px] text-muted-foreground">
+              {{ l.totalReceived || 0 | number }} / {{ l.totalExpected || 0 | number }} pièces reçues
+              <span *ngIf="l.estimatedDeliveryDate">
+                · prévu le {{ l.estimatedDeliveryDate | date:'dd/MM/yyyy' }}
+              </span>
+            </p>
+          </div>
+          <div class="w-14 shrink-0 text-right">
+            <p class="text-sm font-black text-foreground tabular-nums">
+              {{ l.receptionProgress || 0 }}<span class="text-[10px] text-muted-foreground">%</span>
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ LE MAGASIN EN UN COUP D'ŒIL ═══ -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <a routerLink="/stock/components" class="glass-card-premium p-4 block hover:shadow-lg transition-shadow">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Composants</p>
+        <p class="text-xl font-black text-foreground tabular-nums mt-1">{{ totalComposants() | number }}</p>
+      </a>
+      <a routerLink="/stock/reels" class="glass-card-premium p-4 block hover:shadow-lg transition-shadow">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Bobines</p>
+        <p class="text-xl font-black text-foreground tabular-nums mt-1">{{ totalBobines() | number }}</p>
+      </a>
+      <a routerLink="/stock/suppliers" class="glass-card-premium p-4 block hover:shadow-lg transition-shadow">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Fournisseurs</p>
+        <p class="text-xl font-black text-foreground tabular-nums mt-1">{{ totalFournisseurs() | number }}</p>
+      </a>
+      <a routerLink="/stock/locations" class="glass-card-premium p-4 block hover:shadow-lg transition-shadow">
+        <p class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Références suivies</p>
+        <p class="text-xl font-black text-foreground tabular-nums mt-1">{{ resume().length | number }}</p>
+      </a>
+    </div>
+
+  </ng-container>
+</div>

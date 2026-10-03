@@ -1,0 +1,122 @@
+<div class="space-y-6 animate-fade-up">
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+  </div>
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="supplier && !loading">
+
+    <!-- Header -->
+    <div class="page-header-premium">
+      <div class="relative z-10">
+        <a routerLink="/stock/suppliers" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors mb-2">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          Retour aux fournisseurs
+        </a>
+        <h1 class="page-title-premium">{{ supplier.name }}</h1>
+        <p class="text-sm text-muted-foreground mt-1 font-medium">
+          <span *ngIf="supplier.source" class="text-foreground font-semibold">{{ countryFlag(supplier.source) }} {{ supplier.source }}</span>
+          <span *ngIf="!supplier.source" class="text-muted-foreground/50">Pays non renseigné</span>
+        </p>
+      </div>
+      <button (click)="openEdit()" class="btn-primary gap-2 relative z-10">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Modifier
+      </button>
+    </div>
+
+    <!-- Info cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- Identity -->
+      <div class="glass-card-premium p-5 stagger-1">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-3">Fournisseur</p>
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 text-sm font-black uppercase"
+               style="background:linear-gradient(135deg,hsl(var(--primary)/0.15),hsl(var(--primary)/0.05));color:hsl(var(--primary))">
+            {{ supplier.name.substring(0,2) }}
+          </div>
+          <div>
+            <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">{{ supplier.name }}</p>
+            <p class="text-xs text-muted-foreground mt-0.5">ID : <span class="font-mono">{{ supplier.id }}</span></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Country -->
+      <div class="glass-card-premium p-5 stagger-2">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-3">Pays d'origine</p>
+        <div class="flex items-center gap-3">
+          <div class="w-14 h-14 rounded-xl flex items-center justify-center shrink-0 text-3xl"
+               style="background:linear-gradient(135deg,hsl(var(--accent)/0.12),hsl(var(--accent)/0.04))">
+            {{ supplier.source ? countryFlag(supplier.source) : '🌍' }}
+          </div>
+          <div>
+            <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">{{ supplier.source || 'Non spécifié' }}</p>
+            <p *ngIf="supplier.source" class="text-xs text-muted-foreground mt-0.5">Code pays ISO</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail grid -->
+    <div class="glass-card-premium stagger-4">
+      <div class="card-header-premium">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <h3>Informations détaillées</h3>
+        </div>
+      </div>
+      <div class="p-5">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Nom</p>
+            <p class="text-sm font-semibold text-foreground">{{ supplier.name }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Identifiant</p>
+            <p class="text-sm font-mono text-foreground">{{ supplier.id }}</p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Pays d'origine</p>
+            <p class="text-sm text-foreground">
+              <span *ngIf="supplier.source">{{ countryFlag(supplier.source) }} {{ supplier.source }}</span>
+              <span *ngIf="!supplier.source" class="text-muted-foreground/50">—</span>
+            </p>
+          </div>
+          <div>
+            <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.12em] mb-1.5">Créé le</p>
+            <p class="text-sm text-foreground">{{ supplier.createdAt ? (supplier.createdAt | date:'dd/MM/yyyy à HH:mm') : '—' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+
+  <!-- Edit Modal -->
+  <div *ngIf="showEditModal" class="modal-overlay-premium" (click)="closeEdit()">
+    <div class="modal-content-premium max-w-md" (click)="$event.stopPropagation()">
+      <div class="card-header-premium"><h3>Modifier le fournisseur</h3><button (click)="closeEdit()" class="btn-icon w-8 h-8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="card-body space-y-4">
+        <div class="p-3 rounded-xl border border-border/30" style="background:hsl(var(--secondary)/0.3)">
+          <p class="text-xs text-muted-foreground">Fournisseur <span class="font-semibold text-foreground">{{ supplier?.name }}</span></p>
+        </div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nom *</label><input class="input-base" [(ngModel)]="editForm.name"/></div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Pays d'origine</label><input class="input-base" placeholder="CN, DE, US, TN..." [(ngModel)]="editForm.source"/></div>
+        <div *ngIf="saveError" class="p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)"><span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError }}</span></div>
+        <div class="flex gap-2 pt-2">
+          <button (click)="saveEdit()" class="btn-primary flex-1" [disabled]="saving || !editForm.name">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+          <button (click)="closeEdit()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

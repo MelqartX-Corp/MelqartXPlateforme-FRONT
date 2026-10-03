@@ -1,0 +1,1228 @@
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+<!-- PROJET UPLOAD GERBER & PACKAGE PCBA — COCKPIT DE FABRICATION HAUTE PRÉCISION  -->
+<!-- ══════════════════════════════════════════════════════════════════════════ -->
+
+<div class="cockpit-canvas tech-grid-pattern pb-24 selection:bg-blue-600 selection:text-white">
+
+  <!-- ─── Décorations Lumineuses d'Arrière-Plan (Halos & Télémétrie) ─── -->
+  <div class="absolute top-0 right-1/4 w-[600px] h-[350px] bg-gradient-to-b from-blue-500/10 via-cyan-400/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute top-1/3 -left-20 w-[450px] h-[450px] bg-gradient-to-r from-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+  <!-- ─── ÉTAT : Chargement ─── -->
+  <div *ngIf="loading" class="min-h-[75vh] flex items-center justify-center relative z-20">
+    <div class="bento-card-hardware p-10 flex flex-col items-center gap-5 text-center max-w-sm shadow-2xl">
+      <div class="relative w-16 h-16">
+        <div class="w-16 h-16 rounded-2xl border-4 border-blue-500/20 border-t-blue-600 animate-spin"></div>
+        <div class="absolute inset-0 flex items-center justify-center text-blue-600 font-black text-xs font-mono-tech">PCB</div>
+      </div>
+      <div>
+        <h3 class="text-base font-black text-slate-900 dark:text-white font-outfit">Initialisation du Cockpit</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 font-inter">Chargement des modules de fabrication...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ÉTAT : Erreur ─── -->
+  <div *ngIf="!loading && error" class="min-h-[75vh] flex items-center justify-center px-4 relative z-20">
+    <div class="bento-card-hardware p-8 border-rose-500/30 shadow-2xl text-center max-w-md space-y-4">
+      <div class="w-14 h-14 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center text-2xl mx-auto shadow-sm">
+        ⚠️
+      </div>
+      <h2 class="text-lg font-black text-slate-900 dark:text-white font-outfit">Impossible de charger le projet</h2>
+      <p class="text-xs text-slate-500 dark:text-slate-400 font-inter leading-relaxed">{{ error }}</p>
+      <button (click)="goToProjet()" class="px-5 py-2.5 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition-all shadow-md font-inter cursor-pointer">
+        Retour à l'espace projet
+      </button>
+    </div>
+  </div>
+
+  <!-- ─── CONTENU PRINCIPAL (COCKPIT DE FABRICATION) ─── -->
+  <div *ngIf="!loading && !error && projet" class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 animate-fade-in">
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. CLIENT "WOW" HERO HEADER (External Users)                              -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="projet && isExternalUser()" class="client-header-hero">
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 w-full">
+        
+        <!-- Left: Fil d'Ariane & Titre Principal -->
+        <div class="space-y-2 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <a routerLink="/client/projets" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-wider">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              Projets
+            </a>
+            <span class="opacity-40 text-xs">/</span>
+            <a [routerLink]="['/client/projets', projet.id]" class="text-xs font-bold text-foreground hover:text-primary transition-colors">
+              {{ projet.nom }}
+            </a>
+            <span class="client-header-tag">
+              <span class="client-header-tag-dot"></span>
+              Étape 2 • Fichiers PCB
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="client-header-title">
+              Configuration Fichiers PCB
+            </h1>
+            <span class="px-3.5 py-0.5 rounded-full text-[11px] font-black bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/25 uppercase tracking-widest font-mono-tech shadow-xs">
+              {{ projet.cadrage?.objectif || 'PROTOTYPE' }}
+            </span>
+          </div>
+
+          <p class="text-xs text-muted-foreground font-medium">
+            Déposez les fichiers techniques requis pour votre projet <strong class="text-foreground font-bold">{{ projet.nom }}</strong>.
+          </p>
+        </div>
+
+        <!-- Right: Stepper Pipeline Luxury Capsule -->
+        <div class="stepper-pipeline-capsule shrink-0 self-start lg:self-center">
+          <div class="flex items-center gap-2">
+            
+            <!-- Étape 1 : Cadrage (Complétée avec action Modifier) -->
+            <a [routerLink]="['/client/projets', projet.id, 'cadrage']"
+               class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer group"
+               title="Cliquez pour revenir et modifier le cadrage">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-xs">
+                ✓
+              </span>
+              <span>1. Cadrage</span>
+              <span class="text-[9px] font-bold font-inter px-1.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                Modifier
+              </span>
+            </a>
+
+            <!-- Connecteur Lumineux 1 -> 2 -->
+            <div class="step-connector-gradient"></div>
+
+            <!-- Étape 2 : Fichiers PCB (Active avec radar pulsant) -->
+            <div class="step-pill-active flex items-center gap-2 px-4 py-1.5 text-xs font-black font-outfit tracking-wide">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-300 opacity-80"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+              </span>
+              <span>2. Fichiers PCB</span>
+            </div>
+
+            <!-- Connecteur Neutre 2 -> 3 -->
+            <div class="step-connector-muted"></div>
+
+            <!-- Étape 3 : BOM (À venir / Débloquée après validation des fichiers requis) -->
+            <div class="step-pill-pending flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold font-outfit text-slate-400 dark:text-slate-500 cursor-default select-none"
+                 title="Complétez les fichiers obligatoires ci-dessous pour accéder à l'étape BOM">
+              <span class="w-4 h-4 rounded-full bg-slate-200 dark:bg-slate-700/70 text-slate-500 dark:text-slate-400 text-[10px] font-black flex items-center justify-center">
+                3
+              </span>
+              <span>3. BOM</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. INTERNAL / STAFF WORKSPACE HEADER (Internal Users)                     -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="projet && !isExternalUser()" class="page-header-premium">
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">⚡</span>
+            <h1 class="page-title-premium">
+              Fichiers Techniques PCB • {{ projet.nom }}
+            </h1>
+          </div>
+          <p class="text-xs text-muted-foreground font-semibold">
+            Supervision des fichiers Gerber, Drill, Pick &amp; Place et spécifications de production
+          </p>
+        </div>
+
+        <div class="stepper-pipeline-capsule shrink-0 self-start md:self-center">
+          <div class="flex items-center gap-2">
+            <a [routerLink]="['/client/projets', projet.id, 'cadrage']" class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
+              <span>1. Cadrage</span>
+            </a>
+            <div class="step-connector-gradient"></div>
+            <div class="step-pill-active flex items-center gap-2 px-4 py-1.5 text-xs font-black font-outfit tracking-wide">
+              <span>2. PCB</span>
+            </div>
+            <div class="step-connector-muted"></div>
+            <div class="step-pill-pending flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold font-outfit text-slate-400 dark:text-slate-500 cursor-default select-none">
+              <span>3. BOM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 2. MAIN BENTO GRID : MODULES TECHNIQUES + STICKY VALIDATION COCKPIT        -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- ─── COLONNE GAUCHE (8 colonnes / ~68%) : LES MODULES DE FABRICATION ─── -->
+      <div class="lg:col-span-8 space-y-6">
+
+        <!-- ─── BARRE DE TITRE DE SECTION : "FICHIERS TECHNIQUES" ─── -->
+        <div class="bento-card-hardware !p-4 sm:!px-6 !py-3.5 flex items-center gap-3 shadow-sm border border-slate-200/90 dark:border-slate-700/80">
+          <div class="relative flex items-center justify-center">
+            <span class="w-3 h-3 rounded-full bg-blue-600 animate-ping absolute opacity-75"></span>
+            <span class="w-3 h-3 rounded-full bg-blue-600 shadow-sm shadow-blue-500/50"></span>
+          </div>
+          <h2 class="text-sm sm:text-base font-black uppercase tracking-wider text-slate-900 dark:text-white font-outfit">
+            FICHIERS TECHNIQUES
+          </h2>
+          <span class="badge-tech-pill bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/25 text-[11px] font-black font-mono-tech shadow-xs">
+            {{ uploadedRequiredFiles }}/{{ totalRequiredFiles }} REQUIS COMPLÉTÉS
+          </span>
+        </div>
+
+        <!-- ─── BENTO GRID 2x2 DES 4 MODULES ALIGNÉS AU MÊME NIVEAU ─── -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-7 relative items-stretch">
+
+          <!-- ═════ MODULE 1 : FICHIER GERBER PCB (OBLIGATOIRE) ═════ -->
+          <div class="bento-card-hardware p-6 flex flex-col justify-between group transition-all duration-300 h-full"
+               [ngClass]="{ 'bento-card-success': gerberSuccess }">
+
+            <div class="space-y-4">
+              <!-- Header Module — Hauteur fixe garantie pour alignement parfait -->
+              <div class="flex items-center justify-between gap-3 h-[52px]">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm shrink-0 transition-transform group-hover:scale-105"
+                       [ngClass]="gerberSuccess ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/30'">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1 font-outfit tracking-tight truncate">
+                      <span>Fichier Gerber</span>
+                      <span class="text-rose-500 font-black">*</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-inter truncate">Archive complète des couches PCB</p>
+                  </div>
+                </div>
+
+                <span *ngIf="gerberSuccess" class="badge-tech-pill badge-tech-success shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reçu
+                </span>
+                <span *ngIf="!gerberSuccess" class="badge-tech-pill badge-tech-required shrink-0">
+                  Obligatoire
+                </span>
+              </div>
+
+              <!-- Zone de Contenu / Dropzone — Hauteur standardisée (210px) pour même niveau -->
+              <div class="h-[210px] w-full flex flex-col justify-center">
+                
+                <!-- ÉTAT A : Fichier Déjà Téléversé (Ultra-Luxury Inner Card) -->
+                <div *ngIf="gerberSuccess && gerberDoc" class="inner-file-card-luxury h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <!-- Top Row: File Info -->
+                  <div class="flex items-start gap-3 relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-lg text-blue-600 dark:text-blue-400 shadow-xs shrink-0">
+                      📦
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                      <div class="flex items-center justify-between gap-1">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit tracking-tight" [title]="gerberDoc.nomDocument">
+                          {{ gerberDoc.nomDocument }}
+                        </p>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-black font-mono-tech border border-emerald-500/25 shrink-0 shadow-xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>VALIDE</span>
+                        </span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono-tech">
+                        Téléversé le {{ gerberDoc.uploadedAt | date:'dd/MM/yyyy à HH:mm' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Middle Row: Tech Status Bar -->
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-[10px] font-inter shadow-xs">
+                    <span class="text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5 truncate">
+                      <span class="text-emerald-500 font-bold">✓</span>
+                      <span>Couches PCB détectées & prêtes</span>
+                    </span>
+                    <span class="text-blue-600 dark:text-blue-400 font-mono-tech font-bold text-[9px] shrink-0">GERBER-OK</span>
+                  </div>
+
+                  <!-- Bottom Row: Action Bar -->
+                  <div class="relative z-10 flex items-center gap-2 pt-1 border-t border-slate-200/70 dark:border-slate-700/70">
+                    <a *ngIf="projet" 
+                       [routerLink]="['/client/projets', projet.id, 'gerber-viewer']"
+                       class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl btn-launch-viewer text-xs font-black shadow-md transition-all active:scale-95 cursor-pointer font-outfit tracking-wide">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      <span>Gerber Viewer 2D/3D</span>
+                    </a>
+                    
+                    <button (click)="downloadFile(gerberDoc.fileUrl, gerberDoc.nomDocument || 'Gerber.zip')"
+                            class="p-2 rounded-xl bg-white dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-blue-900/40 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                            title="Télécharger l'archive Gerber originale">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    </button>
+                    
+                    <button (click)="deleteGerber()"
+                            class="p-2 rounded-xl bg-white dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 border border-slate-200 dark:border-slate-600 hover:border-rose-300 text-rose-500 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                            title="Remplacer ou supprimer ce fichier">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ÉTAT B : Zone de Dépôt / Drag & Drop -->
+                <div *ngIf="!gerberSuccess && !gerberFile"
+                     (dragover)="onDragOverGerber($event)"
+                     (dragleave)="onDragLeaveGerber()"
+                     (drop)="onDropGerber($event)"
+                     class="dropzone-luxury p-5 text-center h-full flex flex-col items-center justify-center"
+                     [ngClass]="{'dropzone-dragging': isDraggingGerber}">
+                  
+                  <input type="file" id="gerberInput" (change)="onGerberFileSelected($event)"
+                         accept=".zip,.rar,.7z,.gbr,.gerber,.gbl,.gtl,.gbs,.gts" class="hidden">
+                  <label for="gerberInput" class="cursor-pointer block space-y-2 w-full">
+                    <div class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-800 border border-blue-500/30 shadow-sm transition-transform group-hover:scale-110">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-black text-slate-800 dark:text-slate-100 font-outfit tracking-wide">
+                        {{ isDraggingGerber ? 'Relâchez le fichier Gerber ici' : 'Déposez votre archive Gerber' }}
+                      </p>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-inter font-medium">
+                        ou <span class="text-blue-600 dark:text-blue-400 font-black underline">parcourir vos fichiers</span>
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.ZIP</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.RAR</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.GBR</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.GTL</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- ÉTAT C : Fichier Sélectionné en Attente (Ultra-Luxury Pending Card) -->
+                <div *ngIf="gerberFile" class="inner-file-card-pending h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <!-- Top Row: Selected File Info -->
+                  <div class="flex items-start justify-between gap-2.5 relative z-10">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg shadow-md shadow-blue-500/25 shrink-0">
+                        📦
+                      </div>
+                      <div class="min-w-0 space-y-0.5">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit" [title]="getFileName(gerberFile)">
+                          {{ getFileName(gerberFile) }}
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                          <span class="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 font-mono-tech font-bold text-[10px] border border-blue-500/20">
+                            {{ formatSize(gerberFile.size) }}
+                          </span>
+                          <span class="text-[10px] font-bold text-slate-400 font-inter">Prêt à téléverser</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button (click)="gerberFile = null" class="w-7 h-7 rounded-lg bg-slate-200/80 dark:bg-slate-700 hover:bg-rose-500 hover:text-white text-slate-500 transition-all flex items-center justify-center text-xs font-bold cursor-pointer" title="Annuler">
+                      ✕
+                    </button>
+                  </div>
+
+                  <!-- Middle Row: Ready Status Bar -->
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-900/60 flex items-center justify-between text-[10px] font-inter">
+                    <span class="text-blue-700 dark:text-blue-300 font-bold flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-blue-600 animate-pulse"></span>
+                      <span>Archive PCB prête pour analyse</span>
+                    </span>
+                    <span class="text-blue-500 font-mono-tech font-bold text-[9px]">READY</span>
+                  </div>
+
+                  <!-- Bottom Row: Launch Upload Button -->
+                  <button (click)="uploadGerber()" [disabled]="uploadingGerber"
+                          class="relative z-10 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white text-xs font-black shadow-md shadow-blue-500/25 transition-all active:scale-[0.98] cursor-pointer font-outfit tracking-wide">
+                    <span *ngIf="uploadingGerber" class="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <svg *ngIf="!uploadingGerber" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>{{ uploadingGerber ? 'Téléversement en cours...' : 'Confirmer le téléversement Gerber' }}</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+              <!-- Alerte Erreur Gerber -->
+              <div *ngIf="gerberError" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-[11px] font-bold flex items-center gap-2 font-inter animate-fade-in">
+                <span>⚠️</span> {{ gerberError }}
+              </div>
+            </div>
+
+            <!-- Footer Technique Gerber — Hauteur fixe garantie -->
+            <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-semibold font-inter h-8">
+              <span>Cuivre, sérigraphie, masque, outline</span>
+              <span class="font-mono-tech font-bold text-slate-700 dark:text-slate-300">PCB Package</span>
+            </div>
+          </div>
+
+
+          <!-- ═════ MODULE 2 : PICK & PLACE (CPL / CENTROID) ═════ -->
+          <div class="bento-card-hardware p-6 flex flex-col justify-between group transition-all duration-300 h-full"
+               [ngClass]="{ 'bento-card-success': pickAndPlaceSuccess }">
+
+            <div class="space-y-4">
+              <!-- Header Module — Hauteur fixe garantie pour alignement parfait -->
+              <div class="flex items-center justify-between gap-3 h-[52px]">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm shrink-0 transition-transform group-hover:scale-105"
+                       [ngClass]="pickAndPlaceSuccess ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30'">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1 font-outfit tracking-tight truncate">
+                      <span>Pick & Place (CPL)</span>
+                      <span *ngIf="isPickAndPlaceRequired()" class="text-rose-500 font-black">*</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-inter truncate">Coordonnées de placement CMS/SMT</p>
+                  </div>
+                </div>
+
+                <span *ngIf="pickAndPlaceSuccess" class="badge-tech-pill badge-tech-success shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reçu
+                </span>
+                <span *ngIf="!pickAndPlaceSuccess && isPickAndPlaceRequired()" class="badge-tech-pill badge-tech-required shrink-0">
+                  Obligatoire
+                </span>
+                <span *ngIf="!pickAndPlaceSuccess && !isPickAndPlaceRequired()" class="badge-tech-pill badge-tech-optional shrink-0">
+                  Optionnel
+                </span>
+              </div>
+
+              <!-- Zone de Contenu / Dropzone — Hauteur standardisée (210px) pour même niveau -->
+              <div class="h-[210px] w-full flex flex-col justify-center">
+                
+                <!-- ÉTAT A : Déjà Reçu (Ultra-Luxury Inner Card) -->
+                <div *ngIf="pickAndPlaceSuccess && pickAndPlaceDoc" class="inner-file-card-luxury h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <!-- Top Row: File Info -->
+                  <div class="flex items-start gap-3 relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-indigo-500/15 border border-indigo-500/30 flex items-center justify-center text-lg text-indigo-600 dark:text-indigo-400 shadow-xs shrink-0">
+                      🎯
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                      <div class="flex items-center justify-between gap-1">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit tracking-tight" [title]="pickAndPlaceDoc.nomDocument">
+                          {{ pickAndPlaceDoc.nomDocument }}
+                        </p>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-black font-mono-tech border border-emerald-500/25 shrink-0 shadow-xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>VALIDE</span>
+                        </span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono-tech">
+                        Téléversé le {{ pickAndPlaceDoc.uploadedAt | date:'dd/MM/yyyy à HH:mm' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Middle Row: Status Bar -->
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-[10px] font-inter shadow-xs">
+                    <span class="text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5 truncate">
+                      <span class="text-emerald-500 font-bold">✓</span>
+                      <span>Coordonnées de placement intégrées</span>
+                    </span>
+                    <span class="text-indigo-600 dark:text-indigo-400 font-mono-tech font-bold text-[9px] shrink-0">CPL-OK</span>
+                  </div>
+
+                  <!-- Bottom Row: Action Bar -->
+                  <div class="relative z-10 flex items-center gap-2 pt-1 border-t border-slate-200/70 dark:border-slate-700/70">
+                    <button (click)="downloadFile(pickAndPlaceDoc.fileUrl, pickAndPlaceDoc.nomDocument || 'PickAndPlace.csv')"
+                            class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black transition-all cursor-pointer font-outfit shadow-sm">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      <span>Télécharger</span>
+                    </button>
+                    
+                    <button (click)="deletePickAndPlace()"
+                            class="p-2 rounded-xl bg-white dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 border border-slate-200 dark:border-slate-600 hover:border-rose-300 text-rose-500 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                            title="Supprimer">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ÉTAT B : Zone de Dépôt -->
+                <div *ngIf="!pickAndPlaceSuccess && !pickAndPlaceFile"
+                     (dragover)="onDragOverPickAndPlace($event)"
+                     (dragleave)="onDragLeavePickAndPlace()"
+                     (drop)="onDropPickAndPlace($event)"
+                     class="dropzone-luxury p-5 text-center h-full flex flex-col items-center justify-center"
+                     [ngClass]="{'dropzone-dragging': isDraggingPickAndPlace}">
+                  
+                  <input type="file" id="pnpInput" (change)="onPickAndPlaceFileSelected($event)"
+                         accept=".csv,.txt,.xlsx,.xls,.tsv,.cpl,.xy" class="hidden">
+                  <label for="pnpInput" class="cursor-pointer block space-y-2 w-full">
+                    <div class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-indigo-600 dark:text-indigo-400 bg-white dark:bg-slate-800 border border-indigo-500/30 shadow-sm transition-transform group-hover:scale-110">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-black text-slate-800 dark:text-slate-100 font-outfit tracking-wide">
+                        {{ isDraggingPickAndPlace ? 'Déposez le fichier Pick & Place ici' : 'Déposez votre fichier CPL / Centroid' }}
+                      </p>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-inter font-medium">
+                        ou <span class="text-indigo-600 dark:text-indigo-400 font-black underline">sélectionner</span>
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.CSV</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.XLSX</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.CPL</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.XY</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- ÉTAT C : Fichier Sélectionné (Ultra-Luxury Pending Card) -->
+                <div *ngIf="pickAndPlaceFile" class="inner-file-card-pending h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <div class="flex items-start justify-between gap-2.5 relative z-10">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-lg shadow-md shadow-indigo-500/25 shrink-0">
+                        🎯
+                      </div>
+                      <div class="min-w-0 space-y-0.5">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit" [title]="getFileName(pickAndPlaceFile)">
+                          {{ getFileName(pickAndPlaceFile) }}
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                          <span class="px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono-tech font-bold text-[10px] border border-indigo-500/20">
+                            {{ formatSize(pickAndPlaceFile.size) }}
+                          </span>
+                          <span class="text-[10px] font-bold text-slate-400 font-inter">Prêt à téléverser</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button (click)="pickAndPlaceFile = null" class="w-7 h-7 rounded-lg bg-slate-200/80 dark:bg-slate-700 hover:bg-rose-500 hover:text-white text-slate-500 transition-all flex items-center justify-center text-xs font-bold cursor-pointer" title="Annuler">
+                      ✕
+                    </button>
+                  </div>
+
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200/60 dark:border-indigo-900/60 flex items-center justify-between text-[10px] font-inter">
+                    <span class="text-indigo-700 dark:text-indigo-300 font-bold flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-indigo-600 animate-pulse"></span>
+                      <span>Coordonnées CMS prêtes</span>
+                    </span>
+                    <span class="text-indigo-500 font-mono-tech font-bold text-[9px]">READY</span>
+                  </div>
+
+                  <button (click)="uploadPickAndPlace()" [disabled]="uploadingPickAndPlace"
+                          class="relative z-10 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white text-xs font-black shadow-md shadow-indigo-500/25 transition-all active:scale-[0.98] cursor-pointer font-outfit tracking-wide">
+                    <span *ngIf="uploadingPickAndPlace" class="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <svg *ngIf="!uploadingPickAndPlace" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>{{ uploadingPickAndPlace ? 'Téléversement en cours...' : 'Confirmer Pick & Place' }}</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+              <!-- Alerte Erreur -->
+              <div *ngIf="pickAndPlaceError" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-[11px] font-bold flex items-center gap-2 font-inter animate-fade-in">
+                <span>⚠️</span> {{ pickAndPlaceError }}
+              </div>
+            </div>
+
+            <!-- Footer Technique — Hauteur fixe garantie -->
+            <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-semibold font-inter h-8">
+              <span>Coordonnées X/Y, rotation, layer SMT</span>
+              <span class="font-mono-tech font-bold text-slate-700 dark:text-slate-300">Centroid Data</span>
+            </div>
+          </div>
+
+
+          <!-- ═════ MODULE 3 : PROCÉDURE OPÉRATOIRE (SOP) ═════ -->
+          <div class="bento-card-hardware p-6 flex flex-col justify-between group transition-all duration-300 h-full"
+               [ngClass]="{ 'bento-card-success': sopSuccess }">
+
+            <div class="space-y-4">
+              <!-- Header Module — Hauteur fixe garantie pour alignement parfait -->
+              <div class="flex items-center justify-between gap-3 h-[52px]">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm shrink-0 transition-transform group-hover:scale-105"
+                       [ngClass]="sopSuccess ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/30'">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1 font-outfit tracking-tight truncate">
+                      <span>Procédure SOP</span>
+                      <span *ngIf="isSopRequired()" class="text-rose-500 font-black">*</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-inter truncate">Consignes d'assemblage & tests</p>
+                  </div>
+                </div>
+
+                <span *ngIf="sopSuccess" class="badge-tech-pill badge-tech-success shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reçu
+                </span>
+                <span *ngIf="!sopSuccess && isSopRequired()" class="badge-tech-pill badge-tech-required shrink-0">
+                  Obligatoire
+                </span>
+                <span *ngIf="!sopSuccess && !isSopRequired()" class="badge-tech-pill badge-tech-optional shrink-0">
+                  Optionnel
+                </span>
+              </div>
+
+              <!-- Zone de Contenu / Dropzone — Hauteur standardisée (210px) pour même niveau -->
+              <div class="h-[210px] w-full flex flex-col justify-center">
+                
+                <!-- ÉTAT A : Déjà Reçu (Ultra-Luxury Inner Card) -->
+                <div *ngIf="sopSuccess && sopDoc" class="inner-file-card-luxury h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <!-- Top Row: File Info -->
+                  <div class="flex items-start gap-3 relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/30 flex items-center justify-center text-lg text-sky-600 dark:text-sky-400 shadow-xs shrink-0">
+                      📘
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                      <div class="flex items-center justify-between gap-1">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit tracking-tight" [title]="sopDoc.nomDocument">
+                          {{ sopDoc.nomDocument }}
+                        </p>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-black font-mono-tech border border-emerald-500/25 shrink-0 shadow-xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>VALIDE</span>
+                        </span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono-tech">
+                        Téléversé le {{ sopDoc.uploadedAt | date:'dd/MM/yyyy à HH:mm' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Middle Row: Status Bar -->
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-[10px] font-inter shadow-xs">
+                    <span class="text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5 truncate">
+                      <span class="text-emerald-500 font-bold">✓</span>
+                      <span>Consignes opératoires validées</span>
+                    </span>
+                    <span class="text-sky-600 dark:text-sky-400 font-mono-tech font-bold text-[9px] shrink-0">SOP-OK</span>
+                  </div>
+
+                  <!-- Bottom Row: Action Bar -->
+                  <div class="relative z-10 flex items-center gap-2 pt-1 border-t border-slate-200/70 dark:border-slate-700/70">
+                    <button (click)="downloadFile(sopDoc.fileUrl, sopDoc.nomDocument || 'SOP.pdf')"
+                            class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black transition-all cursor-pointer font-outfit shadow-sm">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      <span>Télécharger</span>
+                    </button>
+                    
+                    <button (click)="deleteSop()"
+                            class="p-2 rounded-xl bg-white dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 border border-slate-200 dark:border-slate-600 hover:border-rose-300 text-rose-500 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                            title="Supprimer">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ÉTAT B : Zone de Dépôt -->
+                <div *ngIf="!sopSuccess && !sopFile"
+                     (dragover)="onDragOverSop($event)"
+                     (dragleave)="onDragLeaveSop()"
+                     (drop)="onDropSop($event)"
+                     class="dropzone-luxury p-5 text-center h-full flex flex-col items-center justify-center"
+                     [ngClass]="{'dropzone-dragging': isDraggingSop}">
+                  
+                  <input type="file" id="sopInput" (change)="onSopFileSelected($event)"
+                         accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,.odt,.rtf,.zip,.rar" class="hidden">
+                  <label for="sopInput" class="cursor-pointer block space-y-2 w-full">
+                    <div class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-sky-600 dark:text-sky-400 bg-white dark:bg-slate-800 border border-sky-500/30 shadow-sm transition-transform group-hover:scale-110">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-black text-slate-800 dark:text-slate-100 font-outfit tracking-wide">
+                        {{ isDraggingSop ? 'Déposez la procédure SOP ici' : 'Déposez votre document SOP' }}
+                      </p>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-inter font-medium">
+                        ou <span class="text-sky-600 dark:text-sky-400 font-black underline">sélectionner</span>
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.PDF</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.XLSX</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.DOCX</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- ÉTAT C : Fichier Sélectionné (Ultra-Luxury Pending Card) -->
+                <div *ngIf="sopFile" class="inner-file-card-pending h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <div class="flex items-start justify-between gap-2.5 relative z-10">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-sky-600 text-white flex items-center justify-center text-lg shadow-md shadow-sky-500/25 shrink-0">
+                        📘
+                      </div>
+                      <div class="min-w-0 space-y-0.5">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit" [title]="getFileName(sopFile)">
+                          {{ getFileName(sopFile) }}
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                          <span class="px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-600 dark:text-sky-400 font-mono-tech font-bold text-[10px] border border-sky-500/20">
+                            {{ formatSize(sopFile.size) }}
+                          </span>
+                          <span class="text-[10px] font-bold text-slate-400 font-inter">Prêt à téléverser</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button (click)="sopFile = null" class="w-7 h-7 rounded-lg bg-slate-200/80 dark:bg-slate-700 hover:bg-rose-500 hover:text-white text-slate-500 transition-all flex items-center justify-center text-xs font-bold cursor-pointer" title="Annuler">
+                      ✕
+                    </button>
+                  </div>
+
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-sky-50/80 dark:bg-sky-950/40 border border-sky-200/60 dark:border-sky-900/60 flex items-center justify-between text-[10px] font-inter">
+                    <span class="text-sky-700 dark:text-sky-300 font-bold flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-sky-600 animate-pulse"></span>
+                      <span>Document opératoire prêt</span>
+                    </span>
+                    <span class="text-sky-500 font-mono-tech font-bold text-[9px]">READY</span>
+                  </div>
+
+                  <button (click)="uploadSop()" [disabled]="uploadingSop"
+                          class="relative z-10 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-700 hover:to-blue-700 text-white text-xs font-black shadow-md shadow-sky-500/25 transition-all active:scale-[0.98] cursor-pointer font-outfit tracking-wide">
+                    <span *ngIf="uploadingSop" class="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <svg *ngIf="!uploadingSop" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>{{ uploadingSop ? 'Téléversement en cours...' : 'Confirmer le document SOP' }}</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+              <!-- Alerte Erreur -->
+              <div *ngIf="sopError" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-[11px] font-bold flex items-center gap-2 font-inter animate-fade-in">
+                <span>⚠️</span> {{ sopError }}
+              </div>
+            </div>
+
+            <!-- Footer Technique — Hauteur fixe garantie -->
+            <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-semibold font-inter h-8">
+              <span>Consignes opératoires, critères d'acceptation</span>
+              <span class="font-mono-tech font-bold text-slate-700 dark:text-slate-300">Quality SOP</span>
+            </div>
+          </div>
+
+
+          <!-- ═════ MODULE 4 : PERÇAGE DRILL (OPTIONNEL) ═════ -->
+          <div class="bento-card-hardware p-6 flex flex-col justify-between group transition-all duration-300 h-full"
+               [ngClass]="{ 'bento-card-success': drillSuccess }">
+
+            <div class="space-y-4">
+              <!-- Header Module — Hauteur fixe garantie pour alignement parfait -->
+              <div class="flex items-center justify-between gap-3 h-[52px]">
+                <div class="flex items-center gap-3.5 min-w-0">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-sm shrink-0 transition-transform group-hover:scale-105"
+                       [ngClass]="drillSuccess ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30'">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base font-black text-slate-900 dark:text-white flex items-center gap-1 font-outfit tracking-tight truncate">
+                      <span>Perçage Drill</span>
+                    </h3>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium font-inter truncate">Fichier Excellon / Perçage CNC</p>
+                  </div>
+                </div>
+
+                <span *ngIf="drillSuccess" class="badge-tech-pill badge-tech-success shrink-0">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reçu
+                </span>
+                <span *ngIf="!drillSuccess" class="badge-tech-pill badge-tech-optional shrink-0">
+                  Optionnel
+                </span>
+              </div>
+
+              <!-- Zone de Contenu / Dropzone — Hauteur standardisée (210px) pour même niveau -->
+              <div class="h-[210px] w-full flex flex-col justify-center">
+                
+                <!-- ÉTAT A : Déjà Reçu (Ultra-Luxury Inner Card) -->
+                <div *ngIf="drillSuccess && drillDoc" class="inner-file-card-luxury h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <!-- Top Row: File Info -->
+                  <div class="flex items-start gap-3 relative z-10">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-lg text-amber-600 dark:text-amber-400 shadow-xs shrink-0">
+                      🔩
+                    </div>
+                    <div class="min-w-0 flex-1 space-y-0.5">
+                      <div class="flex items-center justify-between gap-1">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit tracking-tight" [title]="drillDoc.nomDocument">
+                          {{ drillDoc.nomDocument }}
+                        </p>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-black font-mono-tech border border-emerald-500/25 shrink-0 shadow-xs">
+                          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                          <span>VALIDE</span>
+                        </span>
+                      </div>
+                      <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono-tech">
+                        Téléversé le {{ drillDoc.uploadedAt | date:'dd/MM/yyyy à HH:mm' }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Middle Row: Status Bar -->
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 flex items-center justify-between text-[10px] font-inter shadow-xs">
+                    <span class="text-slate-600 dark:text-slate-300 font-semibold flex items-center gap-1.5 truncate">
+                      <span class="text-emerald-500 font-bold">✓</span>
+                      <span>Fichier CNC Excellon associé</span>
+                    </span>
+                    <span class="text-amber-600 dark:text-amber-400 font-mono-tech font-bold text-[9px] shrink-0">DRILL-OK</span>
+                  </div>
+
+                  <!-- Bottom Row: Action Bar -->
+                  <div class="relative z-10 flex items-center gap-2 pt-1 border-t border-slate-200/70 dark:border-slate-700/70">
+                    <button (click)="downloadFile(drillDoc.fileUrl, drillDoc.nomDocument || 'Drill.drl')"
+                            class="flex-1 inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black transition-all cursor-pointer font-outfit shadow-sm">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                      <span>Télécharger</span>
+                    </button>
+                    
+                    <button (click)="deleteDrill()"
+                            class="p-2 rounded-xl bg-white dark:bg-slate-700 hover:bg-rose-50 dark:hover:bg-rose-900/40 border border-slate-200 dark:border-slate-600 hover:border-rose-300 text-rose-500 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                            title="Supprimer">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ÉTAT B : Zone de Dépôt -->
+                <div *ngIf="!drillSuccess && !drillFile"
+                     (dragover)="onDragOverDrill($event)"
+                     (dragleave)="onDragLeaveDrill()"
+                     (drop)="onDropDrill($event)"
+                     class="dropzone-luxury p-5 text-center h-full flex flex-col items-center justify-center"
+                     [ngClass]="{'dropzone-dragging': isDraggingDrill}">
+                  
+                  <input type="file" id="drillInput" (change)="onDrillFileSelected($event)"
+                         accept=".drl,.xln,.nc,.ncd,.txt,.zip,.rar" class="hidden">
+                  <label for="drillInput" class="cursor-pointer block space-y-2 w-full">
+                    <div class="w-11 h-11 rounded-2xl mx-auto flex items-center justify-center text-amber-600 dark:text-amber-400 bg-white dark:bg-slate-800 border border-amber-500/30 shadow-sm transition-transform group-hover:scale-110">
+                      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-black text-slate-800 dark:text-slate-100 font-outfit tracking-wide">
+                        {{ isDraggingDrill ? 'Déposez le fichier Drill ici' : 'Fichier de perçage séparé' }}
+                      </p>
+                      <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5 font-inter font-medium">
+                        ou <span class="text-amber-600 dark:text-amber-400 font-black underline">sélectionner</span>
+                      </p>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center gap-1.5 pt-1">
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.DRL</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.XLN</span>
+                      <span class="px-2 py-0.5 rounded-md text-[9px] font-mono-tech font-bold bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">.NC</span>
+                    </div>
+                  </label>
+                </div>
+
+                <!-- ÉTAT C : Fichier Sélectionné (Ultra-Luxury Pending Card) -->
+                <div *ngIf="drillFile" class="inner-file-card-pending h-full p-4 rounded-2xl flex flex-col justify-between relative overflow-hidden">
+                  
+                  <div class="flex items-start justify-between gap-2.5 relative z-10">
+                    <div class="flex items-center gap-3 min-w-0">
+                      <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center text-lg shadow-md shadow-amber-500/25 shrink-0">
+                        🔩
+                      </div>
+                      <div class="min-w-0 space-y-0.5">
+                        <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit" [title]="getFileName(drillFile)">
+                          {{ getFileName(drillFile) }}
+                        </p>
+                        <div class="flex items-center gap-1.5">
+                          <span class="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-600 dark:text-amber-400 font-mono-tech font-bold text-[10px] border border-amber-500/20">
+                            {{ formatSize(drillFile.size) }}
+                          </span>
+                          <span class="text-[10px] font-bold text-slate-400 font-inter">Prêt à téléverser</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <button (click)="drillFile = null" class="w-7 h-7 rounded-lg bg-slate-200/80 dark:bg-slate-700 hover:bg-rose-500 hover:text-white text-slate-500 transition-all flex items-center justify-center text-xs font-bold cursor-pointer" title="Annuler">
+                      ✕
+                    </button>
+                  </div>
+
+                  <div class="relative z-10 px-3 py-1.5 rounded-xl bg-amber-50/80 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/60 flex items-center justify-between text-[10px] font-inter">
+                    <span class="text-amber-700 dark:text-amber-300 font-bold flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+                      <span>Fichier NC Excellon prêt</span>
+                    </span>
+                    <span class="text-amber-500 font-mono-tech font-bold text-[9px]">READY</span>
+                  </div>
+
+                  <button (click)="uploadDrill()" [disabled]="uploadingDrill"
+                          class="relative z-10 w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white text-xs font-black shadow-md shadow-amber-500/25 transition-all active:scale-[0.98] cursor-pointer font-outfit tracking-wide">
+                    <span *ngIf="uploadingDrill" class="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+                    <svg *ngIf="!uploadingDrill" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    <span>{{ uploadingDrill ? 'Téléversement en cours...' : 'Confirmer le Drill' }}</span>
+                  </button>
+
+                </div>
+
+              </div>
+
+              <!-- Alerte Erreur -->
+              <div *ngIf="drillError" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-[11px] font-bold flex items-center gap-2 font-inter animate-fade-in">
+                <span>⚠️</span> {{ drillError }}
+              </div>
+            </div>
+
+            <!-- Footer Technique — Hauteur fixe garantie -->
+            <div class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-semibold font-inter h-8">
+              <span>Inclus si déjà présent dans l'archive Gerber</span>
+              <span class="font-mono-tech font-bold text-slate-700 dark:text-slate-300">NC Drill</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ═════ MODULE 5 : SCHÉMAS ÉLECTRIQUES & PLANS MÉCANIQUES (CARTE LARGE BENTO) ═════ -->
+        <div class="bento-card-hardware p-6 space-y-4 group transition-all duration-300"
+             [ngClass]="{ 'bento-card-success': diagrammeSuccess }">
+          
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <div class="flex items-center gap-3.5">
+              <div class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 flex items-center justify-center text-lg border border-slate-200 dark:border-slate-700 shadow-xs">
+                📐
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2 font-outfit tracking-tight">
+                  Schémas Électriques & Plans Mécaniques
+                  <span class="badge-tech-pill badge-tech-optional">Optionnel</span>
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium font-inter">Diagrammes de câblage, encombrements mécaniques 3D ou fichiers DWG/PDF</p>
+              </div>
+            </div>
+
+            <span *ngIf="diagrammeSuccess" class="badge-tech-pill badge-tech-success shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Reçu
+            </span>
+          </div>
+
+          <!-- ÉTAT A : Déjà Reçu (Ultra-Luxury Card) -->
+          <div *ngIf="diagrammeSuccess && diagrammeDoc" class="inner-file-card-luxury p-4 rounded-2xl flex items-center justify-between gap-4 shadow-xs">
+            <div class="flex items-center gap-3.5 min-w-0">
+              <div class="w-10 h-10 rounded-xl bg-slate-500/15 border border-slate-500/30 flex items-center justify-center text-lg shadow-xs shrink-0">📄</div>
+              <div class="min-w-0 space-y-0.5">
+                <div class="flex items-center gap-2">
+                  <p class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit" [title]="diagrammeDoc.nomDocument">{{ diagrammeDoc.nomDocument }}</p>
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[9px] font-black font-mono-tech border border-emerald-500/25">VALIDE</span>
+                </div>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold font-mono-tech">{{ diagrammeDoc.uploadedAt | date:'dd/MM/yyyy • HH:mm' }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button (click)="downloadFile(diagrammeDoc.fileUrl, diagrammeDoc.nomDocument || 'Schema.pdf')" 
+                      class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-xs font-black transition-all cursor-pointer font-outfit shadow-sm">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Télécharger</span>
+              </button>
+              <button (click)="deleteDiagramme()" 
+                      class="p-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 hover:bg-rose-50 dark:hover:bg-rose-900/40 text-rose-500 hover:text-rose-600 text-xs font-bold transition-colors cursor-pointer shadow-xs"
+                      title="Supprimer">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ÉTAT B : Zone de Dépôt Compacte -->
+          <div *ngIf="!diagrammeSuccess && !diagrammeFile"
+               (dragover)="onDragOverDiagramme($event)"
+               (dragleave)="onDragLeaveDiagramme()"
+               (drop)="onDropDiagramme($event)"
+               class="dropzone-luxury p-4 text-center cursor-pointer"
+               [ngClass]="{'dropzone-dragging': isDraggingDiagramme}">
+            <input type="file" id="diagInput" (change)="onDiagrammeFileSelected($event)" accept=".pdf,.png,.jpg,.jpeg,.svg,.dwg,.sch,.zip,.rar" class="hidden">
+            <label for="diagInput" class="cursor-pointer text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center justify-center gap-2 font-inter transition-colors">
+              <span>📎 Cliquez ou glissez un schéma technique (.PDF, .DWG, .PNG, .ZIP)</span>
+            </label>
+          </div>
+
+          <!-- ÉTAT C : Fichier Sélectionné (Ultra-Luxury Pending Card) -->
+          <div *ngIf="diagrammeFile" class="inner-file-card-pending p-3.5 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="text-base">📐</span>
+              <span class="text-xs font-black text-slate-900 dark:text-white truncate font-outfit">{{ getFileName(diagrammeFile) }}</span>
+              <span class="px-2 py-0.5 rounded-md bg-blue-500/10 text-blue-600 font-mono-tech font-bold text-[10px]">{{ formatSize(diagrammeFile.size) }}</span>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button (click)="diagrammeFile = null" class="text-xs text-slate-400 hover:text-rose-600 font-bold px-2 py-1 cursor-pointer">✕</button>
+              <button (click)="uploadDiagramme()" [disabled]="uploadingDiagramme" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 rounded-xl text-xs font-black cursor-pointer font-outfit tracking-wide shadow-xs">
+                {{ uploadingDiagramme ? 'Envoi...' : 'Confirmer' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ─── COLONNE DROITE (4 colonnes / ~32%) : STICKY VALIDATION COCKPIT ─── -->
+      <div class="lg:col-span-4 sticky top-6 space-y-6">
+
+        <div class="bento-card-hardware p-6 sm:p-7 space-y-6 relative overflow-hidden shadow-xl">
+          
+          <!-- Lueur d'Ambiance Dynamique en Arrière-Plan -->
+          <div class="absolute -top-20 -right-20 w-52 h-52 rounded-full blur-3xl pointer-events-none transition-all duration-700"
+               [ngClass]="isReadyToProceed ? 'bg-emerald-500/20' : 'bg-blue-500/15'"></div>
+
+          <!-- Header Cockpit de Validation -->
+          <div class="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-700 pb-4 relative z-10">
+            <div>
+              <span class="text-[10px] font-mono-tech uppercase tracking-widest text-slate-500 dark:text-slate-400 font-black block">
+                CONFORMITÉ DOSSIER
+              </span>
+              <h3 class="text-base font-black text-slate-900 dark:text-white font-outfit tracking-tight">
+                Centre de Validation
+              </h3>
+            </div>
+            <span class="badge-tech-pill"
+                  [ngClass]="isReadyToProceed ? 'badge-tech-success' : 'badge-tech-optional'">
+              {{ isReadyToProceed ? 'DOSSIER PRÊT' : 'EN ATTENTE' }}
+            </span>
+          </div>
+
+          <!-- Jauge Circulaire Holographique (SVG Progress Meter) -->
+          <div class="bg-slate-50/90 dark:bg-slate-800/80 rounded-2xl p-5 border border-slate-200/80 dark:border-slate-700 flex items-center justify-between gap-4 shadow-xs">
+            
+            <div class="relative w-20 h-20 shrink-0">
+              <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                <!-- Cercle de fond -->
+                <path class="text-slate-200 dark:text-slate-700" stroke-width="3.5" stroke="currentColor" fill="none"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                <!-- Arc de progression dynamique -->
+                <path stroke-dasharray="100, 100"
+                      [attr.stroke-dashoffset]="100 - readinessPercentage"
+                      [class]="isReadyToProceed ? 'text-emerald-500' : 'text-blue-600'"
+                      stroke-width="3.5"
+                      stroke-linecap="round"
+                      stroke="currentColor"
+                      fill="none"
+                      class="transition-all duration-700 ease-out"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              </svg>
+              <!-- Pourcentage centré en GRAS (Outfit 900) -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center">
+                <span class="text-base font-black text-slate-900 dark:text-white font-outfit">{{ readinessPercentage }}%</span>
+                <span class="text-[8px] font-black text-slate-500 dark:text-slate-400 uppercase font-mono-tech">VALIDÉ</span>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <p class="text-xs font-black text-slate-900 dark:text-white font-outfit tracking-wide">
+                {{ uploadedRequiredFiles }} sur {{ totalRequiredFiles }} fichiers requis
+              </p>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 leading-tight font-inter font-medium">
+                {{ isReadyToProceed 
+                    ? 'Tous les éléments indispensables sont validés avec succès.' 
+                    : 'Téléversez les fichiers obligatoires pour continuer.' }}
+              </p>
+            </div>
+
+          </div>
+
+          <!-- CHECKLIST DE FABRICATION EN DIRECT -->
+          <div class="space-y-2.5 pt-1">
+            <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 font-mono-tech">
+              CHECKLIST DE FABRICATION
+            </p>
+
+            <!-- 1. Gerber -->
+            <div class="flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all font-inter"
+                 [ngClass]="gerberSuccess ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white shadow-xs' : 'bg-slate-50/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'">
+              <div class="flex items-center gap-2.5">
+                <span [class]="gerberSuccess ? 'text-emerald-500 font-black text-sm' : 'text-slate-400'">
+                  {{ gerberSuccess ? '✓' : '○' }}
+                </span>
+                <span class="font-bold">Fichier Gerber PCB</span>
+              </div>
+              <span class="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded"
+                    [ngClass]="gerberSuccess ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'">
+                {{ gerberSuccess ? 'Validé' : 'Requis' }}
+              </span>
+            </div>
+
+            <!-- 2. Pick & Place -->
+            <div class="flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all font-inter"
+                 [ngClass]="pickAndPlaceSuccess ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white shadow-xs' : 'bg-slate-50/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'">
+              <div class="flex items-center gap-2.5">
+                <span [class]="pickAndPlaceSuccess ? 'text-emerald-500 font-black text-sm' : 'text-slate-400'">
+                  {{ pickAndPlaceSuccess ? '✓' : '○' }}
+                </span>
+                <span class="font-bold">Pick & Place (CPL)</span>
+              </div>
+              <span class="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded"
+                    [ngClass]="pickAndPlaceSuccess ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black' : (isPickAndPlaceRequired() ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-400')">
+                {{ pickAndPlaceSuccess ? 'Validé' : (isPickAndPlaceRequired() ? 'Requis' : 'Optionnel') }}
+              </span>
+            </div>
+
+            <!-- 3. SOP -->
+            <div class="flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all font-inter"
+                 [ngClass]="sopSuccess ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white shadow-xs' : 'bg-slate-50/80 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'">
+              <div class="flex items-center gap-2.5">
+                <span [class]="sopSuccess ? 'text-emerald-500 font-black text-sm' : 'text-slate-400'">
+                  {{ sopSuccess ? '✓' : '○' }}
+                </span>
+                <span class="font-bold">Procédure SOP</span>
+              </div>
+              <span class="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded"
+                    [ngClass]="sopSuccess ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black' : (isSopRequired() ? 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300' : 'bg-slate-100 dark:bg-slate-800 text-slate-400')">
+                {{ sopSuccess ? 'Validé' : (isSopRequired() ? 'Requis' : 'Optionnel') }}
+              </span>
+            </div>
+
+            <!-- 4. Drill (Optionnel) -->
+            <div class="flex items-center justify-between p-3 rounded-xl border text-xs font-semibold transition-all font-inter"
+                 [ngClass]="drillSuccess ? 'bg-emerald-500/10 border-emerald-500/30 text-slate-900 dark:text-white shadow-xs' : 'bg-slate-50/50 dark:bg-slate-800/50 border-slate-200/60 dark:border-slate-700 text-slate-400'">
+              <div class="flex items-center gap-2.5">
+                <span [class]="drillSuccess ? 'text-emerald-500 font-black text-sm' : 'text-slate-400'">
+                  {{ drillSuccess ? '✓' : '—' }}
+                </span>
+                <span class="font-bold">Perçage Drill</span>
+              </div>
+              <span class="text-[10px] font-mono-tech font-bold px-2 py-0.5 rounded"
+                    [ngClass]="drillSuccess ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-black' : 'bg-slate-100 dark:bg-slate-800 text-slate-400'">
+                {{ drillSuccess ? 'Fourni' : 'Facultatif' }}
+              </span>
+            </div>
+
+          </div>
+
+          <!-- PRIMARY LAUNCH CTA BUTTON -->
+          <div class="space-y-3 pt-2">
+            <button (click)="goToProjet()"
+                    [disabled]="!isReadyToProceed"
+                    class="w-full relative group overflow-hidden rounded-2xl py-4 px-6 font-black text-sm flex items-center justify-center gap-3 font-outfit tracking-wide shadow-md"
+                    [ngClass]="isReadyToProceed 
+                      ? 'btn-cta-main cursor-pointer' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700 cursor-not-allowed opacity-60'">
+              
+              <span *ngIf="isReadyToProceed" class="text-base">🚀</span>
+              <span>
+                {{ !gerberSuccess ? 'Gerber requis pour continuer' :
+                   (isPickAndPlaceRequired() && !pickAndPlaceSuccess ? 'Pick & Place requis pour continuer' :
+                   (isSopRequired() && !sopSuccess ? 'Fichier SOP requis pour continuer' :
+                   'Continuer vers l\'import BOM ➔')) }}
+              </span>
+            </button>
+
+            <!-- Actions Secondaires & Navigation -->
+            <div class="space-y-1.5 pt-1 text-center font-inter">
+              <a [routerLink]="['/client/projets', projet.id, 'cadrage']" 
+                 class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors inline-flex items-center justify-center gap-1.5 py-1">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                <span>Revenir à l'étape Cadrage</span>
+              </a>
+              <button (click)="goToProjet()" 
+                      class="text-xs font-semibold text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors block w-full py-1 cursor-pointer">
+                Sauvegarder et terminer plus tard
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <!-- MODAL DE CONFIRMATION DE SUPPRESSION (ULTRA-LUXURY HARDWARE MODAL)          -->
+  <!-- ══════════════════════════════════════════════════════════════════════════ -->
+  <div *ngIf="documentToDelete" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 animate-fade-in">
+    <!-- Backdrop avec flou intense -->
+    <div class="fixed inset-0 bg-slate-950/70 backdrop-blur-md transition-opacity" (click)="cancelDelete()"></div>
+
+    <!-- Conteneur Modal Glassmorphism -->
+    <div class="relative z-10 w-full max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-3xl p-6 sm:p-7 shadow-2xl border border-rose-500/25 dark:border-rose-500/30 overflow-hidden transform animate-scale-in">
+      
+      <!-- Halo d'ambiance d'alerte -->
+      <div class="absolute -top-16 -right-16 w-40 h-40 bg-rose-500/15 rounded-full blur-2xl pointer-events-none"></div>
+
+      <div class="space-y-5 relative z-10">
+        <!-- Top: Icône d'alerte 3D -->
+        <div class="flex items-center gap-4">
+          <div class="w-13 h-13 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-600 dark:text-rose-400 text-2xl shadow-sm shrink-0">
+            🗑️
+          </div>
+          <div class="min-w-0 flex-1">
+            <span class="text-[10px] font-mono-tech uppercase tracking-widest text-rose-600 dark:text-rose-400 font-black block">
+              CONFIRMATION REQUISE
+            </span>
+            <h3 class="text-lg font-black text-slate-900 dark:text-white font-outfit tracking-tight">
+              Supprimer ce fichier ?
+            </h3>
+          </div>
+        </div>
+
+        <!-- Détail du fichier à supprimer -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 space-y-1">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-500 dark:text-slate-400 font-inter">
+            <span>{{ documentToDelete.title }}</span>
+            <span class="px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 font-mono-tech font-bold text-[9px]">À RETIRER</span>
+          </div>
+          <p class="text-xs font-black text-slate-900 dark:text-white truncate font-mono-tech">
+            {{ documentToDelete.filename }}
+          </p>
+        </div>
+
+        <p class="text-xs text-slate-500 dark:text-slate-400 font-inter leading-relaxed">
+          Cette action est irréversible. Le document sera définitivement retiré du dossier technique de fabrication.
+        </p>
+
+        <!-- Message d'erreur modal éventuel -->
+        <div *ngIf="modalDeleteError" class="p-3 rounded-xl bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs font-bold font-inter">
+          ⚠️ {{ modalDeleteError }}
+        </div>
+
+        <!-- Actions : Annuler & Confirmer la suppression -->
+        <div class="flex items-center gap-3 pt-2">
+          <button (click)="cancelDelete()"
+                  [disabled]="isDeletingDocument"
+                  class="flex-1 px-4 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-black font-outfit transition-all cursor-pointer">
+            Annuler
+          </button>
+
+          <button (click)="executeDelete()"
+                  [disabled]="isDeletingDocument"
+                  class="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white text-xs font-black font-outfit shadow-md shadow-rose-500/25 transition-all active:scale-95 cursor-pointer">
+            <span *ngIf="isDeletingDocument" class="w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+            <span>{{ isDeletingDocument ? 'Suppression...' : 'Supprimer' }}</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

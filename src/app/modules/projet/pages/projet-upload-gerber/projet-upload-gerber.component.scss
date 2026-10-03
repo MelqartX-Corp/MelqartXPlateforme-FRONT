@@ -1,0 +1,479 @@
+/* ==========================================================================
+   MELQARTX HARDWARE PLATFORM — PCB COCKPIT LUXURY DESIGN SYSTEM
+   Ultra-Premium Hardware Manufacturing UI / UX
+   ========================================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+  --pcb-cyan: #06b6d4;
+  --pcb-blue: #2563eb;
+  --pcb-indigo: #4f46e5;
+  --pcb-emerald: #10b981;
+  --pcb-amber: #f59e0b;
+  --pcb-rose: #f43f5e;
+}
+
+/* ── Typographie Haute Fidélité ── */
+.font-outfit {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-inter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-mono-tech {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* ── Arrière-plan Tech & Grille Industrielle ── */
+.cockpit-canvas {
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.04) 0%, transparent 50%),
+    hsl(var(--background));
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+}
+
+:host-context(.dark) .tech-grid-pattern,
+.dark .tech-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* ── Hero Banner de Commande (Glassmorphism Luxueux) ── */
+.hero-cockpit-banner {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 248, 255, 0.85) 50%, rgba(240, 249, 255, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  box-shadow:
+    0 20px 40px -15px rgba(37, 99, 235, 0.07),
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+:host-context(.dark) .hero-cockpit-banner,
+.dark .hero-cockpit-banner {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.hero-cockpit-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2563EB, #06B6D4, #10B981, #2563EB);
+  background-size: 300% 100%;
+  animation: traceGlow 6s linear infinite;
+  z-index: 5;
+}
+
+@keyframes traceGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Cartes Hardware Bento ── */
+.bento-card-hardware {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 10px 25px -5px rgba(15, 23, 42, 0.04),
+    0 1px 3px 0 rgba(15, 23, 42, 0.02),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:host-context(.dark) .bento-card-hardware,
+.dark .bento-card-hardware {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 16px 36px -10px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+.bento-card-hardware:hover {
+  transform: translateY(-3px);
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow:
+    0 20px 40px -10px rgba(37, 99, 235, 0.1),
+    0 4px 10px 0 rgba(0, 0, 0, 0.03);
+}
+
+:host-context(.dark) .bento-card-hardware:hover,
+.dark .bento-card-hardware:hover {
+  border-color: rgba(59, 130, 246, 0.45);
+  box-shadow:
+    0 22px 45px -10px rgba(0, 0, 0, 0.6),
+    0 0 20px -2px rgba(59, 130, 246, 0.15);
+}
+
+/* État Validé / Reçu avec Succès */
+.bento-card-success {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.95) 0%, rgba(236, 253, 245, 0.6) 100%) !important;
+  box-shadow:
+    0 14px 35px -8px rgba(16, 185, 129, 0.15),
+    inset 0 1px 0 0 rgba(16, 185, 129, 0.3) !important;
+}
+
+:host-context(.dark) .bento-card-success,
+.dark .bento-card-success {
+  background: linear-gradient(150deg, rgba(30, 41, 59, 0.9) 0%, rgba(6, 78, 59, 0.25) 100%) !important;
+  border-color: rgba(16, 185, 129, 0.5) !important;
+}
+
+.bento-card-success::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #10B981, #06B6D4);
+}
+
+/* ── Zone de Dépôt Interactive & Drag and Drop ── */
+.dropzone-luxury {
+  background: rgba(248, 250, 252, 0.85);
+  border: 2px dashed rgba(203, 213, 225, 0.9);
+  border-radius: 1.25rem;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  position: relative;
+}
+
+:host-context(.dark) .dropzone-luxury,
+.dark .dropzone-luxury {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.dropzone-luxury:hover {
+  background: rgba(239, 246, 255, 0.9);
+  border-color: #2563EB;
+  border-style: dashed;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
+}
+
+:host-context(.dark) .dropzone-luxury:hover,
+.dark .dropzone-luxury:hover {
+  background: rgba(30, 58, 138, 0.2);
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.12);
+}
+
+.dropzone-luxury.dropzone-dragging {
+  background: rgba(224, 242, 254, 0.95) !important;
+  border-color: #0284C7 !important;
+  border-style: solid !important;
+  box-shadow: 0 0 0 6px rgba(2, 132, 199, 0.25) !important;
+  transform: scale(1.02);
+}
+
+/* ── Badges & Chips Typographiques Haut de Gamme ── */
+.badge-tech-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-family: 'JetBrains Mono', monospace;
+  line-height: 1;
+}
+
+.badge-tech-required {
+  background: rgba(244, 63, 94, 0.1);
+  color: #E11D48;
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+:host-context(.dark) .badge-tech-required,
+.dark .badge-tech-required {
+  background: rgba(244, 63, 94, 0.2);
+  color: #FB7185;
+  border-color: rgba(244, 63, 94, 0.4);
+}
+
+.badge-tech-optional {
+  background: rgba(241, 245, 249, 0.9);
+  color: #475569;
+  border: 1px solid rgba(203, 213, 225, 0.8);
+}
+
+:host-context(.dark) .badge-tech-optional,
+.dark .badge-tech-optional {
+  background: rgba(30, 41, 59, 0.8);
+  color: #94A3B8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.badge-tech-success {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+:host-context(.dark) .badge-tech-success,
+.dark .badge-tech-success {
+  background: rgba(16, 185, 129, 0.22);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* ── Bouton Gerber 2D/3D Viewer Exclusif ── */
+.btn-launch-viewer {
+  background: linear-gradient(135deg, #0284C7 0%, #2563EB 50%, #4F46E5 100%);
+  color: #FFFFFF;
+  box-shadow:
+    0 8px 20px -4px rgba(37, 99, 235, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-launch-viewer:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 26px -4px rgba(37, 99, 235, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #0369A1 0%, #1D4ED8 50%, #4338CA 100%);
+}
+
+/* ── Bouton Primaire Haute Tension (CTA) ── */
+.btn-cta-main {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 45%, #059669 100%);
+  color: #FFFFFF;
+  box-shadow:
+    0 14px 32px -6px rgba(37, 99, 235, 0.45),
+    0 4px 12px -2px rgba(5, 150, 105, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-cta-main:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow:
+    0 20px 42px -6px rgba(37, 99, 235, 0.6),
+    0 6px 16px -2px rgba(5, 150, 105, 0.35),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.45);
+  background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 45%, #047857 100%);
+}
+
+.btn-cta-main:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ── Jauge Circulaire Holographique ── */
+.progress-ring-circle {
+  transition: stroke-dashoffset 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+/* ── Effet Shimmer & Micro-Animations ── */
+@keyframes shimmerAnim {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.shimmer-active::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shimmerAnim 2.5s infinite;
+}
+
+/* ── Stepper Pipeline Luxury Capsule ── */
+.stepper-pipeline-capsule {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 9999px;
+  box-shadow:
+    0 10px 30px -5px rgba(15, 23, 42, 0.06),
+    0 2px 6px -1px rgba(15, 23, 42, 0.02),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  padding: 0.35rem 0.5rem;
+  transition: all 0.3s ease;
+}
+
+:host-context(.dark) .stepper-pipeline-capsule,
+.dark .stepper-pipeline-capsule {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 14px 35px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.step-pill-completed {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.85) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #047857;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px -1px rgba(16, 185, 129, 0.15);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:host-context(.dark) .step-pill-completed,
+.dark .step-pill-completed {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(6, 95, 70, 0.3) 100%);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34D399;
+}
+
+.step-pill-completed:hover {
+  transform: translateY(-1px) scale(1.02);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 4px 12px -1px rgba(16, 185, 129, 0.25);
+}
+
+.step-pill-active {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #0284C7 100%);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  box-shadow:
+    0 6px 18px -2px rgba(37, 99, 235, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.25s ease;
+}
+
+.step-pill-pending {
+  background: rgba(248, 250, 252, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  color: #94A3B8;
+  border-radius: 9999px;
+}
+
+:host-context(.dark) .step-pill-pending,
+.dark .step-pill-pending {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #64748B;
+}
+
+.step-connector-gradient {
+  height: 3px;
+  width: 1.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #10B981, #06B6D4, #2563EB);
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+.step-connector-muted {
+  height: 2px;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background: rgba(203, 213, 225, 0.8);
+}
+
+:host-context(.dark) .step-connector-muted,
+.dark .step-connector-muted {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Cadre Intérieur des Fichiers Téléversés (Uploaded Luxury Card) ── */
+.inner-file-card-luxury {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.95) 50%, rgba(236, 253, 245, 0.6) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  box-shadow:
+    0 8px 24px -4px rgba(16, 185, 129, 0.12),
+    0 2px 6px -1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:host-context(.dark) .inner-file-card-luxury,
+.dark .inner-file-card-luxury {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(6, 78, 59, 0.3) 100%);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow:
+    0 10px 28px -6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.inner-file-card-luxury:hover {
+  transform: translateY(-1px);
+  border-color: rgba(16, 185, 129, 0.55);
+  box-shadow:
+    0 12px 30px -4px rgba(16, 185, 129, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+}
+
+/* ── Cadre Intérieur des Fichiers Sélectionnés en Attente (Pending Card) ── */
+.inner-file-card-pending {
+  background: linear-gradient(145deg, rgba(239, 246, 255, 0.95) 0%, rgba(255, 255, 255, 0.95) 50%, rgba(224, 231, 255, 0.6) 100%);
+  border: 1.5px solid rgba(37, 99, 235, 0.45);
+  box-shadow:
+    0 8px 24px -4px rgba(37, 99, 235, 0.18),
+    0 2px 6px -1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:host-context(.dark) .inner-file-card-pending,
+.dark .inner-file-card-pending {
+  background: linear-gradient(145deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(30, 58, 138, 0.35) 100%);
+  border-color: rgba(96, 165, 250, 0.5);
+  box-shadow:
+    0 10px 28px -6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+/* ── Animations & Transitions Modales ── */
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+

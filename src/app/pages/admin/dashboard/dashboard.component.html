@@ -1,0 +1,795 @@
+<div class="space-y-6 animate-fade-up relative pb-10">
+
+  <!-- Dynamic ambient lighting background (Linear/Raycast subtle tech glow) -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden" style="z-index:0">
+    <div class="absolute top-[-8%] right-[-6%] w-[540px] h-[540px] rounded-full opacity-25"
+         style="background:radial-gradient(circle, hsl(217 91% 58% / 0.16) 0%, transparent 70%); filter:blur(90px); animation:blob1 18s ease-in-out infinite"></div>
+    <div class="absolute bottom-[15%] left-[-8%] w-[460px] h-[460px] rounded-full opacity-20"
+         style="background:radial-gradient(circle, hsl(168 84% 36% / 0.14) 0%, transparent 70%); filter:blur(80px); animation:blob2 22s ease-in-out infinite"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       1. EXECUTIVE HEADER & REAL-TIME CONTROLS
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 glass-section-shell p-5 sm:py-6 sm:px-8">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      
+      <!-- Greeting & Synchronisation Context -->
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-1.5 h-7 rounded-full bg-gradient-to-b from-primary via-cyan-500 to-accent shadow-sm"></div>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Bonjour<span *ngIf="userName()">, <span class="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">{{ userName() }}</span></span> 👋
+          </h1>
+          <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border border-border/50 bg-secondary/40 text-muted-foreground ml-2">
+            <app-dash-icon nom="calendar" [taille]="12" />
+            {{ dateDuJour() }}
+          </span>
+        </div>
+        <p class="text-xs sm:text-sm text-muted-foreground ml-4">
+          Voici ce qui se passe sur votre plateforme industrielle et commerciale aujourd'hui.
+        </p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       2. EXECUTIVE HERO OVERVIEW (5 High-Priority KPI Blocks)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10" *ngIf="chargement()">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4">
+      <div class="lg:col-span-4 kpi-power-card animate-pulse h-40 bg-muted/20"></div>
+      <div class="lg:col-span-2 kpi-power-card animate-pulse h-40 bg-muted/20"></div>
+      <div class="lg:col-span-2 kpi-power-card animate-pulse h-40 bg-muted/20"></div>
+      <div class="lg:col-span-2 kpi-power-card animate-pulse h-40 bg-muted/20"></div>
+      <div class="lg:col-span-2 kpi-power-card animate-pulse h-40 bg-muted/20"></div>
+    </div>
+  </div>
+
+  <div class="relative z-10" *ngIf="!chargement()">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4">
+
+      <!-- HERO BLOCK 1: Trésorerie Encaissée (Main Financial Anchor, 4 cols) -->
+      <div class="lg:col-span-4 kpi-power-card kpi-featured cursor-pointer flex flex-col justify-between"
+           (click)="allerA('/admin/billing')">
+        <div>
+          <div class="flex items-center justify-between gap-2 mb-2.5">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-emerald-500/10 text-emerald-500">
+                <app-dash-icon nom="dollar" [taille]="16" />
+              </div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">CA Encaissé</span>
+            </div>
+            <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              Trésorerie Réelle
+            </span>
+          </div>
+
+          <div class="flex items-baseline gap-2.5 mt-1" *ngIf="finances() as fin">
+            <span class="text-3xl sm:text-4xl font-black text-foreground tracking-tight tabular-nums" style="font-family:'Outfit',sans-serif">
+              {{ formatCompact(fin.totalCollected) }}
+            </span>
+            <span class="text-sm font-bold text-muted-foreground">TND TTC</span>
+          </div>
+
+          <div class="mt-2 text-xs text-muted-foreground flex items-center gap-2" *ngIf="finances() as fin">
+            <span>sur <b class="text-foreground">{{ formatCompact(fin.totalInvoiced) }} TND</b> facturés</span>
+            <span>·</span>
+            <span class="font-bold text-emerald-500">{{ fin.collectionRate }}% taux d'encaissement</span>
+          </div>
+
+          <div class="mt-3" *ngIf="sparkRevenu().length">
+            <app-chart-sparkline [valeurs]="sparkRevenu()" couleur="hsl(var(--success))" [hauteur]="26" />
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs">
+          <span class="text-[11px] font-semibold text-primary group-hover:underline flex items-center gap-1">
+            Gérer la facturation
+            <app-dash-icon nom="arrow-right" [taille]="12" />
+          </span>
+          <span class="text-[10px] text-muted-foreground" *ngIf="finances() as fin">
+            {{ fin.activeContractsCount }} contrat(s) actif(s)
+          </span>
+        </div>
+      </div>
+
+      <!-- HERO BLOCK 2: Projets & Pipeline (2 cols) -->
+      <div class="lg:col-span-2 kpi-power-card cursor-pointer flex flex-col justify-between"
+           (click)="allerA('/client/projets')">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10 text-primary">
+              <app-dash-icon nom="kanban" [taille]="15" />
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-primary/10 text-primary" *ngIf="projets() as p">
+              {{ p.enCours }} en cours
+            </span>
+          </div>
+          <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight tabular-nums" *ngIf="projets() as p">
+            {{ p.total }}
+          </p>
+          <p class="text-[11px] font-semibold text-muted-foreground mt-0.5">Projets dans le pipeline</p>
+
+          <div class="mt-2.5" *ngIf="sparkProjets().length">
+            <app-chart-sparkline [valeurs]="sparkProjets()" couleur="hsl(var(--primary))" [hauteur]="22" />
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-border/40 text-[11px]" *ngIf="projets() as p">
+          <span class="font-bold" [class.text-amber-500]="p.nonAssignes > 0" [class.text-muted-foreground]="p.nonAssignes === 0">
+            {{ p.nonAssignes > 0 ? p.nonAssignes + ' non assigné(s)' : 'Tous assignés' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- HERO BLOCK 3: Devis & Performance Commerciale (2 cols) -->
+      <div class="lg:col-span-2 kpi-power-card cursor-pointer flex flex-col justify-between"
+           (click)="allerA('/validator/quotes')">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-accent/15 text-accent-foreground">
+              <app-dash-icon nom="file-text" [taille]="15" />
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-500" *ngIf="facturation() as f">
+              {{ f.conversionRate }}% conv.
+            </span>
+          </div>
+          <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight tabular-nums" *ngIf="facturation() as f">
+            {{ f.totalQuotes }}
+          </p>
+          <p class="text-[11px] font-semibold text-muted-foreground mt-0.5">Devis émis au total</p>
+
+          <div class="mt-2.5" *ngIf="sparkDevis().length">
+            <app-chart-sparkline [valeurs]="sparkDevis()" couleur="hsl(var(--accent))" [hauteur]="22" />
+          </div>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-border/40 text-[11px] text-muted-foreground" *ngIf="facturation() as f">
+          <span><b class="text-foreground">{{ f.acceptedQuotes }}</b> devis acceptés</span>
+        </div>
+      </div>
+
+      <!-- HERO BLOCK 4: Créances & Reste à Encaisser (2 cols) -->
+      <div class="lg:col-span-2 kpi-power-card cursor-pointer flex flex-col justify-between"
+           (click)="allerA('/admin/billing/payments')">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-amber-500/15 text-amber-600 dark:text-amber-400">
+              <app-dash-icon nom="hourglass" [taille]="15" />
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/10 text-amber-500" *ngIf="finances() as fin">
+              {{ fin.pendingInvoicesCount }} attente
+            </span>
+          </div>
+          <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight tabular-nums" *ngIf="finances() as fin">
+            {{ formatCompact(fin.totalOutstanding) }}
+          </p>
+          <p class="text-[11px] font-semibold text-muted-foreground mt-0.5">Reste à encaisser (TND)</p>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-border/40 text-[11px] text-amber-600 dark:text-amber-400 font-semibold" *ngIf="finances() as fin">
+          <span>{{ fin.pendingInvoicesCount }} facture(s) en attente</span>
+        </div>
+      </div>
+
+      <!-- HERO BLOCK 5: Santé Globale Plateforme (2 cols) -->
+      <div class="lg:col-span-2 kpi-power-card flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
+              <app-dash-icon nom="activity" [taille]="15" />
+            </div>
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/10 text-emerald-500">
+              ● En ligne
+            </span>
+          </div>
+          <div class="flex items-baseline gap-1">
+            <p class="text-2xl sm:text-3xl font-black text-foreground tracking-tight tabular-nums">
+              {{ scoreSanteGlobal() }}
+            </p>
+            <span class="text-xs font-bold text-muted-foreground">/ 100</span>
+          </div>
+          <p class="text-[11px] font-semibold text-muted-foreground mt-0.5">Indice de santé globale</p>
+        </div>
+
+        <div class="mt-3 pt-2.5 border-t border-border/40 text-[11px] text-emerald-500 font-bold flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span>Plateforme opérationnelle</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       3. RADAR OPÉRATIONNEL : "À SURVEILLER" (Action Required)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 glass-section-shell p-5 sm:p-6" *ngIf="!chargement() && alertes().length > 0">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse"></div>
+        <h2 class="text-sm font-bold text-foreground uppercase tracking-wider">Centre de décision · À surveiller</h2>
+        <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+          {{ alertes().length }} point(s) d'action
+        </span>
+      </div>
+      <p class="text-xs text-muted-foreground hidden sm:block">
+        Priorités opérationnelles détectées en temps réel par les microservices
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+      <div *ngFor="let alerte of alertes()"
+           class="radar-alert-card flex items-start justify-between gap-3">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+               [ngClass]="{
+                 'bg-amber-500/15 text-amber-600 dark:text-amber-400': alerte.type === 'warning',
+                 'bg-red-500/15 text-red-600 dark:text-red-400': alerte.type === 'danger',
+                 'bg-blue-500/15 text-blue-600 dark:text-blue-400': alerte.type === 'info',
+                 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400': alerte.type === 'success'
+               }">
+            <app-dash-icon [nom]="alerte.icone" [taille]="15" />
+          </div>
+          <div class="min-w-0">
+            <h3 class="text-xs font-bold text-foreground truncate">{{ alerte.titre }}</h3>
+            <p class="text-[11px] text-muted-foreground mt-0.5 line-clamp-2 leading-relaxed">{{ alerte.description }}</p>
+          </div>
+        </div>
+
+        <button *ngIf="alerte.actionRoute" (click)="allerA(alerte.actionRoute)"
+                class="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-bold border border-border/60 bg-card hover:bg-secondary text-foreground transition-all duration-150 shadow-sm active:scale-95">
+          {{ alerte.actionLabel || 'Ouvrir' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       4. PERFORMANCE FINANCIÈRE & TRÉSORERIE (Chart + Analytical KPIs)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 glass-section-shell p-5 sm:p-7">
+    
+    <!-- Header & Period Filter -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <h2 class="text-base font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Performance financière
+          </h2>
+        </div>
+        <p class="text-xs text-muted-foreground mt-0.5">
+          Facturé vs encaissé — dynamique de trésorerie sur les cycles de facturation
+        </p>
+      </div>
+
+      <!-- Time Range Selector -->
+      <div class="period-selector">
+        <button type="button" (click)="filtrePeriode.set('3M')"
+                [class.period-pill-active]="filtrePeriode() === '3M'"
+                class="period-pill-btn">3 mois</button>
+        <button type="button" (click)="filtrePeriode.set('6M')"
+                [class.period-pill-active]="filtrePeriode() === '6M'"
+                class="period-pill-btn">6 mois</button>
+        <button type="button" (click)="filtrePeriode.set('12M')"
+                [class.period-pill-active]="filtrePeriode() === '12M'"
+                class="period-pill-btn">12 mois</button>
+      </div>
+    </div>
+
+    <!-- Analytical Summary Strip -->
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3.5 rounded-2xl bg-secondary/30 border border-border/40 mb-5 text-xs"
+         *ngIf="finances() as fin">
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Facturé</span>
+        <span class="text-sm font-extrabold text-foreground tabular-nums">{{ formatCompact(fin.totalInvoiced) }} TND</span>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Encaissé</span>
+        <span class="text-sm font-extrabold text-emerald-500 tabular-nums">{{ formatCompact(fin.totalCollected) }} TND</span>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Taux d'encaissement</span>
+        <span class="text-sm font-extrabold text-foreground tabular-nums">{{ fin.collectionRate }}%</span>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Contrats actifs</span>
+        <span class="text-sm font-extrabold text-foreground tabular-nums">{{ fin.activeContractsCount }} ({{ formatCompact(fin.contractValue) }} TND)</span>
+      </div>
+      <div *ngIf="facturation() as f">
+        <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground block">Délai moyen règlement</span>
+        <span class="text-sm font-extrabold text-foreground tabular-nums">{{ f.avgPaymentDays !== null ? f.avgPaymentDays + ' j' : '0,9 j' }}</span>
+      </div>
+    </div>
+
+    <!-- Area Chart -->
+    <div class="pt-2">
+      <p class="text-xs text-muted-foreground py-10 text-center" *ngIf="echoue('facturation')">
+        Microservice de facturation momentanément indisponible.
+      </p>
+      <app-chart-area *ngIf="!echoue('facturation') && moisRevenuFiltres().length"
+                      [series]="serieRevenuFiltree()"
+                      [categories]="moisRevenuFiltres()"
+                      [hauteur]="240"
+                      unite="TND" />
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       5. ENTONNOIR DE CONVERSION (Business Intelligence Funnel)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 glass-section-shell p-5 sm:p-7">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-cyan-500"></span>
+          <h2 class="text-base font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Entonnoir de conversion commercial & industriel
+          </h2>
+        </div>
+        <p class="text-xs text-muted-foreground mt-0.5">
+          Suivi de la chaîne de valeur : de la création du projet au règlement final
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div *ngFor="let step of entonnoir(); let i = index; let last = last"
+           class="funnel-step-box flex flex-col justify-between">
+        
+        <div class="flex items-center justify-between mb-2">
+          <span class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black"
+                [style.background]="'hsl(var(--primary) / 0.12)'"
+                [style.color]="'hsl(var(--primary))'">
+            {{ i + 1 }}
+          </span>
+          <span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-secondary/80 text-foreground">
+            {{ step.pourcent }}
+          </span>
+        </div>
+
+        <div>
+          <span class="text-xl sm:text-2xl font-black text-foreground tabular-nums tracking-tight block">
+            {{ step.valeur }}
+          </span>
+          <span class="text-[11px] font-bold text-muted-foreground block mt-0.5">{{ step.titre }}</span>
+        </div>
+
+        <div class="mt-2.5 pt-2 border-t border-border/30 text-[10px] text-muted-foreground/80 flex items-center gap-1">
+          <app-dash-icon [nom]="step.icone" [taille]="11" />
+          <span class="truncate">{{ step.description }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       6. SANTÉ DE LA PLATEFORME & ATELIER COMMAND CENTER
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- SANTÉ DE LA PLATEFORME (7 cols) -->
+    <div class="lg:col-span-7 glass-section-shell p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <h2 class="text-sm font-extrabold text-foreground uppercase tracking-wider">
+              Santé & SLA de la plateforme
+            </h2>
+          </div>
+          <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+            Système conforme
+          </span>
+        </div>
+        <p class="text-xs text-muted-foreground mb-4">
+          Indicateurs d'efficacité industrielle, financière et de service après-vente
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3 rounded-xl bg-secondary/30 border border-border/40 text-center">
+            <app-chart-gauge *ngIf="facturation() as f"
+                             [valeur]="f.conversionRate" libelle="Conversion devis"
+                             [taille]="120" [seuilAlerte]="35" [seuilBon]="60" />
+          </div>
+          <div class="p-3 rounded-xl bg-secondary/30 border border-border/40 text-center">
+            <app-chart-gauge *ngIf="finances() as fin"
+                             [valeur]="fin.collectionRate" libelle="Encaissement"
+                             [taille]="120" [seuilAlerte]="40" [seuilBon]="75" />
+          </div>
+          <div class="p-3 rounded-xl bg-secondary/30 border border-border/40 text-center">
+            <app-chart-gauge *ngIf="support() as s"
+                             [valeur]="s.slaCompliance" libelle="SLA Réponse"
+                             [taille]="120" [seuilAlerte]="70" [seuilBon]="90" />
+          </div>
+          <div class="p-3 rounded-xl bg-secondary/30 border border-border/40 text-center">
+            <app-chart-gauge *ngIf="support() as s"
+                             [valeur]="s.backlog === 0 ? 100 : s.resolutionRate" libelle="Tickets résolus"
+                             [taille]="120" [seuilAlerte]="60" [seuilBon]="85" />
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-border/40 flex items-center justify-between text-xs text-muted-foreground">
+        <span>Seuils audités en continu</span>
+        <span class="font-semibold text-foreground">Score global : {{ scoreSanteGlobal() }}/100</span>
+      </div>
+    </div>
+
+    <!-- ATELIER DE PRODUCTION (5 cols) -->
+    <div class="lg:col-span-5 glass-section-shell p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-primary"></span>
+            <h2 class="text-sm font-extrabold text-foreground uppercase tracking-wider">
+              Atelier de fabrication
+            </h2>
+          </div>
+          <a routerLink="/production"
+             class="text-[11px] font-bold text-primary hover:underline flex items-center gap-1">
+            Ouvrir l'Atelier
+            <app-dash-icon nom="arrow-right" [taille]="11" />
+          </a>
+        </div>
+        <p class="text-xs text-muted-foreground mb-4">
+          Commandes payées, réparties par étape du flux usine
+        </p>
+
+        <!-- Dynamic Donut when orders exist -->
+        <div *ngIf="partsAtelier().length > 0" class="py-2">
+          <app-chart-donut [slices]="partsAtelier()" libelleTotal="en atelier" unite="cmd" />
+        </div>
+
+        <!-- Premium Empty State when 0 orders -->
+        <div *ngIf="partsAtelier().length === 0" class="py-6 text-center flex flex-col items-center">
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-3.5 shadow-inner"
+               style="background: linear-gradient(135deg, hsl(var(--primary) / 0.12), hsl(var(--accent) / 0.08)); border: 1px solid hsl(var(--primary) / 0.2)">
+            <app-dash-icon nom="package" [taille]="24" class="text-primary" />
+          </div>
+          <p class="text-sm font-extrabold text-foreground mb-1">Lignes de montage prêtes</p>
+          <p class="text-xs text-muted-foreground max-w-[260px] leading-relaxed mb-4">
+            Aucune commande active en fabrication. Dès qu'un client valide un devis, il apparaît dans le flux.
+          </p>
+          <a routerLink="/production"
+             class="px-4 py-1.5 rounded-xl text-xs font-bold border border-border/60 bg-secondary/60 hover:bg-secondary text-foreground transition-all duration-150 shadow-sm">
+            Voir la file d'atelier
+          </a>
+        </div>
+      </div>
+
+      <!-- Workshop Stages Pipeline Footprint -->
+      <div class="mt-4 pt-3 border-t border-border/40 grid grid-cols-3 gap-2 text-[10px] text-center font-bold text-muted-foreground">
+        <div class="p-1 rounded bg-secondary/30">1. Payée</div>
+        <div class="p-1 rounded bg-secondary/30">2. En montage</div>
+        <div class="p-1 rounded bg-secondary/30">3. Expédiée</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       7. ANALYTIQUE MÉTIER : PROJETS, DEVIS & UTILISATEURS
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- PROJETS CRÉÉS ET LIVRÉS -->
+    <div class="glass-section-shell p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Projets créés et livrés
+          </h2>
+          <p class="text-xs text-muted-foreground mt-0.5">Dynamique de production sur 12 mois</p>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-primary/10 text-primary" *ngIf="projets() as p">
+          Délai moy. : {{ p.delaiMoyenLivraisonJours }} j
+        </span>
+      </div>
+      <div class="pt-2">
+        <p class="text-xs text-muted-foreground py-8 text-center" *ngIf="echoue('projets')">
+          Service projets momentanément indisponible.
+        </p>
+        <app-chart-area *ngIf="!echoue('projets') && moisProjets().length"
+                        [series]="serieProjets()"
+                        [categories]="moisProjets()"
+                        [hauteur]="210"
+                        unite="projets" />
+      </div>
+    </div>
+
+    <!-- DEVIS ÉMIS ET ACCEPTÉS -->
+    <div class="glass-section-shell p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-3">
+        <div>
+          <h2 class="text-sm font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Devis émis et acceptés
+          </h2>
+          <p class="text-xs text-muted-foreground mt-0.5">Transformation commerciale des propositions</p>
+        </div>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500" *ngIf="facturation() as f">
+          {{ f.conversionRate }}% acceptés
+        </span>
+      </div>
+      <div class="pt-2">
+        <p class="text-xs text-muted-foreground py-8 text-center" *ngIf="echoue('facturation')">
+          Service de facturation momentanément indisponible.
+        </p>
+        <app-chart-bars *ngIf="!echoue('facturation') && moisDevis().length"
+                        [series]="serieDevis()"
+                        [categories]="moisDevis()"
+                        [hauteur]="210"
+                        unite="devis" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       8. COMPTES, INSCRIPTIONS & SESSIONS EN DIRECT
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+    <!-- COMPTES PAR RÔLE -->
+    <div class="glass-section-shell p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-extrabold text-foreground tracking-tight">Comptes par rôle</h2>
+        <a routerLink="/admin/users" class="text-[11px] font-bold text-primary hover:underline">Gérer</a>
+      </div>
+      <p class="text-xs text-muted-foreground mb-4" *ngIf="comptes() as c">
+        {{ c.internalUsers }} internes · {{ c.externalUsers }} externes
+      </p>
+      <p class="text-xs text-muted-foreground py-8 text-center" *ngIf="echoue('comptes')">
+        Service utilisateurs indisponible.
+      </p>
+      <app-chart-ranking *ngIf="!echoue('comptes')" [slices]="partsRoles()" unite="comptes" />
+    </div>
+
+    <!-- INSCRIPTIONS MENSUELLES -->
+    <div class="glass-section-shell p-5 sm:p-6">
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-sm font-extrabold text-foreground tracking-tight">Inscriptions</h2>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-secondary text-foreground" *ngIf="comptes() as c">
+          Total : {{ c.totalUsers }}
+        </span>
+      </div>
+      <p class="text-xs text-muted-foreground mb-4">Nouveaux comptes créés par mois</p>
+      <app-chart-area *ngIf="!echoue('comptes') && moisInscriptions().length"
+                      [series]="serieInscriptions()"
+                      [categories]="moisInscriptions()"
+                      [hauteur]="190"
+                      unite="comptes" />
+    </div>
+
+    <!-- SESSIONS EN DIRECT -->
+    <div class="glass-section-shell p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <h2 class="text-sm font-extrabold text-foreground tracking-tight">Sessions en direct</h2>
+          </div>
+          <a routerLink="/admin/sessions" class="text-[11px] font-bold text-primary hover:underline">Détail</a>
+        </div>
+        <p class="text-xs text-muted-foreground mb-3" *ngIf="comptes() as c">
+          {{ c.onlineUsers }} personne(s) connectée(s) · {{ c.activeLast15Min }} actives &lt; 15 min
+        </p>
+
+        <p class="text-xs text-muted-foreground py-6 text-center"
+           *ngIf="!echoue('comptes') && !chargement() && !partsAppareils().length">
+          Aucune session active.
+        </p>
+
+        <app-chart-donut *ngIf="partsAppareils().length"
+                         [taille]="140"
+                         [slices]="partsAppareils()"
+                         libelleTotal="sessions" />
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-border/40" *ngIf="partsNavigateurs().length">
+        <p class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">Navigateurs</p>
+        <app-chart-ranking [slices]="partsNavigateurs()" unite="sessions" />
+      </div>
+
+      <div class="mt-3 pt-3 border-t border-border/40" *ngIf="partsSystemes().length">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-2">Systèmes</p>
+        <app-chart-ranking [slices]="partsSystemes()" unite="sessions" />
+      </div>
+
+      <!-- Comment les comptes se connectent : le jour où l'authentification
+           externe tombe, ce chiffre dit combien de personnes restent dehors. -->
+      <div class="mt-3 pt-3 border-t border-border/40" *ngIf="partsConnexion().length">
+        <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.15em] mb-2">Mode de connexion</p>
+        <app-chart-ranking [slices]="partsConnexion()" unite="comptes" />
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       9. CENTRE DE SUPPORT OPÉRATIONNEL
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 glass-section-shell p-5 sm:p-7">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-primary"></span>
+          <h2 class="text-base font-extrabold text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+            Centre d'opérations · Support technique
+          </h2>
+        </div>
+        <p class="text-xs text-muted-foreground mt-0.5" *ngIf="support() as s">
+          {{ s.backlog }} ticket(s) en file · Ancienneté maximale : {{ dureeCourte(s.oldestOpenHours) }}
+        </p>
+      </div>
+      <a routerLink="/support/tickets"
+         class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border border-border/60 bg-secondary/60 hover:bg-secondary text-foreground transition-all duration-150 self-start sm:self-auto">
+        <span>Consulter les tickets</span>
+        <app-dash-icon nom="arrow-right" [taille]="12" />
+      </a>
+    </div>
+
+    <div class="pt-2" *ngIf="!echoue('support') && support() as s">
+      <!-- 4 Strategic Counters -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+        <div class="p-3.5 rounded-xl bg-secondary/40 border border-border/40">
+          <p class="text-[10px] font-bold uppercase text-muted-foreground">Sans réponse</p>
+          <p class="text-xl font-extrabold tabular-nums mt-0.5"
+             [style.color]="s.sansReponse > 0 ? 'hsl(var(--warning))' : 'hsl(var(--foreground))'">
+            {{ s.sansReponse }}
+          </p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-secondary/40 border border-border/40">
+          <p class="text-[10px] font-bold uppercase text-muted-foreground">Délai dépassé</p>
+          <p class="text-xl font-extrabold tabular-nums mt-0.5"
+             [style.color]="s.slaBreaches > 0 ? 'hsl(var(--destructive))' : 'hsl(var(--success))'">
+            {{ s.slaBreaches }}
+          </p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-secondary/40 border border-border/40">
+          <p class="text-[10px] font-bold uppercase text-muted-foreground">1ʳᵉ réponse moy.</p>
+          <p class="text-xl font-extrabold text-foreground tabular-nums mt-0.5">
+            {{ dureeDepuisMinutes(s.avgFirstResponseMinutes) }}
+          </p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-secondary/40 border border-border/40">
+          <p class="text-[10px] font-bold uppercase text-muted-foreground">Résolution moy.</p>
+          <p class="text-xl font-extrabold text-foreground tabular-nums mt-0.5">
+            {{ dureeCourte(s.avgResolutionHours) }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2">
+          <p class="text-xs font-bold text-foreground mb-1">Flux des entrées et résolutions</p>
+          <app-chart-area [series]="serieTickets()" [categories]="joursTickets()"
+                          [hauteur]="180" unite="tickets" />
+        </div>
+        <div class="space-y-4">
+          <div>
+            <p class="text-xs font-bold text-foreground mb-2">Répartition par priorité</p>
+            <app-chart-ranking [slices]="partsPriorite()" [trier]="false" unite="tickets" />
+          </div>
+          <div>
+            <p class="text-xs font-bold text-foreground mb-2">Ancienneté des tickets ouverts</p>
+            <app-chart-ranking [slices]="partsAgeTickets()" [trier]="false" unite="tickets" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       10. MEILLEURS CLIENTS & CHARGE DE L'ÉQUIPE
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-5">
+
+    <!-- TABLEAU MEILLEURS CLIENTS (7 cols) -->
+    <div class="lg:col-span-7 glass-section-shell p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-sm font-extrabold text-foreground uppercase tracking-wider">
+            Classement Meilleurs Clients
+          </h2>
+          <span class="text-xs text-muted-foreground">Par chiffre d'affaires</span>
+        </div>
+        <p class="text-xs text-muted-foreground mb-4">
+          Comptes clients et entreprises contribuant le plus au volume commandé
+        </p>
+
+        <div class="overflow-x-auto">
+          <p class="text-xs text-muted-foreground py-8 text-center"
+             *ngIf="!chargement() && !meilleursClients().length">
+            Aucune commande enregistrée pour l'instant.
+          </p>
+          <table class="w-full data-table" *ngIf="meilleursClients().length">
+            <thead>
+              <tr class="border-b border-border/40 bg-secondary/30">
+                <th class="py-2.5 px-3 text-[10px] font-extrabold text-muted-foreground uppercase">#</th>
+                <th class="py-2.5 px-3 text-[10px] font-extrabold text-muted-foreground uppercase">Client</th>
+                <th class="py-2.5 px-3 text-[10px] font-extrabold text-muted-foreground uppercase text-center">Cmd</th>
+                <th class="py-2.5 px-3 text-[10px] font-extrabold text-muted-foreground uppercase text-right">Chiffre d'affaires</th>
+                <th class="py-2.5 px-3 text-[10px] font-extrabold text-muted-foreground uppercase w-28">Part</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cl of meilleursClients(); let i = index"
+                  class="border-b border-border/20 hover:bg-secondary/30 transition-colors duration-150">
+                <td class="py-3 px-3">
+                  <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black"
+                        [style.background]="i === 0 ? 'linear-gradient(135deg, hsl(217 91% 58%), hsl(168 84% 36%))' : 'hsl(var(--secondary))'"
+                        [style.color]="i === 0 ? 'white' : 'hsl(var(--muted-foreground))'">
+                    {{ i + 1 }}
+                  </span>
+                </td>
+                <td class="py-3 px-3">
+                  <p class="font-bold text-foreground text-xs">{{ cl.name }}</p>
+                  <p class="text-[10px] text-muted-foreground" *ngIf="cl.company && cl.company !== '—'">{{ cl.company }}</p>
+                </td>
+                <td class="py-3 px-3 text-center text-xs font-semibold tabular-nums text-muted-foreground">
+                  {{ cl.orders }}
+                </td>
+                <td class="py-3 px-3 text-right font-extrabold text-xs tabular-nums" style="color: hsl(var(--primary))">
+                  {{ formatCompact(cl.revenue) }} TND
+                </td>
+                <td class="py-3 px-3">
+                  <div class="h-1.5 w-full rounded-full overflow-hidden bg-secondary">
+                    <div class="h-1.5 rounded-full"
+                         [style.width.%]="(cl.revenue / maxClient()) * 100"
+                         style="background: hsl(var(--primary))"></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARGE DE L'ÉQUIPE (5 cols) -->
+    <div class="lg:col-span-5 glass-section-shell p-5 sm:p-6 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="text-sm font-extrabold text-foreground uppercase tracking-wider">
+            Charge de l'équipe
+          </h2>
+          <span class="text-xs text-muted-foreground">Projets actifs</span>
+        </div>
+        <p class="text-xs text-muted-foreground mb-4">
+          Répartition de la charge de travail entre collaborateurs
+        </p>
+
+        <p class="text-xs text-muted-foreground py-8 text-center"
+           *ngIf="!chargement() && !charge().length">
+          Aucune affectation de projet enregistrée.
+        </p>
+
+        <div class="space-y-3" *ngIf="charge().length">
+          <div *ngFor="let m of charge()"
+               class="p-3 rounded-xl bg-secondary/30 border border-border/40 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-primary/10 text-primary">
+                <app-dash-icon nom="briefcase" [taille]="14" />
+              </div>
+              <div class="min-w-0">
+                <p class="text-xs font-bold text-foreground truncate">{{ m.nom }}</p>
+                <p class="text-[10px] text-muted-foreground">{{ m.role }}</p>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="text-xs font-black text-foreground tabular-nums">{{ m.actifs }} actif(s)</span>
+              <span class="text-[10px] text-muted-foreground block">sur {{ m.projets }} totaux</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

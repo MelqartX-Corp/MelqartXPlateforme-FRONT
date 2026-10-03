@@ -1,0 +1,67 @@
+<div class="loading-overlay" *ngIf="isVisible" [class.fade-out]="isFadingOut">
+
+  <!-- Animated background particles -->
+  <div class="particles">
+    <span class="particle" *ngFor="let p of [1,2,3,4,5,6,7,8,9,10,11,12]"></span>
+  </div>
+
+  <!-- Geometric grid -->
+  <div class="grid-overlay"></div>
+
+  <!-- Floating orbs with project charte graphique colors -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Main content -->
+  <div class="loading-content">
+
+    <!-- Logo / Brand -->
+    <div class="brand-wrapper">
+      <div class="logo-ring">
+        <div class="logo-ring-inner">
+          <img src="rima-logo.png" alt="MELQARTX Logo" class="logo-icon-custom" />
+        </div>
+      </div>
+
+      <div class="brand-text">
+        <h1 class="brand-name">MELQART<span class="brand-accent">X</span></h1>
+        <p class="brand-tagline">Plateforme Tunisienne PCB & PCBA</p>
+      </div>
+    </div>
+
+    <!-- Progress section -->
+    <div class="progress-section">
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+        <div class="progress-glow"></div>
+      </div>
+
+      <div class="status-row">
+        <span class="status-dot"></span>
+        <span class="status-text">Initialisation du système PCB & PCBA...</span>
+      </div>
+    </div>
+
+    <!-- Feature pills according to project charte graphique -->
+    <div class="feature-pills">
+      <div class="pill pill-1">
+        <span class="pill-icon">⚡</span>
+        <span>PCB & PCBA Express</span>
+      </div>
+      <div class="pill pill-2">
+        <span class="pill-icon">🛡️</span>
+        <span>Norme Industrielle</span>
+      </div>
+      <div class="pill pill-3">
+        <span class="pill-icon">📊</span>
+        <span>Gestion Intelligent BOM</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Version badge -->
+  <div class="version-badge">v2.0 · MELQARTX Enterprise</div>
+
+</div>

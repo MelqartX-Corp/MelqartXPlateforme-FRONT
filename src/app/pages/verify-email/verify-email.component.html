@@ -1,0 +1,65 @@
+<div class="min-h-screen flex items-center justify-center bg-canvas p-6 relative overflow-hidden">
+      <!-- Ambient orbs -->
+      <div class="absolute top-[10%] -left-[10%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 pointer-events-none" style="background: hsl(var(--primary))"></div>
+      <div class="absolute bottom-[10%] -right-[10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-15 pointer-events-none" style="background: hsl(var(--accent))"></div>
+
+      <div class="w-full max-w-md animate-fade-up relative z-10">
+        <!-- Icon -->
+        <div class="text-center mb-8">
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-xl mb-6 border border-border/50"
+               style="background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <h1 class="text-3xl font-extrabold text-foreground tracking-tight mb-2">Vérifiez votre email</h1>
+          <p class="text-sm text-muted-foreground">Un code de vérification a été envoyé à <strong class="text-foreground">{{ email }}</strong></p>
+        </div>
+
+        <div class="glass-card rounded-3xl p-6 sm:p-8">
+          <!-- Success state -->
+          <div *ngIf="verified" class="text-center space-y-4">
+            <div class="w-14 h-14 mx-auto rounded-full flex items-center justify-center" style="background: hsl(var(--success)/0.15)">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color: hsl(var(--success))"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-foreground">Email vérifié avec succès !</h3>
+            <p class="text-sm text-muted-foreground">Vous pouvez maintenant vous connecter.</p>
+            <a routerLink="/login" class="btn-primary w-full justify-center h-11 text-sm mt-4 inline-flex items-center">Se connecter</a>
+          </div>
+
+          <!-- OTP form -->
+          <form *ngIf="!verified" (submit)="handleVerify($event)" class="space-y-5">
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Code de vérification (6 chiffres)</label>
+              <input type="text" class="input-base text-center text-2xl tracking-[0.5em] font-mono"
+                     placeholder="000000" [(ngModel)]="otp" name="otp"
+                     maxlength="6" pattern="[0-9]{6}" required
+                     autocomplete="one-time-code"/>
+            </div>
+
+            <div *ngIf="error" class="p-3 rounded-xl border border-destructive/30 bg-destructive/5 text-sm text-destructive font-medium">
+              {{ error }}
+            </div>
+
+            <button type="submit" class="btn-primary w-full justify-center h-11 text-sm" [disabled]="submitting">
+              <span *ngIf="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span>
+              {{ submitting ? 'Vérification...' : 'Vérifier' }}
+            </button>
+
+            <div class="text-center">
+              <button type="button" (click)="resend()" [disabled]="resendCountdown > 0"
+                      class="text-xs font-bold transition-colors"
+                      [style.color]="resendCountdown > 0 ? 'hsl(var(--muted-foreground))' : 'hsl(var(--accent))'">
+                {{ resendCountdown > 0 ? 'Renvoyer dans ' + resendCountdown + 's' : 'Renvoyer le code' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="mt-6 text-center">
+          <a routerLink="/login" class="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors">
+            ← Retour à la connexion
+          </a>
+        </div>
+      </div>
+    </div>

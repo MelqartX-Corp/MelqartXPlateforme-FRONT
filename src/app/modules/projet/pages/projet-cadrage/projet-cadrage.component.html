@@ -1,0 +1,712 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ Success Toast ═══ -->
+  <div *ngIf="successMsg()" class="flex items-center gap-3 p-4 rounded-2xl border animate-fade-up"
+       style="background:hsl(var(--success)/0.08);border-color:hsl(var(--success)/0.3)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:hsl(var(--success))"><polyline points="20 6 9 17 4 12"/></svg>
+    <p class="text-sm font-semibold" style="color:hsl(var(--success))">{{ successMsg() }}</p>
+  </div>
+
+  <!-- ═══ Save Error Toast ═══ -->
+  <div *ngIf="saveError()" class="flex items-center gap-3 p-4 rounded-2xl border animate-fade-up"
+       style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError() }}</p>
+  </div>
+
+  <!-- ═══ Loading ═══ -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement du projet…</p>
+  </div>
+
+  <!-- ═══ Error ═══ -->
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <!-- STEPPER WIZARD & HEADER                                 -->
+  <!-- ═══════════════════════════════════════════════════════ -->
+  <ng-container *ngIf="!loading && !error && projet()">
+    
+    <!-- Unified container to keep Stepper, Content, and Footer perfectly aligned at same width -->
+    <div style="max-width: 960px; margin: 0 auto; width: 100%;" class="space-y-6">
+
+      <!-- ── Integrated Page Header & Stepper (Linear / Stripe style) ── -->
+      <div class="page-header-premium rounded-3xl transition-all duration-300 hover:shadow-[0_20px_80px_rgba(0,0,0,.08)]"
+           style="background: hsl(var(--card)/0.85); backdrop-filter: blur(20px); border: 1px solid hsl(var(--border)/0.4); padding-top: 1.25rem; padding-bottom: 1.25rem; padding-left: 1.5rem; padding-right: 1.5rem; margin-bottom: 0;">
+        
+        <div class="relative z-10 w-full space-y-4">
+          <!-- Back Link, Title and Step Percentage Info -->
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-0.5">
+              <a routerLink="/client/projets" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                Retour aux projets
+              </a>
+              <h1 class="text-xl md:text-2xl font-black text-foreground flex items-center gap-2" style="font-family:'Outfit',sans-serif">
+                <span>Cadrage :</span>
+                <span class="text-primary">{{ projet()!.nom }}</span>
+              </h1>
+            </div>
+            
+            <!-- Step Progress pill & countdown timer -->
+            <div class="flex flex-col items-start md:items-end gap-0.5 shrink-0">
+              <div class="flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold shadow-sm"
+                   style="background: hsl(var(--primary)/0.08); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)/0.15)">
+                <span>Étape {{ currentStep() }} sur {{ totalSteps() }}</span>
+                <span class="opacity-30">•</span>
+                <span>{{ progressPercent() }}%</span>
+              </div>
+              <span class="text-[10px] font-bold text-muted-foreground mr-1 flex items-center gap-1">
+                <span>⚡</span> {{ estimatedTimeRemaining() }} restants
+              </span>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="w-full h-1.5 rounded-full overflow-hidden" style="background: hsl(var(--border)/0.3)">
+            <div class="h-full rounded-full transition-all duration-700 ease-out"
+                 [style.width.%]="progressPercent()"
+                 style="background: linear-gradient(90deg, #2563eb, #06b6d4)">
+            </div>
+          </div>
+
+          <!-- Step circles with dynamic sizing inside the header -->
+          <div class="flex items-center justify-center gap-0 overflow-x-auto py-1">
+            <ng-container *ngFor="let label of stepLabels(); let i = index; let last = last">
+              <!-- Step Column (Circle + Label) -->
+              <div class="flex flex-col items-center relative z-10 select-none" style="width: 85px; flex-shrink: 0;">
+                <!-- Centered Circle Container -->
+                <div class="h-[60px] flex items-center justify-center">
+                  <div class="rounded-full flex items-center justify-center font-bold transition-all duration-500 border-2"
+                       [class.animate-pulse]="i + 1 === currentStep()"
+                       [style.width]="i + 1 === currentStep() ? '56px' : i + 1 < currentStep() ? '48px' : '40px'"
+                       [style.height]="i + 1 === currentStep() ? '56px' : i + 1 < currentStep() ? '48px' : '40px'"
+                       [style.background]="i + 1 < currentStep() ? 'hsl(var(--success))' : i + 1 === currentStep() ? 'hsl(var(--primary))' : 'hsl(var(--secondary))'"
+                       [style.border-color]="i + 1 < currentStep() ? 'hsl(var(--success))' : i + 1 === currentStep() ? 'hsl(var(--primary))' : 'hsl(var(--border))'"
+                       [style.color]="i + 1 <= currentStep() ? '#fff' : 'hsl(var(--muted-foreground))'"
+                       [style.box-shadow]="i + 1 === currentStep() ? '0 0 0 6px rgba(59,130,246,.12), 0 8px 20px rgba(59,130,246,.2)' : 'none'">
+                    
+                    <ng-container *ngIf="i + 1 < currentStep()">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" class="animate-fade-in"><polyline points="20 6 9 17 4 12"/></svg>
+                    </ng-container>
+                    <ng-container *ngIf="i + 1 >= currentStep()">
+                      <span [style.font-size]="i + 1 === currentStep() ? '1.25rem' : '0.95rem'">{{ stepIcon(i + 1) }}</span>
+                    </ng-container>
+                  </div>
+                </div>
+                <!-- Label -->
+                <span class="text-[10px] font-bold tracking-tight transition-colors duration-300 mt-0.5"
+                      [style.color]="i + 1 === currentStep() ? 'hsl(var(--primary))' : i + 1 < currentStep() ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))'">
+                  {{ label }}
+                </span>
+              </div>
+              
+              <!-- Connector line -->
+              <div *ngIf="!last" class="h-0.5 flex-1 max-w-[60px] min-w-[15px] mx-1 mb-[18px] transition-all duration-500 rounded-full"
+                   [style.background]="i + 1 < currentStep() ? 'linear-gradient(90deg, #2563eb, #06b6d4)' : 'hsl(var(--border)/0.5)'">
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Two-Column Layout ── -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch animate-fade-up">
+        
+        <!-- Left Column: Step Card (takes 8 cols) -->
+        <div class="lg:col-span-8 flex flex-col">
+
+          <!-- ═══ STEP 1 — Industrie ═══ -->
+          <div *ngIf="activeSection() === 'INDUSTRIE'" class="glass-card-premium flex-1 flex flex-col">
+            <div class="card-header-premium">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+                  <span class="text-base">🏭</span>
+                </div>
+                <div>
+                  <h3 style="font-size:18px;font-weight:700;font-family:'Outfit',sans-serif">Industrie du projet</h3>
+                  <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.7">Sélectionnez le secteur principal de votre produit pour que nous puissions adapter nos bibliothèques de composants et nos règles de routage.</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body flex-1">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 h-full">
+                <button *ngFor="let opt of industries" (click)="selectIndustrie(opt.value)"
+                        class="flex flex-col items-center gap-2 p-4 rounded-2xl border-2 text-center cursor-pointer h-full justify-center"
+                        [style.border-color]="selectedIndustrie() === opt.value ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                        [style.background]="selectedIndustrie() === opt.value ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                        [style.box-shadow]="selectedIndustrie() === opt.value ? '0 8px 24px hsl(var(--primary)/0.18)' : 'none'"
+                        [style.transform]="selectedIndustrie() === opt.value ? 'scale(1.03)' : 'scale(1)'"
+                        style="transition:all .25s cubic-bezier(.4,0,.2,1)">
+                  <span class="text-2xl">{{ opt.emoji }}</span>
+                  <span class="text-xs font-bold text-foreground">{{ opt.label }}</span>
+                  <span class="text-[10px] leading-tight" style="color:hsl(var(--muted-foreground));opacity:0.65">{{ opt.desc }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ STEP 2 — Objectif ═══ -->
+          <div *ngIf="activeSection() === 'OBJECTIF'" class="glass-card-premium flex-1 flex flex-col">
+            <div class="card-header-premium">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+                  <span class="text-base">🎯</span>
+                </div>
+                <div>
+                  <h3 style="font-size:18px;font-weight:700;font-family:'Outfit',sans-serif">Objectif du projet</h3>
+                  <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.7">Définissez le stade actuel de votre projet afin d'établir un plan de route cohérent (étude, prototypage rapide ou industrialisation).</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body flex-1">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 h-full">
+                <button *ngFor="let opt of objectifs" (click)="selectObjectif(opt.value)"
+                        [disabled]="isObjectifDisabled(opt.value)"
+                        [class.opacity-35]="isObjectifDisabled(opt.value)"
+                        [class.cursor-not-allowed]="isObjectifDisabled(opt.value)"
+                        class="flex flex-col items-center gap-2.5 p-5 rounded-2xl border-2 text-center cursor-pointer h-full justify-center relative"
+                        [style.border-color]="selectedObjectif() === opt.value ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                        [style.background]="selectedObjectif() === opt.value ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                        [style.box-shadow]="selectedObjectif() === opt.value ? '0 8px 24px hsl(var(--primary)/0.18)' : 'none'"
+                        [style.transform]="selectedObjectif() === opt.value ? 'scale(1.03)' : 'scale(1)'"
+                        style="transition:all .25s cubic-bezier(.4,0,.2,1)">
+                  <span *ngIf="isObjectifDisabled(opt.value)" class="absolute top-2.5 right-2.5 text-xs text-muted-foreground">🔒</span>
+                  <span class="text-3xl">{{ opt.emoji }}</span>
+                  <span class="text-sm font-bold text-foreground">{{ opt.label }}</span>
+                  <span class="text-xs leading-tight" style="color:hsl(var(--muted-foreground));opacity:0.65">{{ opt.desc }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ STEP 3 — Technical Needs ═══ -->
+          <div *ngIf="activeSection() === 'BESOINS'" class="glass-card-premium flex-1 flex flex-col">
+            <div class="card-header-premium">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+                  <span class="text-base">⚙️</span>
+                </div>
+                <div>
+                  <h3 style="font-size:18px;font-weight:700;font-family:'Outfit',sans-serif">Besoins techniques</h3>
+                  <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.7">Cochez les technologies requises pour votre carte électronique. Ces choix détermineront les compétences ingénieur allouées à votre étude.</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-lg" style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">{{ selectedHardwareNeeds().length + selectedFirmwareNeeds().length + selectedManufacturingNeeds().length }} sélection(s)</span>
+            </div>
+            <div class="card-body flex-1" style="padding-top:8px">
+
+              <!-- Hardware -->
+              <div style="margin-bottom:36px">
+                <div class="flex items-center gap-2.5 mb-3">
+                  <span style="font-size:18px">⚡</span>
+                  <div>
+                    <span style="font-size:15px;font-weight:700;color:hsl(var(--foreground))">Hardware</span>
+                    <span class="text-[10px] font-semibold ml-2 px-1.5 py-0.5 rounded" style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">{{ selectedHardwareNeeds().length }}/6</span>
+                    <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">Electronic design & PCB engineering</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button *ngFor="let opt of hardwareOptions" (click)="toggleHardware(opt.value)"
+                          class="flex items-center gap-3 p-3.5 rounded-xl border-2 text-left cursor-pointer animate-fade-in"
+                          [style.border-color]="isHardwareSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                          [style.background]="isHardwareSelected(opt.value) ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                          [style.box-shadow]="isHardwareSelected(opt.value) ? '0 4px 16px hsl(var(--primary)/0.12)' : 'none'"
+                          [style.transform]="isHardwareSelected(opt.value) ? 'scale(1.01)' : 'scale(1)'"
+                          style="transition:all .2s cubic-bezier(.4,0,.2,1)">
+                    <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0"
+                         [style.border-color]="isHardwareSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border))'"
+                         [style.background]="isHardwareSelected(opt.value) ? 'hsl(var(--primary))' : 'transparent'"
+                         style="transition:all .2s ease">
+                      <svg *ngIf="isHardwareSelected(opt.value)" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-foreground">{{ opt.label }}</span>
+                      <p class="text-[10px] mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">{{ opt.desc }}</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Firmware -->
+              <div style="margin-bottom:36px;padding-top:12px;border-top:1px solid hsl(var(--border)/0.3)">
+                <div class="flex items-center gap-2.5 mb-3">
+                  <span style="font-size:18px">💻</span>
+                  <div>
+                    <span style="font-size:15px;font-weight:700;color:hsl(var(--foreground))">Firmware</span>
+                    <span class="text-[10px] font-semibold ml-2 px-1.5 py-0.5 rounded" style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">{{ selectedFirmwareNeeds().length }}/6</span>
+                    <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">Embedded software development</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button *ngFor="let opt of firmwareOptions" (click)="toggleFirmware(opt.value)"
+                          class="flex items-center gap-3 p-3.5 rounded-xl border-2 text-left cursor-pointer"
+                          [style.border-color]="isFirmwareSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                          [style.background]="isFirmwareSelected(opt.value) ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                          [style.box-shadow]="isFirmwareSelected(opt.value) ? '0 4px 16px hsl(var(--primary)/0.12)' : 'none'"
+                          [style.transform]="isFirmwareSelected(opt.value) ? 'scale(1.01)' : 'scale(1)'"
+                          style="transition:all .2s cubic-bezier(.4,0,.2,1)">
+                    <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0"
+                         [style.border-color]="isFirmwareSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border))'"
+                         [style.background]="isFirmwareSelected(opt.value) ? 'hsl(var(--primary))' : 'transparent'"
+                         style="transition:all .2s ease">
+                      <svg *ngIf="isFirmwareSelected(opt.value)" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-foreground">{{ opt.label }}</span>
+                      <p class="text-[10px] mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">{{ opt.desc }}</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Manufacturing -->
+              <div style="padding-top:12px;border-top:1px solid hsl(var(--border)/0.3)">
+                <div class="flex items-center gap-2.5 mb-3">
+                  <span style="font-size:18px">🏭</span>
+                  <div>
+                    <span style="font-size:15px;font-weight:700;color:hsl(var(--foreground))">Manufacturing</span>
+                    <span class="text-[10px] font-semibold ml-2 px-1.5 py-0.5 rounded" style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">{{ selectedManufacturingNeeds().length }}/5</span>
+                    <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">Production & assembly services</p>
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button *ngFor="let opt of manufacturingOptions" (click)="toggleManufacturing(opt.value)"
+                          class="flex items-center gap-3 p-3.5 rounded-xl border-2 text-left cursor-pointer"
+                          [style.border-color]="isManufacturingSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                          [style.background]="isManufacturingSelected(opt.value) ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                          [style.box-shadow]="isManufacturingSelected(opt.value) ? '0 4px 16px hsl(var(--primary)/0.12)' : 'none'"
+                          [style.transform]="isManufacturingSelected(opt.value) ? 'scale(1.01)' : 'scale(1)'"
+                          style="transition:all .2s cubic-bezier(.4,0,.2,1)">
+                    <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0"
+                         [style.border-color]="isManufacturingSelected(opt.value) ? 'hsl(var(--primary))' : 'hsl(var(--border))'"
+                         [style.background]="isManufacturingSelected(opt.value) ? 'hsl(var(--primary))' : 'transparent'"
+                         style="transition:all .2s ease">
+                      <svg *ngIf="isManufacturingSelected(opt.value)" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div>
+                      <span class="text-xs font-semibold text-foreground">{{ opt.label }}</span>
+                      <p class="text-[10px] mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.6">{{ opt.desc }}</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ═══ STEP 4 — Engagement Model ═══ -->
+          <div *ngIf="activeSection() === 'ENGAGEMENT'" class="glass-card-premium flex-1 flex flex-col">
+            <div class="card-header-premium">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+                  <span class="text-base">🤝</span>
+                </div>
+                <div>
+                  <h3 style="font-size:18px;font-weight:700;font-family:'Outfit',sans-serif">Modèle d'engagement</h3>
+                  <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.7">Déterminez le niveau d'implication attendu de nos équipes de R&D (conseil, ingénierie partagée ou conception clé en main).</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body flex-1">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 h-full">
+                <button *ngFor="let opt of engagements" (click)="selectEngagement(opt.value)"
+                        [disabled]="isEngagementDisabled(opt.value)"
+                        class="flex flex-col items-center gap-2.5 p-5 rounded-2xl border-2 text-center h-full justify-center transition-all duration-200"
+                        [class.opacity-40]="isEngagementDisabled(opt.value)"
+                        [class.cursor-not-allowed]="isEngagementDisabled(opt.value)"
+                        [class.cursor-pointer]="!isEngagementDisabled(opt.value)"
+                        [style.border-color]="selectedEngagement() === opt.value ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                        [style.background]="selectedEngagement() === opt.value ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                        [style.box-shadow]="selectedEngagement() === opt.value ? '0 8px 24px hsl(var(--primary)/0.18)' : 'none'"
+                        [style.transform]="selectedEngagement() === opt.value && !isEngagementDisabled(opt.value) ? 'scale(1.03)' : 'scale(1)'">
+                  <span class="text-3xl">{{ opt.emoji }}</span>
+                  <span class="text-sm font-bold text-foreground">{{ opt.label }}</span>
+                  <span class="text-xs leading-tight" style="color:hsl(var(--muted-foreground));opacity:0.65">{{ opt.desc }}</span>
+                  <span *ngIf="isEngagementDisabled(opt.value)" class="text-[10px] font-bold px-2 py-0.5 rounded bg-muted/60 text-muted-foreground mt-1">
+                    Non disponible pour ce type de projet
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ═══ STEP 5 — Timeline ═══ -->
+          <div *ngIf="activeSection() === 'DELAI'" class="glass-card-premium flex-1 flex flex-col">
+            <div class="card-header-premium">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+                  <span class="text-base">⏱️</span>
+                </div>
+                <div>
+                  <h3 style="font-size:18px;font-weight:700;font-family:'Outfit',sans-serif">Calendrier & Délai</h3>
+                  <p class="text-xs mt-0.5" style="color:hsl(var(--muted-foreground));opacity:0.7">Précisez vos contraintes de temps pour nous permettre de réserver les ressources de prototypage et de production dans nos plannings.</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body flex-1">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button *ngFor="let opt of timelines" (click)="selectTimeline(opt.value)"
+                        class="flex flex-col items-center gap-2.5 p-5 rounded-2xl border-2 text-center cursor-pointer h-full justify-center"
+                        [style.border-color]="selectedTimeline() === opt.value ? 'hsl(var(--primary))' : 'hsl(var(--border)/0.5)'"
+                        [style.background]="selectedTimeline() === opt.value ? 'hsl(var(--primary)/0.06)' : 'transparent'"
+                        [style.box-shadow]="selectedTimeline() === opt.value ? '0 8px 24px hsl(var(--primary)/0.18)' : 'none'"
+                        [style.transform]="selectedTimeline() === opt.value ? 'scale(1.03)' : 'scale(1)'"
+                        style="transition:all .25s cubic-bezier(.4,0,.2,1)">
+                  <span class="text-3xl">{{ opt.emoji }}</span>
+                  <span class="text-sm font-bold text-foreground">{{ opt.label }}</span>
+                  <span class="text-xs leading-tight" style="color:hsl(var(--muted-foreground));opacity:0.65">{{ opt.desc }}</span>
+                </button>
+              </div>
+
+              <!-- Quantité souhaitée (uniquement si Objectif = PROTOTYPE ou PRODUCTION) -->
+              <div *ngIf="selectedObjectif() === 'PROTOTYPE' || selectedObjectif() === 'PRODUCTION'" class="mt-6 pt-6 border-t border-border/20 space-y-3">
+                <label class="text-xs font-black text-foreground uppercase tracking-wider flex items-center gap-2">
+                  <span>📦</span> Quantité souhaitée (Nombre de cartes) :
+                </label>
+                <div class="flex items-center gap-3">
+                  <input type="number" [ngModel]="quantiteSouhaitee()" (ngModelChange)="quantiteSouhaitee.set($event)" min="1" placeholder="Ex: 5, 10, 100, 1000..."
+                         class="w-full px-4 py-3 rounded-2xl bg-secondary/30 border border-border/50 font-bold text-sm text-foreground focus:outline-none focus:border-primary">
+                </div>
+                <div class="flex flex-wrap gap-2 pt-1">
+                  <button *ngFor="let q of [5, 10, 50, 100, 500, 1000]" (click)="setQuantite(q)"
+                          type="button"
+                          class="px-3 py-1.5 rounded-xl border text-xs font-bold transition-all"
+                          [class]="quantiteSouhaitee() === q ? 'bg-primary text-white border-primary shadow-md' : 'bg-secondary/40 border-border/40 text-muted-foreground hover:text-foreground'">
+                    {{ q }} cartes
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <!-- Right Column: Project Live Summary Sidebar (takes 4 cols, Desktop only) -->
+        <div class="lg:col-span-4 hidden lg:flex flex-col">
+          <div class="glass-card-premium p-6 rounded-3xl flex-1 flex flex-col"
+               style="background: hsl(var(--card)/0.75); backdrop-filter: blur(20px); border: 1px solid hsl(var(--border)/0.6); box-shadow: none;">
+            <h3 class="text-sm font-extrabold text-muted-foreground uppercase tracking-wider mb-4 pb-3 border-b border-border/20 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span>📋</span> Résumé du projet
+              </div>
+              <span class="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full"
+                    style="background: hsl(var(--primary)/0.1); color: hsl(var(--primary)); border: 1px solid hsl(var(--primary)/0.2)">
+                {{ progressPercent() }}%
+              </span>
+            </h3>
+            
+            <div class="space-y-4 flex-1">
+              <!-- Step 1 Summary -->
+              <div class="space-y-1">
+                <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Industrie</span>
+                <div class="flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span *ngIf="selectedIndustrieObj()">{{ selectedIndustrieObj()!.emoji }} {{ selectedIndustrieObj()!.label }}</span>
+                  <span *ngIf="!selectedIndustrieObj()" class="text-muted-foreground font-medium italic text-xs">— Non renseigné</span>
+                </div>
+              </div>
+              
+              <!-- Step 2 Summary -->
+              <div class="space-y-1 pt-3 border-t border-border/10">
+                <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Objectif</span>
+                <div class="flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span *ngIf="selectedObjectifObj()">{{ selectedObjectifObj()!.emoji }} {{ selectedObjectifObj()!.label }}</span>
+                  <span *ngIf="!selectedObjectifObj()" class="text-muted-foreground font-medium italic text-xs">— Non renseigné</span>
+                </div>
+              </div>
+              
+              <!-- Step 3 Summary -->
+              <div class="space-y-1 pt-3 border-t border-border/10">
+                <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Besoins techniques</span>
+                <div class="text-sm font-bold text-foreground space-y-1">
+                  <div *ngIf="totalNeedsCount() > 0" class="flex flex-col gap-1 text-xs">
+                    <span class="font-bold text-foreground">{{ totalNeedsCount() }} option(s) sélectionnée(s) :</span>
+                    <span *ngIf="selectedHardwareNeeds().length > 0" class="text-muted-foreground font-medium">⚡ Hardware ({{ selectedHardwareNeeds().length }})</span>
+                    <span *ngIf="selectedFirmwareNeeds().length > 0" class="text-muted-foreground font-medium">💻 Firmware ({{ selectedFirmwareNeeds().length }})</span>
+                    <span *ngIf="selectedManufacturingNeeds().length > 0" class="text-muted-foreground font-medium">🏭 Manufacturing ({{ selectedManufacturingNeeds().length }})</span>
+                  </div>
+                  <span *ngIf="totalNeedsCount() === 0" class="text-muted-foreground font-medium italic text-xs">— Aucun besoin sélectionné</span>
+                </div>
+              </div>
+              
+              <!-- Step 4 Summary -->
+              <div class="space-y-1 pt-3 border-t border-border/10">
+                <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Engagement</span>
+                <div class="flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span *ngIf="selectedEngagementObj()">{{ selectedEngagementObj()!.emoji }} {{ selectedEngagementObj()!.label }}</span>
+                  <span *ngIf="!selectedEngagementObj()" class="text-muted-foreground font-medium italic text-xs">— Non renseigné</span>
+                </div>
+              </div>
+              
+              <!-- Step 5 Summary -->
+              <div class="space-y-1 pt-3 border-t border-border/10">
+                <span class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Calendrier</span>
+                <div class="flex items-center gap-2 text-sm font-bold text-foreground">
+                  <span *ngIf="selectedTimelineObj()">{{ selectedTimelineObj()!.emoji }} {{ selectedTimelineObj()!.label }}</span>
+                  <span *ngIf="!selectedTimelineObj()" class="text-muted-foreground font-medium italic text-xs">— Non renseigné</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progression Progress Bar at bottom -->
+            <div class="pt-4 mt-2 border-t border-border/20 space-y-2">
+              <div class="flex items-center justify-between text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                <span>Progression du cadrage</span>
+                <span class="text-primary font-black">{{ progressPercent() }}%</span>
+              </div>
+              <div class="w-full h-2 rounded-full overflow-hidden" style="background: hsl(var(--border)/0.3)">
+                <div class="h-full rounded-full transition-all duration-500 ease-out" 
+                     [style.width.%]="progressPercent()"
+                     style="background: linear-gradient(90deg, #2563eb, #06b6d4)"></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ═══ CONSULTATION ALERT (Full Width) ═══ -->
+      <div class="glass-card-premium p-6 md:p-8 mt-6 animate-fade-up" 
+           *ngIf="currentStep() === 2 && isConsultationPath()"
+           style="background: linear-gradient(135deg, hsl(var(--warning)/0.06), hsl(var(--card)/0.95)); border: 1px solid hsl(var(--warning)/0.25); box-shadow: 0 10px 40px rgba(245, 158, 11, 0.05);">
+        
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-6 md:gap-8">
+          
+          <!-- Left Content: Bell Icon & Text & Badges -->
+          <div class="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-5 flex-1">
+            
+            <!-- Large Bell Icon with subtle glow -->
+            <div class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0 shadow-[0_8px_20px_rgba(245, 158, 11, 0.15)]" 
+                 style="background: #FFF8E8; border: 1px solid rgba(245, 158, 11, 0.25);">
+              <span class="text-3xl animate-bounce" style="animation-duration: 2.5s">🔔</span>
+            </div>
+            
+            <!-- Text content and Badges -->
+            <div class="space-y-3.5 flex-1">
+              <div class="space-y-1">
+                <h3 class="text-lg font-extrabold text-foreground flex items-center justify-center md:justify-start gap-2" style="font-family:'Outfit',sans-serif">
+                  Étude consultative requise
+                </h3>
+                <p class="text-sm leading-relaxed max-w-xl text-muted-foreground">
+                  Une expertise technique est requise avant la validation de votre projet. 
+                  Notre équipe analysera votre besoin pour définir la meilleure approche de conception.
+                </p>
+              </div>
+              
+              <!-- Badges in one row -->
+              <div class="flex flex-wrap items-center justify-center md:justify-start gap-2.5">
+                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg" style="background:hsl(var(--success)/0.08);color:hsl(var(--success))">
+                  ✓ Consultation gratuite
+                </span>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg" style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">
+                  ⚡ Réponse sous 24h
+                </span>
+                <span class="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-lg" style="background:hsl(var(--warning)/0.08);color:hsl(var(--warning))">
+                  👨‍💼 Expert dédié
+                </span>
+              </div>
+              
+              <!-- Statut badge below -->
+              <div class="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-muted-foreground pt-1">
+                <span>Statut après validation :</span>
+                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold shadow-sm"
+                      style="background: hsl(var(--warning)/0.1); color: hsl(var(--warning)); border: 1px solid hsl(var(--warning)/0.2)">
+                  🟡 En attente
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right: Button -->
+          <div class="shrink-0 w-full lg:w-auto flex justify-center">
+            <button (click)="submitConsultation()" [disabled]="saving()" 
+                    class="btn-primary gap-2 w-full sm:w-auto text-sm font-semibold rounded-xl flex items-center justify-center transition-all duration-300"
+                    style="min-width: 280px; height: 52px; background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)/0.85)); color:#fff; box-shadow: 0 8px 24px hsl(var(--primary)/0.35);">
+              <span *ngIf="saving()" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+              <span>{{ saving() ? 'Enregistrement...' : 'Lancer la consultation →' }}</span>
+            </button>
+          </div>
+          
+        </div>
+      </div>
+
+      <!-- ═══ NAVIGATION FOOTER (Full Width) ═══ -->
+      <div class="glass-card-premium mt-6" *ngIf="!(currentStep() === 2 && isConsultationPath())">
+        <div class="p-5">
+          <div class="flex items-center justify-between">
+            <!-- Previous -->
+            <button *ngIf="currentStep() > 1" (click)="prev()" class="btn-secondary gap-2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              Précédent
+            </button>
+            <div *ngIf="currentStep() === 1"></div>
+
+            <!-- Next / Submit -->
+            <ng-container *ngIf="currentStep() < totalSteps()">
+              <button (click)="next()" class="btn-primary gap-2" [disabled]="!canProceed() || saving()">
+                <span *ngIf="saving()" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+                {{ saving() ? 'Sauvegarde...' : 'Suivant' }}
+                <svg *ngIf="!saving()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="currentStep() === totalSteps() && !isConsultationPath()">
+              <button (click)="submitFinal()" class="btn-primary gap-2" [disabled]="!canProceed() || saving()">
+                <span *ngIf="saving()" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block"></span>
+                {{ saving() ? 'Finalisation...' : '✅ Valider le cadrage' }}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+  <!-- ═══ MODAL TRANSITION PROTOTYPE (Tailored PCB Only vs PCBA) ═══ -->
+  <div *ngIf="showTransitionModal()" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+    <div class="glass-card-premium w-full max-w-lg p-6 rounded-3xl shadow-2xl border border-border space-y-5 animate-scale-up"
+         style="background: hsl(var(--card));">
+      
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-500 flex items-center justify-center text-xl shrink-0">
+            {{ isPcbOnly ? '🗺️' : '⚡' }}
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+              {{ isPcbOnly ? 'Passage en Prototype PCB (Carte Nue)' : 'Passage en Phase Prototype PCBA' }}
+            </h3>
+            <p class="text-xs text-muted-foreground">Confirmation de la transition de phase du projet</p>
+          </div>
+        </div>
+        <button (click)="closeTransitionModal()" class="text-muted-foreground hover:text-foreground text-xl p-1 font-bold">×</button>
+      </div>
+
+      <!-- Content PCB Only -->
+      <ng-container *ngIf="isPcbOnly">
+        <div class="space-y-3">
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            Vous avez sélectionné une fabrication <strong>PCB Only</strong> (Carte nue sans assemblage de composants).
+          </p>
+
+          <div *ngIf="hasGerber(projet())" class="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 space-y-1">
+            <p class="text-xs font-bold text-emerald-600 flex items-center gap-1.5">
+              <span>✅ Fichier Gerber déjà téléversé !</span>
+            </p>
+            <p class="text-[11px] text-muted-foreground">
+              Votre dossier de fabrication PCB est complet et prêt pour la validation.
+            </p>
+          </div>
+
+          <div *ngIf="!hasGerber(projet())" class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 space-y-1">
+            <p class="text-xs font-bold text-amber-600 flex items-center gap-1.5">
+              <span>⚠️ Fichier Gerber requis</span>
+            </p>
+            <p class="text-[11px] text-muted-foreground">
+              Aucun fichier Gerber n'a été détecté. Vous serez redirigé vers l'espace de dépôt Gerber pour finaliser votre dossier.
+            </p>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Content PCBA -->
+      <ng-container *ngIf="!isPcbOnly">
+        <div class="space-y-4">
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            Voici l'état du dossier technique de votre prototype : ce que nous
+            avons déjà, et ce qu'il restera à déposer.
+          </p>
+
+          <!-- Les quatre fichiers du dossier, et non les deux seuls Gerber et
+               BOM : le client validait sans savoir qu'il lui manquait le
+               Pick & Place, et le découvrait après la bascule. -->
+          <div class="rounded-2xl border overflow-hidden"
+               style="border-color: hsl(var(--border)/0.6);">
+            <div class="px-4 py-2.5 flex items-center justify-between gap-3 border-b"
+                 style="background: hsl(var(--secondary)/0.35); border-color: hsl(var(--border)/0.5);">
+              <span class="text-[11px] font-black uppercase tracking-wider text-muted-foreground">
+                Dossier technique
+              </span>
+              <span class="text-[11px] font-bold"
+                    [style.color]="dossierComplet ? 'hsl(var(--success, 142 71% 35%))' : 'hsl(var(--warning, 38 92% 40%))'">
+                {{ nbFichiersPresents }} / {{ nbFichiersRequis }} requis
+              </span>
+            </div>
+
+            <div class="divide-y" style="border-color: hsl(var(--border)/0.4);">
+              <div *ngFor="let f of dossierTechnique()"
+                   class="px-4 py-2.5 flex items-center justify-between gap-3">
+                <span class="text-xs font-bold text-foreground flex items-center gap-2 min-w-0">
+                  <span class="shrink-0">{{ f.present ? '✅' : (f.requis ? '⚠️' : '○') }}</span>
+                  <span class="truncate">{{ f.libelle }}</span>
+                </span>
+                <span class="text-[10px] font-bold shrink-0"
+                      [class.text-emerald-600]="f.present"
+                      [class.text-amber-600]="!f.present && f.requis"
+                      [class.text-muted-foreground]="!f.present && !f.requis">
+                  {{ f.present ? 'Détecté' : (f.requis ? 'À déposer' : 'Optionnel') }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <p *ngIf="!dossierComplet" class="text-[11px] text-muted-foreground leading-relaxed">
+            Les fichiers manquants n'empêchent pas la bascule : vous serez conduit
+            à l'espace de dépôt juste après, et ceux déjà livrés y seront déjà
+            marqués reçus.
+          </p>
+
+          <!-- Dropdown BOM file selection if files present -->
+          <div *ngIf="getExcelOrCsvFiles().length > 0" class="space-y-1.5">
+            <label class="text-xs font-bold text-foreground">Fichier BOM (Nomenclature) sélectionné :</label>
+            <select [ngModel]="selectedBomFileUrl()" (ngModelChange)="selectedBomFileUrl.set($event)"
+                    class="w-full h-11 px-3.5 rounded-xl border border-border bg-background text-xs font-medium focus:ring-2 focus:ring-primary focus:outline-none">
+              <option *ngFor="let fileUrl of getExcelOrCsvFiles()" [value]="fileUrl">
+                📄 {{ getFileNameFromUrl(fileUrl) }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Alert if no BOM file -->
+          <div *ngIf="getExcelOrCsvFiles().length === 0" class="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-3">
+            <span class="text-lg text-rose-500">⚠️</span>
+            <div class="space-y-1">
+              <p class="text-xs font-bold text-rose-600">Fichier BOM manquant</p>
+              <p class="text-[11px] text-muted-foreground">
+                Aucun fichier Excel ou CSV n'a été trouvé. Veuillez déposer une nomenclature pour continuer.
+              </p>
+            </div>
+          </div>
+
+          <!-- Error message if any -->
+          <p *ngIf="transitionError()" class="text-xs font-bold text-destructive">{{ transitionError() }}</p>
+        </div>
+      </ng-container>
+
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-border/40">
+        <button (click)="closeTransitionModal()" 
+                class="px-4 py-2.5 rounded-xl border border-border text-xs font-bold hover:bg-secondary transition-all">
+          Annuler
+        </button>
+        <button (click)="confirmTransition()" [disabled]="transitioning()"
+                class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-lg transition-all flex items-center gap-2">
+          <span *ngIf="transitioning()" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          <span>Confirmer et Continuer 🚀</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+

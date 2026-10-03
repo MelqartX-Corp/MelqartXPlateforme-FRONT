@@ -1,0 +1,129 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ Fil d'Ariane : d'où l'on vient, et comment y retourner ═══ -->
+  <nav class="flex items-center gap-2 text-xs text-muted-foreground">
+    <a routerLink="/client/projets" class="hover:text-foreground transition-colors font-semibold">
+      Mes projets
+    </a>
+    <span class="opacity-40">/</span>
+    <a *ngIf="projet() as p" [routerLink]="['/client/projets', p.id]"
+       class="hover:text-foreground transition-colors font-semibold truncate max-w-[16rem]">
+      {{ p.nom }}
+    </a>
+    <span class="opacity-40">/</span>
+    <span class="text-foreground font-bold">Devis</span>
+  </nav>
+
+  <!-- ═══ La bonne nouvelle, une seule fois ═══ -->
+  <div *ngIf="bomValidee()" class="devis-hero-success">
+    <div class="devis-hero-glow" aria-hidden="true"></div>
+    <div class="relative z-10 flex items-start gap-4">
+      <div class="devis-hero-badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </div>
+      <div class="flex-1 min-w-0">
+        <h2 class="devis-hero-title">Votre nomenclature est validée</h2>
+        <p class="devis-hero-text">
+          Chaque composant a trouvé sa décision, et la liste est désormais gelée.
+          Choisissez votre quantité&nbsp;: le prix se recalcule à chaque carte.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ En-tête ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🧾</span>
+        <h1 class="page-title-premium">Votre devis</h1>
+      </div>
+      <p *ngIf="projet() as p" class="text-xs text-muted-foreground font-semibold">
+        {{ p.nom }}
+        <span *ngIf="p.cadrage?.objectif" class="opacity-60">
+          · {{ p.cadrage?.objectif === 'PROTOTYPE' ? 'Prototype' : 'Production' }}
+        </span>
+      </p>
+    </div>
+    <div class="relative z-10">
+      <a *ngIf="projet() as p" [routerLink]="['/client/projets', p.id]" class="btn-ghost text-xs">
+        Revenir au projet
+      </a>
+    </div>
+  </div>
+
+  <!-- ═══ Chargement ═══ -->
+  <div *ngIf="loading()" class="skeleton skeleton-card rounded-2xl" style="height: 26rem;"></div>
+
+  <!-- ═══ Erreur ═══ -->
+  <div *ngIf="error()" class="glass-card rounded-2xl p-5 flex items-start gap-3"
+       style="border-color: hsl(var(--destructive) / 0.35); background: hsl(var(--destructive) / 0.07);">
+    <svg class="w-5 h-5 shrink-0 mt-0.5" style="color: hsl(var(--destructive));"
+         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01M5.07 19h13.86a2 2 0 001.74-3L13.74 4a2 2 0 00-3.48 0L3.33 16a2 2 0 001.74 3z"/>
+    </svg>
+    <p class="text-xs font-semibold" style="color: hsl(var(--destructive));">{{ error() }}</p>
+  </div>
+
+  <!-- ═══ Le chiffrage ═══ -->
+  <ng-container *ngIf="!loading() && projet() as p">
+
+    <app-instant-quote-panel *ngIf="eligible"
+      [projectId]="p.id!"
+      [objectif]="p.cadrage?.objectif"
+      [quantiteSouhaitee]="p.cadrage?.quantiteSouhaitee">
+    </app-instant-quote-panel>
+
+    <!-- Idée, faisabilité, validation : le prix se négocie, il ne se calcule pas -->
+    <div *ngIf="!eligible" class="glass-card rounded-2xl p-8 text-center">
+      <div class="text-3xl mb-3">🤝</div>
+      <h3 class="text-base font-bold text-foreground mb-1.5">
+        Ce projet mérite un devis sur mesure
+      </h3>
+      <p class="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+        Le chiffrage automatique s'appuie sur un fichier Pick&nbsp;&amp;&nbsp;Place et une
+        série à produire. Pour une idée ou une étude de faisabilité, c'est un chef de
+        projet qui établit le prix, après avoir compris ce que vous cherchez à faire.
+      </p>
+      <a [routerLink]="['/client/projets', p.id]" class="btn-primary text-xs mt-5 inline-flex">
+        Suivre l'avancement du projet
+      </a>
+    </div>
+
+  </ng-container>
+
+  <!-- ═══ Ce qui vient après, pour que le client ne se demande pas ═══ -->
+  <div *ngIf="!loading() && eligible" class="devis-next">
+    <p class="section-label mb-3">La suite</p>
+    <ol class="devis-steps">
+      <li>
+        <span class="devis-step-n">1</span>
+        <div>
+          <b>Ajoutez le devis au panier</b>
+          <p>Vous pouvez y regrouper plusieurs projets et n'être livré qu'une fois.</p>
+        </div>
+      </li>
+      <li>
+        <span class="devis-step-n">2</span>
+        <div>
+          <b>Choisissez votre livraison</b>
+          <p>Standard sous 3 à 5 jours, ou express sous 24 à 48 h. Le prix dépend du poids
+             réel de vos cartes.</p>
+        </div>
+      </li>
+      <li>
+        <span class="devis-step-n">3</span>
+        <div>
+          <b>Suivez la fabrication</b>
+          <p>Dès le règlement, votre commande entre en atelier et vous en suivez chaque
+             étape jusqu'à l'expédition.</p>
+        </div>
+      </li>
+    </ol>
+  </div>
+
+</div>

@@ -1,0 +1,319 @@
+/* ══════════════════════════════════════════════════════════════════════
+   Page vitrine — design repris à l'identique du site MelqartX
+   (melqartx-visionary-forge). La palette oklch du template est convertie
+   en HSL et redéfinie sur :host uniquement : les classes Tailwind de l'app
+   (bg-background, text-muted-foreground, border-border…) résolvent
+   hsl(var(--token)), donc elles suivent automatiquement, sans toucher au
+   reste de l'application.
+   ══════════════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+
+  /* Thème clair du template */
+  --background: 217 30% 96%;
+  --background-deep: 217 23% 93%;
+  --foreground: 218 50% 5%;
+  --card: 217 58% 99%;
+  --card-foreground: 218 50% 5%;
+  --primary: 215 75% 48%;
+  --primary-glow: 210 100% 56%;
+  --primary-foreground: 217 58% 99%;
+  --secondary: 217 25% 92%;
+  --secondary-foreground: 217 30% 9%;
+  --muted: 217 17% 88%;
+  --muted-foreground: 217 9% 40%;
+  --accent: 215 100% 84%;
+  --accent-foreground: 217 30% 9%;
+  --border: 217 17% 76%;
+  --input: 217 17% 88%;
+  --ring: 215 75% 48%;
+  --radius: 0.625rem;
+
+  --gradient-text: linear-gradient(180deg, hsl(217 30% 9%), hsl(216 60% 37%));
+  --gradient-hero:
+    radial-gradient(ellipse at top, hsl(215 75% 55% / 0.20), transparent 60%),
+    linear-gradient(180deg, hsl(217 30% 96%), hsl(217 23% 92%));
+  --shadow-elegant: 0 20px 60px -20px hsl(218 50% 5% / 0.15);
+  --glass-bg: hsl(0 0% 100% / 0.70);
+  --glass-border: hsl(218 50% 5% / 0.08);
+  --grid-line: hsl(218 50% 5% / 0.06);
+
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  letter-spacing: normal;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+
+/* Thème sombre du template — charcoal + navy */
+:host-context(.dark) {
+  --background: 217 34% 10%;
+  --background-deep: 217 44% 7%;
+  --foreground: 217 36% 98%;
+  --card: 217 30% 15%;
+  --card-foreground: 217 36% 98%;
+  --primary: 220 90% 57%;
+  --primary-glow: 208 100% 62%;
+  --primary-foreground: 217 58% 99%;
+  --secondary: 217 40% 20%;
+  --secondary-foreground: 217 36% 98%;
+  --muted: 217 31% 17%;
+  --muted-foreground: 217 15% 73%;
+  --accent: 220 68% 52%;
+  --accent-foreground: 217 36% 98%;
+  --border: 217 20% 35%;
+  --input: 217 31% 20%;
+  --ring: 220 90% 57%;
+
+  --gradient-text: linear-gradient(180deg, hsl(217 58% 99%), hsl(216 42% 71%));
+  --gradient-hero:
+    radial-gradient(ellipse 60% 50% at 50% 0%, hsl(220 90% 57% / 0.45), transparent 65%),
+    radial-gradient(ellipse 40% 40% at 80% 30%, hsl(220 80% 45% / 0.35), transparent 70%),
+    radial-gradient(ellipse 40% 40% at 15% 60%, hsl(220 70% 38% / 0.25), transparent 70%),
+    linear-gradient(180deg, hsl(217 32% 12%), hsl(217 40% 8%));
+  --shadow-elegant: 0 24px 70px -20px hsl(220 80% 20% / 0.55);
+  --glass-bg: hsl(217 31% 17% / 0.45);
+  --glass-border: hsl(216 55% 70% / 0.18);
+  --grid-line: hsl(216 55% 70% / 0.06);
+}
+
+/* ── Typographie ──
+   `.mat-typography h1/h2/h3` (Angular Material) impose Roboto 24/20/16px et
+   bat les classes Tailwind : on passe par des classes dédiées, plus
+   spécifiques une fois scopées par Angular. */
+.title-hero,
+.title-section,
+.title-card {
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  margin: 0;
+}
+
+/* Les marges Tailwind (mt-4, mt-6…) sont aussi écrasées : `.mat-typography p`
+   vaut (0,1,1) contre (0,1,0) pour `.mt-4`. Les espacements verticaux sont donc
+   portés par les classes ci-dessous, avec les valeurs du template. */
+.title-hero {
+  margin-top: 1.5rem;           /* mt-6 */
+  font-size: 3rem;              /* text-5xl */
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.title-section {
+  font-size: 1.875rem;          /* text-3xl */
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+.title-card {
+  font-size: 1.125rem;          /* text-lg */
+  font-weight: 600;
+  line-height: 1.55;
+  letter-spacing: -0.025em;
+}
+
+.hero-subhead,
+.hero-lead,
+.section-lead,
+.cap-desc,
+.footer-tagline {
+  margin: 0;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+.hero-subhead {
+  margin-top: 1rem;             /* mt-4 */
+  font-size: 1.125rem;          /* text-lg */
+  font-weight: 500;
+  letter-spacing: -0.025em;
+}
+
+.hero-lead,
+.section-lead {
+  font-size: 1rem;              /* text-base */
+  line-height: 1.625;
+}
+
+.hero-lead {
+  margin: 1.5rem auto 0;        /* mt-6 mx-auto */
+}
+
+.section-lead {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.section-lead.is-spaced {
+  margin-top: 1rem;             /* mt-4 */
+}
+
+.cap-desc {
+  margin-top: 0.5rem;           /* mt-2 */
+  font-size: 0.875rem;
+  line-height: 1.625;
+}
+
+.footer-tagline {
+  margin-top: 0.75rem;          /* mt-3 */
+  font-size: 0.875rem;
+}
+
+@media (min-width: 768px) {
+  .title-hero    { font-size: 4.5rem; }    /* md:text-7xl */
+  .title-section { font-size: 3rem; }      /* md:text-5xl */
+  .hero-subhead  { font-size: 1.5rem; }    /* md:text-2xl */
+  .hero-lead,
+  .section-lead  { font-size: 1.125rem; }  /* md:text-lg */
+}
+
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+
+/* ── Fonds du hero ── */
+.bg-hero {
+  background: var(--gradient-hero);
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50%      { transform: translate(30px, -20px) scale(1.05); }
+}
+
+.orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  pointer-events: none;
+  animation: float-orb 12s ease-in-out infinite;
+}
+
+/* ── Verre (nav flottante, étapes du processus) ── */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid var(--glass-border);
+}
+
+.shadow-elegant {
+  box-shadow: var(--shadow-elegant);
+}
+
+/* ── Surfaces & filets ──
+   Les modificateurs d'opacité Tailwind (bg-card/40, border-border/60…) ne sont
+   pas générés dans cette app : les couleurs du tailwind.config sont écrites
+   `hsl(var(--x))` sans `<alpha-value>`. On refait donc ces surfaces à la main. */
+.hairline      { border: 1px solid hsl(var(--border) / 0.6); }
+.hairline-t    { border-top: 1px solid hsl(var(--border) / 0.6); }
+.hairline-t-faint { border-top: 1px solid hsl(var(--border) / 0.4); }
+.surface-card  { background: hsl(var(--card) / 0.4); }
+.chip          { background: hsl(var(--secondary) / 0.4); }
+.text-soft     { color: hsl(var(--foreground) / 0.8); }
+
+.btn-ghost {
+  border: 1px solid hsl(var(--border));
+  background: hsl(var(--secondary) / 0.3);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-ghost:hover {
+  background: hsl(var(--secondary) / 0.6);
+}
+
+.link-card:hover {
+  border-color: hsl(var(--primary) / 0.45);
+}
+
+/* ── Ancres ──
+   La nav est fixe : sans cette marge, le titre de la section visée se
+   retrouve caché derrière elle après un clic dans le menu. */
+section[id] {
+  scroll-margin-top: 6.5rem;
+}
+
+/* ── Accordéon FAQ ── */
+.faq-caret {
+  transition: transform 0.25s ease;
+}
+
+.faq-caret.is-open {
+  transform: rotate(180deg);
+}
+
+@keyframes faq-open {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.faq-answer {
+  animation: faq-open 0.25s ease-out both;
+}
+
+/* ── Boutons ── */
+.btn-primary {
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary-glow)));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 0 40px -10px hsl(var(--primary));
+  transition: filter 0.2s ease;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.btn-primary-sm {
+  background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary-glow)));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 0 30px -8px hsl(var(--primary));
+  transition: filter 0.2s ease;
+}
+
+.btn-primary-sm:hover {
+  filter: brightness(1.1);
+}
+
+/* ── Cartes d'expertise ── */
+.cap-card {
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cap-card:hover {
+  transform: translateY(-4px);
+  border-color: hsl(var(--primary) / 0.4);
+  box-shadow: 0 20px 60px -20px hsl(var(--primary));
+}
+
+.cap-icon {
+  background: linear-gradient(to bottom right, hsl(var(--primary) / 0.30), hsl(var(--primary-glow) / 0.20));
+  color: hsl(var(--primary-glow));
+  box-shadow: inset 0 0 0 1px hsl(var(--primary) / 0.30);
+}
+
+.text-primary-glow {
+  color: hsl(var(--primary-glow));
+}
+
+.bg-deep {
+  background: hsl(var(--background-deep) / 0.6);
+}

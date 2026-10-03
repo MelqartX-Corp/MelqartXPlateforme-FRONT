@@ -1,0 +1,121 @@
+<div class="space-y-5 animate-fade-up">
+
+  <!-- ═══ Barre de tête ═══ -->
+  <div class="flex items-center justify-between pb-4 border-b border-border/20 gap-4 flex-wrap">
+    <div class="flex items-center gap-3 min-w-0">
+      <button type="button" (click)="retour()"
+              class="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-all shrink-0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Retour
+      </button>
+
+      <span class="text-border">/</span>
+
+      <!-- De quel projet on parle : c'est la premiere chose qu'on cherche en
+           arrivant ici depuis une notification. -->
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold min-w-0"
+            style="background: hsl(var(--secondary)/0.5); border: 1px solid hsl(var(--border)/0.5);">
+        <span class="shrink-0">📁</span>
+        <span class="truncate">{{ projetNom || 'Projet' }}</span>
+      </span>
+    </div>
+
+    <button type="button" (click)="versProjet()"
+            class="text-xs font-bold text-primary hover:underline underline-offset-4">
+      Voir le projet →
+    </button>
+  </div>
+
+  <!-- ═══ Erreur ═══ -->
+  <div *ngIf="error && !accesRefuse"
+       class="p-4 rounded-2xl border border-destructive/30 bg-destructive/5 text-sm font-semibold text-destructive">
+    {{ error }}
+  </div>
+
+  <!-- ═══ Chargement ═══ -->
+  <div *ngIf="loading" class="flex justify-center py-16">
+    <div class="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+  </div>
+
+  <!-- ═══ Accès refusé ═══ -->
+  <div *ngIf="accesRefuse"
+       class="glass-card-premium rounded-2xl border p-10 text-center space-y-4"
+       style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5);">
+    <div class="w-14 h-14 rounded-2xl mx-auto flex items-center justify-center text-2xl"
+         style="background: hsl(var(--secondary)/0.6);">🔒</div>
+
+    <div class="space-y-1.5">
+      <p class="text-sm font-bold text-foreground m-0" style="font-family:'Outfit',sans-serif">
+        Cette conversation appartient à une équipe dont vous ne faites pas partie
+      </p>
+      <p class="text-xs text-muted-foreground max-w-md mx-auto m-0 leading-relaxed">
+        Les discussions de projet réunissent le client et les personnes affectées
+        au projet. Demandez à être affecté à <strong>{{ projetNom || 'ce projet' }}</strong>
+        pour y participer.
+      </p>
+    </div>
+
+    <div class="flex items-center justify-center gap-2 pt-1">
+      <button type="button" (click)="retour()" class="btn-primary text-xs">
+        Mes discussions
+      </button>
+      <button type="button" (click)="versProjet()" class="btn-ghost text-xs">
+        Voir le projet
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ Conversation ═══ -->
+  <div *ngIf="!loading && !accesRefuse" class="glass-card-premium rounded-2xl border overflow-hidden flex flex-col"
+       style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5); height: 70vh;">
+
+    <div class="px-5 py-3 border-b flex items-center gap-2"
+         style="border-color: hsl(var(--border)/0.4);">
+      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+      <span class="text-xs font-bold text-foreground">
+        Discussion — {{ projetNom || 'projet' }}
+      </span>
+      <span class="text-[11px] text-muted-foreground ml-auto">Mise à jour toutes les 5 s</span>
+    </div>
+
+    <!-- Fil -->
+    <div #chatWindow class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+
+      <p *ngIf="messages.length === 0" class="text-center text-xs text-muted-foreground py-10 m-0">
+        Aucun message. Écrivez le premier — l'équipe du projet le recevra.
+      </p>
+
+      <div *ngFor="let m of messages" class="flex" [class.justify-end]="estMoi(m)">
+        <div class="max-w-[75%] rounded-2xl px-4 py-2.5"
+             [style.background]="estMoi(m) ? 'hsl(var(--primary))' : 'hsl(var(--secondary)/0.6)'"
+             [style.color]="estMoi(m) ? 'hsl(var(--primary-foreground))' : 'hsl(var(--foreground))'">
+          <div class="flex items-baseline gap-2 mb-1">
+            <span class="text-[11px] font-black">{{ m.senderNom }}</span>
+            <span class="text-[10px] opacity-70">{{ roleLisible(m.senderRole) }}</span>
+          </div>
+          <p class="text-sm m-0 whitespace-pre-wrap break-words">{{ m.content }}</p>
+          <span class="block text-[10px] opacity-60 mt-1">
+            {{ m.createdAt | date:'dd/MM/yyyy HH:mm' }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Saisie -->
+    <div class="border-t p-3 flex items-end gap-2" style="border-color: hsl(var(--border)/0.4);">
+      <textarea [(ngModel)]="nouveau"
+                (keydown.enter)="$event.preventDefault(); envoyer()"
+                rows="1"
+                placeholder="Écrivez votre message…"
+                class="input-base flex-1 text-sm resize-none py-2.5"></textarea>
+      <button type="button" (click)="envoyer()" [disabled]="envoi || !nouveau.trim()"
+              class="btn-primary px-4 py-2.5 text-xs shrink-0 disabled:opacity-50">
+        <span *ngIf="envoi" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <span *ngIf="!envoi">Envoyer</span>
+      </button>
+    </div>
+  </div>
+
+</div>

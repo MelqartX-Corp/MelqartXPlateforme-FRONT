@@ -1,0 +1,649 @@
+<div class="space-y-6 animate-fade-up pb-10">
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 1. HERO — PCB PRODUCTION COMMAND CENTER (Restored Luxury Hero) -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="client-header-hero">
+
+    <!-- Subtle Technical PCB Vector Traces (Background Accent) -->
+    <svg class="absolute inset-0 w-full h-full pointer-events-none opacity-[0.06] dark:opacity-[0.12]" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1000 240">
+      <defs>
+        <pattern id="pcbGridAdv" width="40" height="40" patternUnits="userSpaceOnUse">
+          <circle cx="20" cy="20" r="1" fill="hsl(var(--primary))" opacity="0.25" />
+          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="hsl(var(--border))" stroke-width="0.5" opacity="0.3" />
+        </pattern>
+        <linearGradient id="pcbTraceGradAdv" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.1" />
+          <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.1" />
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#pcbGridAdv)" />
+      <path d="M 50 120 L 220 120 L 280 180 L 520 180 L 560 140 L 780 140 L 820 100 L 950 100" fill="none" stroke="url(#pcbTraceGradAdv)" stroke-width="1.8" stroke-dasharray="8 4" />
+      <path d="M 120 30 L 300 30 L 350 70 L 680 70 L 720 35 L 890 35" fill="none" stroke="hsl(var(--primary))" stroke-width="1.2" opacity="0.3" />
+      <circle cx="280" cy="180" r="3" fill="#3b82f6" opacity="0.9" />
+      <circle cx="560" cy="140" r="3" fill="#06b6d4" opacity="0.9" />
+      <circle cx="820" cy="100" r="3" fill="#8b5cf6" opacity="0.9" />
+    </svg>
+
+    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 w-full">
+
+      <!-- Left: Greeting, Subtitle & Primary CTA -->
+      <div class="space-y-2 max-w-3xl">
+        <h1 class="client-header-title text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+          {{ userRole === 'CLIENT_ENTREPRISE' && orgName ? orgName : 'Bonjour, ' + getFirstName() }}
+          <span class="text-primary">.</span>
+        </h1>
+
+        <p class="text-xs sm:text-sm text-muted-foreground font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-2xl">
+          Supervision industrielle &amp; pilotage haute précision de vos fabrications électroniques.
+        </p>
+
+        <!-- CTA: ONLY "+ Nouveau projet PCB" (Hidden for INGENIEUR / lectureSeule) -->
+        <div *ngIf="!lectureSeule" class="pt-2 flex items-center gap-3">
+          <a routerLink="/client/projets/new" class="client-header-btn-primary cursor-pointer text-xs sm:text-sm shadow-md">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Nouveau projet PCB</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Circular Telemetry Gauge (Pipeline Health - Capture 2) -->
+      <div class="flex items-center gap-4 sm:gap-5 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border shrink-0 shadow-sm transition-all duration-300 hover:shadow-md self-start lg:self-center"
+           style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(240, 246, 255, 0.7) 100%); border-color: rgba(59, 130, 246, 0.2); backdrop-filter: blur(16px);">
+        <div class="relative w-16 h-16 shrink-0">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+            <path stroke-width="3" stroke="hsl(var(--border))" fill="none" opacity="0.35"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <path [attr.stroke-dasharray]="pipelineCompletionRate + ', 100'"
+                  stroke="url(#gaugeGradAdv)" stroke-width="3.4" stroke-linecap="round" fill="none"
+                  class="transition-all duration-1000 ease-out"
+                  style="filter: drop-shadow(0 0 6px rgba(37, 99, 235, 0.45))"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            <defs>
+              <linearGradient id="gaugeGradAdv" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#06b6d4" />
+                <stop offset="100%" stop-color="#2563eb" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center">
+            <span class="text-xs font-black text-foreground font-['Outfit']">{{ pipelineCompletionRate }}%</span>
+          </div>
+        </div>
+        <div class="space-y-0.5">
+          <p class="text-[10px] font-extrabold uppercase tracking-widest text-muted-foreground">Avancement Pipeline</p>
+          <p class="text-sm font-bold text-foreground font-['Outfit']">{{ pipelineCompletionRate >= 85 ? 'Cadence Optimale' : 'En Cours' }}</p>
+          <p class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            {{ activeProjectsCount }} projets actifs sur {{ totalProjectsCount }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 2. 4 EXECUTIVE KPI CARDS (Restored High-End System)           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+
+    <!-- Card 01 — ACTIVE PROJECTS (Electric Sapphire) -->
+    <div class="kpi-card flex flex-col justify-between group">
+      <!-- Top Accent Line -->
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-indigo-500 to-transparent"></div>
+
+      <div>
+        <!-- Top Row: Icon & Status Pill -->
+        <div class="flex items-center justify-between">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="4" y="4" width="16" height="16" rx="3" />
+              <rect x="9" y="9" width="6" height="6" />
+              <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3" />
+            </svg>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+            {{ activeProjectsCount > 0 ? '+14% cadence' : 'Stable' }}
+          </span>
+        </div>
+
+        <!-- Value and Label -->
+        <div class="mt-3">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-3xl font-black text-slate-900 dark:text-white font-['Outfit'] tracking-tight">{{ activeProjectsCount }}</span>
+            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500">/ {{ totalProjectsCount }} au total</span>
+          </div>
+          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Projets en Production</p>
+        </div>
+      </div>
+
+      <!-- Sparkline Wave -->
+      <div class="my-3 h-8 w-full relative">
+        <svg class="w-full h-full overflow-visible" viewBox="0 0 200 35" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sparkGradAdv1" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25" />
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          <path [attr.d]="sparklineArea" fill="url(#sparkGradAdv1)" />
+          <path [attr.d]="sparklinePoints" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" />
+          <circle cx="200" cy="4" r="3" fill="#3b82f6" class="animate-ping opacity-75" />
+          <circle cx="200" cy="4" r="2" fill="#3b82f6" />
+        </svg>
+      </div>
+
+      <!-- Bottom Split Status -->
+      <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-semibold">
+        <span class="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> {{ inProductionCount }} fabrication
+        </span>
+        <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> {{ inValidationCount }} cadrage/devis
+        </span>
+      </div>
+    </div>
+
+    <!-- Card 02 — QUOTES & SCOPING (Aqua Cyan) -->
+    <div class="kpi-card flex flex-col justify-between group">
+      <!-- Top Accent Line -->
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-cyan-500 via-blue-500 to-transparent"></div>
+
+      <div>
+        <!-- Top Row: Icon & Status Pill -->
+        <div class="flex items-center justify-between">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 font-mono">
+            {{ quotesAwaitingCount }} en attente
+          </span>
+        </div>
+
+        <!-- Value and Label -->
+        <div class="mt-3">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-3xl font-black text-slate-900 dark:text-white font-['Outfit'] tracking-tight">{{ estimatedQuotesValue | number:'1.0-0' }}</span>
+            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">TND estimé</span>
+          </div>
+          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Chiffrages &amp; Propositions</p>
+        </div>
+      </div>
+
+      <!-- Segmented Funnel Track -->
+      <div class="my-3 space-y-1.5">
+        <div class="flex items-center justify-between text-[9px] font-mono text-slate-500 dark:text-slate-400 uppercase font-semibold">
+          <span>Brouillons ({{ quotesDraftCount }})</span>
+          <span>Envoyés ({{ quotesSentCount }})</span>
+          <span>Validés ({{ quotesAcceptedCount }})</span>
+        </div>
+        <div class="flex items-center gap-1 h-1.5 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+          <div class="h-full rounded-sm bg-amber-400" style="width: 25%"></div>
+          <div class="h-full rounded-sm bg-blue-500" style="width: 35%"></div>
+          <div class="h-full rounded-sm bg-cyan-400" style="width: 40%"></div>
+        </div>
+      </div>
+
+      <!-- Bottom Action -->
+      <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-semibold">
+        <a routerLink="/client/billing/quotes" class="text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 font-bold flex items-center justify-between w-full transition-colors">
+          <span>Consulter les devis</span>
+          <span class="group-hover:translate-x-1 transition-transform">➔</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 03 — BUDGET COMMITTED (Emerald / Jade) -->
+    <div class="kpi-card flex flex-col justify-between group">
+      <!-- Top Accent Line -->
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-emerald-500 via-teal-500 to-transparent"></div>
+
+      <div>
+        <!-- Top Row: Icon & Status Pill -->
+        <div class="flex items-center justify-between">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            {{ paidPercentage }}% Réglé
+          </span>
+        </div>
+
+        <!-- Value and Label -->
+        <div class="mt-3">
+          <div class="flex items-baseline gap-1.5">
+            <span class="text-3xl font-black text-slate-900 dark:text-white font-['Outfit'] tracking-tight">{{ totalCommittedBudget | number:'1.0-0' }}</span>
+            <span class="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">TND TTC</span>
+          </div>
+          <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5">Budget Global Engagé</p>
+        </div>
+      </div>
+
+      <!-- Precision Progress Bar -->
+      <div class="my-3 space-y-1">
+        <div class="relative h-1.5 w-full rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+          <div class="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-1000 ease-out"
+               [style.width]="paidPercentage + '%'"></div>
+        </div>
+        <div class="flex justify-between text-[10px] font-semibold text-slate-500 dark:text-slate-400">
+          <span class="text-emerald-600 dark:text-emerald-400 font-bold">{{ totalPaidBudget | number:'1.0-0' }} TND payé</span>
+          <span>{{ totalRemainingBudget | number:'1.0-0' }} TND restant</span>
+        </div>
+      </div>
+
+      <!-- Bottom Action -->
+      <div class="pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px] font-semibold">
+        <a routerLink="/client/billing/invoices" class="text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 font-bold flex items-center justify-between w-full transition-colors">
+          <span>Facturation &amp; Règlements</span>
+          <span class="group-hover:translate-x-1 transition-transform">➔</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Card 04 — SUPPORT & MEETINGS (Royal Violet) -->
+    <div class="kpi-card flex flex-col justify-between group">
+      <!-- Top Accent Line -->
+      <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-violet-500 via-indigo-500 to-transparent"></div>
+
+      <div>
+        <!-- Top Row: Icon & Status Pill -->
+        <div class="flex items-center justify-between">
+          <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-500/10 text-violet-600 dark:text-violet-400 border border-violet-500/20 font-mono">
+            <span class="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse"></span>
+            {{ nextMeetingCountdown || 'Support 24/7' }}
+          </span>
+        </div>
+
+        <!-- Value and Label -->
+        <div class="mt-3">
+          <p class="text-sm font-bold text-slate-900 dark:text-white truncate font-['Outfit']">{{ nextMeeting ? nextMeeting.titre : 'Consultation technique' }}</p>
+          <p class="text-[11px] font-bold text-violet-600 dark:text-violet-400 mt-0.5">{{ nextMeetingTimeLabel }}</p>
+        </div>
+      </div>
+
+      <!-- Tickets Pill Strip -->
+      <div class="my-2.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full" [ngClass]="openTicketsCount > 0 ? 'bg-amber-500 animate-ping' : 'bg-emerald-500'"></span>
+          <span class="text-slate-600 dark:text-slate-400 font-semibold">{{ openTicketsCount }} tickets ouverts</span>
+        </div>
+        <a routerLink="/support/tickets" class="text-xs font-bold text-primary hover:underline">Support ➔</a>
+      </div>
+
+      <!-- Bottom Action -->
+      <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80">
+        <a *ngIf="nextMeeting && nextMeeting.lienVisio" [href]="nextMeeting.lienVisio" target="_blank"
+           class="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-xl text-xs font-bold border transition-all shadow-xs bg-violet-500/10 hover:bg-violet-500 hover:text-white text-violet-600 dark:text-violet-400 border-violet-500/30">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+          Rejoindre Google Meet ➔
+        </a>
+        <a *ngIf="!nextMeeting" routerLink="/client/projets" class="flex items-center justify-center w-full py-1.5 rounded-xl text-xs font-bold border border-slate-200 dark:border-slate-800 bg-slate-100/80 dark:bg-slate-800/80 hover:bg-primary hover:text-white hover:border-primary text-slate-700 dark:text-slate-300 transition-all">
+          Planifier un échange ➔
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 3. ATTENTION CENTER / ACTIONS REQUISES (Compact Cards)        -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div *ngIf="actionItems.length > 0" class="space-y-3">
+    <div class="flex items-center justify-between px-1">
+      <div class="flex items-center gap-2.5">
+        <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+        <h3 class="text-xs font-bold uppercase tracking-wider text-muted-foreground font-['Outfit']">Actions Prioritaires</h3>
+      </div>
+      <span class="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+        {{ actionItems.length }} en attente
+      </span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div *ngFor="let item of actionItems"
+           class="p-4 rounded-2xl border border-border/50 bg-card/65 hover:bg-card/95 hover:border-amber-500/40 backdrop-blur-xl transition-all duration-300 hover:shadow-md group flex flex-col justify-between gap-3 relative overflow-hidden">
+        
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 group-hover:scale-105 transition-transform">
+            {{ item.icon }}
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center justify-between gap-2">
+              <p class="text-xs font-bold text-foreground truncate font-['Outfit']">{{ item.title }}</p>
+              <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-secondary/80 text-muted-foreground uppercase tracking-wider shrink-0">
+                {{ item.badge }}
+              </span>
+            </div>
+            <p class="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">{{ item.message }}</p>
+          </div>
+        </div>
+
+        <div class="pt-2 border-t border-border/30 flex items-center justify-end">
+          <a [routerLink]="item.ctaLink.startsWith('http') ? null : item.ctaLink"
+             [href]="item.ctaLink.startsWith('http') ? item.ctaLink : null"
+             [target]="item.ctaLink.startsWith('http') ? '_blank' : '_self'"
+             class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-secondary/60 hover:bg-primary hover:text-white text-foreground border border-border/60 hover:border-primary transition-all duration-200 shadow-2xs">
+            <span>{{ item.ctaText }}</span>
+            <span>➔</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 4. PIPELINE OVERVIEW + RECENT ACTIVITY (Bento Grid)           -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- Segmented Radial Pipeline -->
+    <div class="glass-card-premium rounded-3xl p-6 border border-border/40 bg-card/80 backdrop-blur-2xl flex flex-col justify-between shadow-sm">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10 text-primary border border-primary/20">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-foreground font-['Outfit']">Cycle de Production PCB</h3>
+              <p class="text-xs text-muted-foreground">Distribution télémétrique des projets en cours</p>
+            </div>
+          </div>
+          <span class="text-[11px] font-mono font-bold px-2.5 py-1 rounded-full bg-secondary/60 border border-border/40 text-foreground">
+            {{ totalProjectsCount }} Projets
+          </span>
+        </div>
+      </div>
+
+      <!-- Radial SVG Donut Chart -->
+      <div class="flex items-center justify-center my-4 relative">
+        <div class="relative w-48 h-48">
+          <svg class="w-full h-full transform -rotate-90 overflow-visible" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="54" fill="none" stroke="hsl(var(--secondary)/0.3)" stroke-width="8" />
+            <circle *ngFor="let seg of pipelineSegments"
+                    cx="60" cy="60" r="54" fill="none"
+                    [attr.stroke]="seg.color"
+                    stroke-width="9"
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="seg.strokeDasharray"
+                    [attr.stroke-dashoffset]="seg.strokeDashoffset"
+                    class="transition-all duration-500 cursor-pointer hover:opacity-90"
+                    (mouseenter)="hoveredSegment = seg"
+                    (mouseleave)="hoveredSegment = null"
+                    [style.filter]="hoveredSegment?.id === seg.id ? 'drop-shadow(0 0 8px ' + seg.color + ')' : 'none'" />
+          </svg>
+          <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+            <span class="text-3xl font-black text-foreground font-['Outfit'] leading-none">
+              {{ hoveredSegment ? hoveredSegment.count : totalProjectsCount }}
+            </span>
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-muted-foreground mt-1">
+              {{ hoveredSegment ? hoveredSegment.label : 'PROJETS' }}
+            </span>
+            <span class="text-[10px] font-mono text-primary font-bold mt-0.5">
+              {{ hoveredSegment ? hoveredSegment.percentage + '%' : pipelineCompletionRate + '% COMPLET' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compact Legend Grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 pt-3 border-t border-border/30">
+        <div *ngFor="let seg of pipelineSegments" 
+             class="p-2.5 rounded-xl bg-secondary/30 border border-border/30 flex items-center justify-between text-xs cursor-pointer hover:bg-secondary/60 transition-all hover:scale-[1.02]"
+             (mouseenter)="hoveredSegment = seg"
+             (mouseleave)="hoveredSegment = null">
+          <div class="flex items-center gap-2 truncate">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" [style.backgroundColor]="seg.color"></span>
+            <span class="text-[11px] font-bold text-foreground truncate font-['Outfit']">{{ seg.label }}</span>
+          </div>
+          <span class="font-mono text-xs font-bold text-muted-foreground">{{ seg.count }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Feed -->
+    <div class="glass-card-premium rounded-3xl p-6 border border-border/40 bg-card/80 backdrop-blur-2xl flex flex-col justify-between relative overflow-hidden shadow-sm">
+      <!-- Glow Orb -->
+      <div class="absolute -top-10 -right-10 w-44 h-44 rounded-full pointer-events-none bg-primary/10 blur-3xl"></div>
+
+      <div class="relative z-10">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10 text-primary border border-primary/20">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base font-extrabold text-foreground font-['Outfit']">Activité Récente</h3>
+              <p class="text-xs text-muted-foreground">Historique des actions sur vos projets et factures</p>
+            </div>
+          </div>
+          <span class="badge-glow-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
+            Temps réel
+          </span>
+        </div>
+
+        <div *ngIf="recentActivity.length === 0" class="py-12 text-center text-xs text-muted-foreground space-y-2">
+          <span class="text-2xl">📋</span>
+          <p>Aucune activité récente enregistrée.</p>
+        </div>
+
+        <div *ngIf="recentActivity.length > 0" class="space-y-1">
+          <div *ngFor="let ev of recentActivity; let last = last" class="flex gap-3 relative">
+            <div class="flex flex-col items-center shrink-0">
+              <span class="w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 z-10 shadow-sm" [style.background]="ev.color + '22'">{{ ev.icon }}</span>
+              <span *ngIf="!last" class="w-px flex-1 my-0.5" style="background:hsl(var(--border)/0.5); min-height:16px"></span>
+            </div>
+            <div class="pb-3 min-w-0" [class.pb-0]="last">
+              <p class="text-xs font-bold text-foreground truncate font-['Outfit']">{{ ev.title }}</p>
+              <div class="flex items-center gap-1.5 mt-0.5">
+                <span class="text-[11px] text-muted-foreground truncate">{{ ev.subtitle }}</span>
+                <span class="text-muted-foreground/40">·</span>
+                <span class="text-[10px] font-mono text-muted-foreground shrink-0 font-semibold">{{ getRelativeTime(ev.date) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <!-- 5. PROJETS RÉCENTS (Capture 3: High-End Interactive UX Stepper) -->
+  <!-- ══════════════════════════════════════════════════════════════ -->
+  <div class="space-y-4">
+    <div class="flex items-center justify-between px-1">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 bg-primary/10 text-primary border border-primary/20 shadow-xs">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-extrabold text-foreground font-['Outfit']">Projets Récents &amp; Commandes</h3>
+          <p class="text-xs text-muted-foreground">Accédez aux dossiers techniques et suivez les jalons de fabrication</p>
+        </div>
+      </div>
+      <a routerLink="/client/projets" class="text-xs font-bold text-primary hover:underline flex items-center gap-1">
+        <span>Voir tous les projets ({{ totalProjectsCount }})</span>
+        <span>➔</span>
+      </a>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="activeProjectsList.length === 0" class="glass-card-premium rounded-3xl p-12 text-center space-y-4 shadow-sm">
+      <div class="w-16 h-16 rounded-3xl bg-primary/10 text-primary flex items-center justify-center text-3xl mx-auto shadow-sm">
+        🚀
+      </div>
+      <h4 class="text-lg font-bold text-foreground font-['Outfit']">Votre aventure PCB commence ici</h4>
+      <p class="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+        Créez votre premier projet de fabrication PCB ou PCBA pour configurer vos fichiers Gerber, gérer votre BOM et obtenir un devis instantané.
+      </p>
+      <div *ngIf="!lectureSeule">
+        <a routerLink="/client/projets/new" class="client-header-btn-primary inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-bold">
+          + Créer mon premier projet
+        </a>
+      </div>
+    </div>
+
+    <!-- Luxury Project Cards with 5-Phase Hardware Stepper -->
+    <div class="space-y-3" *ngIf="activeProjectsList.length > 0">
+      <div *ngFor="let p of activeProjectsList"
+           class="group p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800/80 bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:-translate-y-0.5 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 relative overflow-hidden">
+        
+        <!-- Left Subtle Cyber Accent Bar -->
+        <div class="absolute top-0 left-0 bottom-0 w-1.5 bg-gradient-to-b from-blue-500 via-cyan-400 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+        <!-- 1. Left Column: Identity, Status & Meta -->
+        <div class="flex items-center gap-4 min-w-0 lg:w-72 xl:w-80 shrink-0">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 font-extrabold text-sm font-['Outfit'] bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-800 dark:to-slate-900 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-xs group-hover:scale-105 transition-transform">
+            {{ getProjectInitials(p.nom) }}
+          </div>
+          
+          <div class="space-y-1 min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <a [routerLink]="'/client/projets/' + p.id" class="font-extrabold text-sm sm:text-base text-foreground hover:text-primary transition-colors truncate font-['Outfit']">
+                {{ p.nom }}
+              </a>
+              <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded-md bg-secondary/70 text-muted-foreground border border-border/40">
+                {{ p.createdAt | date:'dd/MM/yyyy' }}
+              </span>
+            </div>
+
+            <!-- Status Badge & Meta Chips -->
+            <div class="flex items-center gap-2 flex-wrap pt-0.5">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+                    [ngClass]="[getProjectStatusPill(p).bg, getProjectStatusPill(p).text]">
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getProjectStatusPill(p).dot"></span>
+                {{ getProjectStatusPill(p).label }}
+              </span>
+
+              <span class="text-emerald-600 dark:text-emerald-400 text-[11px] font-bold flex items-center gap-1" *ngIf="p.bomUploaded">
+                <span>✓</span> BOM Validé
+              </span>
+              <span class="text-amber-600 dark:text-amber-400 text-[11px] font-bold flex items-center gap-1" *ngIf="p.bomRequired && !p.bomUploaded">
+                <span>⚠️</span> BOM Requis
+              </span>
+              <span class="text-muted-foreground text-[11px]">• {{ getProjectObjectifLabel(p) }}</span>
+              <span class="text-muted-foreground text-[11px]">• {{ getProjectQuantity(p) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Center Column: Complete 5-Phase Hardware Stepper & Glowing Gauge -->
+        <div class="flex-1 min-w-0 px-0 lg:px-4 space-y-2.5">
+          <!-- Stepper Header: Percentage & Active Phase -->
+          <div class="flex items-center justify-between text-xs font-semibold">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] uppercase font-mono font-bold text-muted-foreground tracking-wider">Progression Industrielle</span>
+              <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                Jalon {{ getStepIndex(p) }}/5 : {{ getProjectNextMilestone(p) }}
+              </span>
+            </div>
+            <span class="font-mono font-black text-sm text-foreground">{{ getProjectProgress(p) }}%</span>
+          </div>
+
+          <!-- Glowing Progress Track -->
+          <div class="h-2 w-full rounded-full bg-secondary/80 overflow-hidden relative shadow-inner">
+            <div class="h-full rounded-full bg-gradient-to-r from-blue-600 via-cyan-500 to-emerald-400 shadow-[0_0_10px_rgba(59,130,246,0.45)] transition-all duration-700"
+                 [style.width]="getProjectProgress(p) + '%'"></div>
+          </div>
+
+          <!-- 5-Phase Hardware Milestone Nodes -->
+          <div class="grid grid-cols-5 gap-1 pt-1">
+            <!-- Phase 1: Cadrage -->
+            <div class="flex flex-col items-center text-center gap-1">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+                   [ngClass]="getStepIndex(p) >= 1 ? 'bg-primary text-white shadow-xs' : 'bg-secondary text-muted-foreground'">
+                <span *ngIf="getStepIndex(p) > 1">✓</span>
+                <span *ngIf="getStepIndex(p) <= 1">1</span>
+              </div>
+              <span class="text-[10px] font-medium truncate w-full"
+                    [ngClass]="getStepIndex(p) >= 1 ? 'text-foreground font-bold' : 'text-muted-foreground'">
+                Cadrage
+              </span>
+            </div>
+
+            <!-- Phase 2: Fichiers -->
+            <div class="flex flex-col items-center text-center gap-1">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+                   [ngClass]="getStepIndex(p) >= 2 ? 'bg-primary text-white shadow-xs' : 'bg-secondary text-muted-foreground'">
+                <span *ngIf="getStepIndex(p) > 2">✓</span>
+                <span *ngIf="getStepIndex(p) <= 2">2</span>
+              </div>
+              <span class="text-[10px] font-medium truncate w-full"
+                    [ngClass]="getStepIndex(p) >= 2 ? 'text-foreground font-bold' : 'text-muted-foreground'">
+                Fichiers
+              </span>
+            </div>
+
+            <!-- Phase 3: BOM -->
+            <div class="flex flex-col items-center text-center gap-1">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+                   [ngClass]="getStepIndex(p) >= 3 ? 'bg-primary text-white shadow-xs' : 'bg-secondary text-muted-foreground'">
+                <span *ngIf="getStepIndex(p) > 3">✓</span>
+                <span *ngIf="getStepIndex(p) <= 3">3</span>
+              </div>
+              <span class="text-[10px] font-medium truncate w-full"
+                    [ngClass]="getStepIndex(p) >= 3 ? 'text-foreground font-bold' : 'text-muted-foreground'">
+                BOM
+              </span>
+            </div>
+
+            <!-- Phase 4: Devis -->
+            <div class="flex flex-col items-center text-center gap-1">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+                   [ngClass]="getStepIndex(p) >= 4 ? 'bg-primary text-white shadow-xs' : 'bg-secondary text-muted-foreground'">
+                <span *ngIf="getStepIndex(p) > 4">✓</span>
+                <span *ngIf="getStepIndex(p) <= 4">4</span>
+              </div>
+              <span class="text-[10px] font-medium truncate w-full"
+                    [ngClass]="getStepIndex(p) >= 4 ? 'text-foreground font-bold' : 'text-muted-foreground'">
+                Devis
+              </span>
+            </div>
+
+            <!-- Phase 5: Fabrication -->
+            <div class="flex flex-col items-center text-center gap-1">
+              <div class="w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold transition-all"
+                   [ngClass]="getStepIndex(p) >= 5 ? 'bg-emerald-500 text-white shadow-xs' : 'bg-secondary text-muted-foreground'">
+                <span *ngIf="getStepIndex(p) >= 5">⚡</span>
+                <span *ngIf="getStepIndex(p) < 5">5</span>
+              </div>
+              <span class="text-[10px] font-medium truncate w-full"
+                    [ngClass]="getStepIndex(p) >= 5 ? 'text-emerald-600 dark:text-emerald-400 font-bold' : 'text-muted-foreground'">
+                Fabrication
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Right Column: Action CTA Button -->
+        <div class="flex items-center gap-3 shrink-0 self-end lg:self-center">
+          <a [routerLink]="'/client/projets/' + p.id"
+             class="px-4 sm:px-5 py-2.5 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold border border-border/60 bg-secondary/50 hover:bg-primary hover:text-white hover:border-primary text-foreground transition-all duration-200 shadow-xs flex items-center gap-2 group-hover:border-primary/40 group-hover:shadow-md">
+            <span>Voir le projet</span>
+            <span class="group-hover:translate-x-1 transition-transform">➔</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

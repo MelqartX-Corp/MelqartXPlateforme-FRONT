@@ -1,0 +1,346 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ═══ CLIENT "WOW" PAGE HEADER (External Users Only) ═══ -->
+  <div *ngIf="isExternalUser()" class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <!-- 3D/Glass Icon Squircle -->
+      <div class="client-header-icon-box">
+        🎫
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Espace Client
+          </span>
+        </div>
+        <h1 class="client-header-title">
+          Support Client
+        </h1>
+        <p class="text-xs text-muted-foreground font-medium flex items-center gap-2">
+          <span>Vos consultations et vos réclamations, au même endroit</span>
+        </p>
+      </div>
+    </div>
+    <!-- Primary CTA -->
+    <button (click)="openCreateModal()" class="client-header-btn-primary self-start md:self-center z-10 cursor-pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span>Nouveau ticket</span>
+    </button>
+  </div>
+
+  <!-- ═══ INTERNAL WORKSPACE HEADER (Staff / Internal Users Only) ═══ -->
+  <div *ngIf="!isExternalUser()" class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🎫</span>
+        <h1 class="page-title-premium">
+          Workspace Tickets Support
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span>Gérez vos requêtes d'assistance technique et d'étude de faisabilité</span>
+      </p>
+    </div>
+  </div>
+
+  <!-- ═══ Success Toast ═══ -->
+  <div *ngIf="successMsg" class="flex items-center gap-3 p-4 rounded-2xl border animate-fade-up"
+       style="background:hsl(var(--success)/0.08);border-color:hsl(var(--success)/0.3)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="color:hsl(var(--success))"><polyline points="20 6 9 17 4 12"/></svg>
+    <p class="text-sm font-semibold" style="color:hsl(var(--success))">{{ successMsg }}</p>
+  </div>
+
+  <!-- ═══ Error ═══ -->
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <!-- ═══ STATS OVERVIEW CARDS ═══ -->
+  <!-- Pas sur les discussions : compter les conversations « resolues » ou
+       « fermees » impose au client une lecture de dossier alors qu'il vient
+       lire ses echanges. -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4" *ngIf="!loading">
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Tickets Ouverts</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ getTabCount('OUVERT') }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.15)">
+        <span class="text-lg">🟢</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">En cours de traitement</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ getTabCount('EN_COURS') }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.15)">
+        <span class="text-lg">⚡</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Résolus</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ getTabCount('RESOLU') }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(129, 140, 248, 0.08); border: 1px solid rgba(129, 140, 248, 0.15)">
+        <span class="text-lg">🔵</span>
+      </div>
+    </div>
+
+    <div class="glass-card-premium p-5 rounded-2xl flex items-center justify-between transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+         style="border-color: hsl(var(--border)/0.4); background: hsl(var(--card)/0.75); backdrop-filter: blur(12px);">
+      <div class="space-y-1">
+        <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Fermés</p>
+        <p class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ getTabCount('FERME') }}</p>
+      </div>
+      <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: rgba(148, 163, 184, 0.08); border: 1px solid rgba(148, 163, 184, 0.15)">
+        <span class="text-lg">⚪</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Dynamic Tabs & Filter Switcher ═══ -->
+  <div class="flex items-center justify-between border-b border-border/20 pb-3 gap-4 flex-wrap"
+       *ngIf="!loading">
+    <div class="flex items-center gap-2 flex-wrap">
+      <button *ngFor="let t of getTabsForRole()" (click)="switchTab(t.id)" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 border hover:bg-secondary/40"
+              [style.background]="activeTab === t.id ? 'hsl(var(--primary)/0.08)' : 'transparent'"
+              [style.color]="activeTab === t.id ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+              [style.border-color]="activeTab === t.id ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.4)'">
+        <span>{{ t.icon }}</span> {{ t.label }}
+        <span class="px-1.5 py-0.2 rounded-md text-[10px] ml-1 font-bold bg-secondary text-foreground">{{ getTabCount(t.id) }}</span>
+      </button>
+    </div>
+
+    <!-- Portée : ses projets, ou tous. Sa liste de travail d'abord ; la liste
+         complète sert à arbitrer et à reprendre un dossier laissé. -->
+    <div class="flex items-center gap-1.5 flex-wrap" *ngIf="!isExternalUser()">
+      <button (click)="basculerPortee(true)" class="px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border"
+              [style.background]="mesProjetsSeuls ? 'hsl(var(--primary)/0.12)' : 'transparent'"
+              [style.color]="mesProjetsSeuls ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+              [style.border-color]="mesProjetsSeuls ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.3)'">
+        📁 Mes projets
+      </button>
+      <button (click)="basculerPortee(false)" class="px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border"
+              [style.background]="!mesProjetsSeuls ? 'hsl(var(--primary)/0.12)' : 'transparent'"
+              [style.color]="!mesProjetsSeuls ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'"
+              [style.border-color]="!mesProjetsSeuls ? 'hsl(var(--primary)/0.3)' : 'hsl(var(--border)/0.3)'">
+        🌐 Tous les projets
+      </button>
+    </div>
+
+    <!-- Consultation / Réclamation : deux natures de dossier, deux façons d'y
+         répondre. Le client les distingue aussi — il sait laquelle il a ouverte. -->
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <button (click)="switchTypeFilter('all')" class="px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border"
+              [style.background]="typeFilter === 'all' ? 'hsl(var(--secondary)/0.6)' : 'transparent'"
+              [style.border-color]="typeFilter === 'all' ? 'hsl(var(--border)/0.6)' : 'hsl(var(--border)/0.3)'">
+        Tous types ({{ compteParType('all') }})
+      </button>
+      <button (click)="switchTypeFilter('CONSULTATION')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border"
+              [ngStyle]="typeFilter === 'CONSULTATION' ? getTypeStyle('CONSULTATION') : { background: 'transparent', color: 'hsl(var(--muted-foreground))', border: '1px solid hsl(var(--border)/0.3)' }">
+        <span>⚙️</span> Consultation ({{ compteParType('CONSULTATION') }})
+      </button>
+      <button (click)="switchTypeFilter('RECLAMATION')" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-[11px] font-bold transition-all duration-200 border"
+              [ngStyle]="typeFilter === 'RECLAMATION' ? getTypeStyle('RECLAMATION') : { background: 'transparent', color: 'hsl(var(--muted-foreground))', border: '1px solid hsl(var(--border)/0.3)' }">
+        <span>📣</span> Réclamation ({{ compteParType('RECLAMATION') }})
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ Loading ═══ -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement des tickets…</p>
+  </div>
+
+  <!-- ═══ TICKETS LIST SECTION ═══ -->
+  <div *ngIf="!loading" class="space-y-4">
+    <div class="flex items-center justify-between px-2">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🎫</span>
+        <h3 class="text-base font-bold text-foreground" style="font-family:'Outfit',sans-serif">Tickets d'Assistance</h3>
+      </div>
+      <span class="text-xs font-semibold text-muted-foreground bg-secondary/50 px-3 py-1 rounded-full border border-border/20">
+        {{ compteurLabel(filteredTickets.length) }}
+      </span>
+    </div>
+
+    <!-- LIST OF TICKETS -->
+    <div class="space-y-4">
+      <div *ngFor="let t of filteredTickets; let i = index"
+           class="group p-6 rounded-2xl transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-primary/45"
+           style="background: hsl(var(--card)); border: 1px solid hsl(var(--border)/0.5);"
+           [class]="'stagger-' + ((i % 8) + 1)">
+
+        <div class="grid grid-cols-1 md:grid-cols-12 items-center gap-6">
+          <!-- Left: Subject & Description (col-span-6) -->
+          <div class="md:col-span-6 flex items-center gap-4">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 font-extrabold text-sm tracking-wider shadow-inner transition-all duration-300"
+                 style="background: hsl(var(--secondary)/0.5); border: 1px solid hsl(var(--border)/0.3);">
+              🎫
+            </div>
+            <div class="space-y-1.5 flex-1 min-w-0">
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <a [routerLink]="lienFil(t)"
+                   class="font-black text-base tracking-tight text-foreground transition-all duration-300 hover:text-primary truncate"
+                   style="font-family:'Outfit',sans-serif">
+                  {{ t.sujet }}
+                </a>
+                <!-- Priority Pill — une question n'a pas de priorite a afficher
+                     au client : c'est un tri interne de file d'attente. -->
+                <span
+                      class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md"
+                      [ngStyle]="getPriorityStyle(t.priorite)">
+                  {{ getPriorityLabel(t.priorite) }}
+                </span>
+                <!-- Type Pill (Consultation vs Réclamation) — inutile sur la page
+                     des discussions : elles sont toutes de la meme nature, et
+                     repeter « Consultation » sur chaque ligne n'apprend rien. -->
+                <span
+                      class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md transition-transform duration-200 hover:scale-105"
+                      [ngStyle]="getTypeStyle(t.type)">
+                  <span>{{ getTypeIcon(t.type) }}</span> {{ getTypeLabel(t.type) }}
+                </span>
+                <!-- Le projet auquel le fil se rattache. Sans lui, douze
+                     conversations se ressemblent toutes et il faut les ouvrir
+                     une a une pour savoir de quoi elles parlent. -->
+                <span *ngIf="nomProjet(t) as nom"
+                      class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md"
+                      style="background: hsl(var(--secondary)/0.6); color: hsl(var(--muted-foreground));">
+                  📁 {{ nom }}
+                </span>
+              </div>
+              <p class="text-xs text-muted-foreground/80 line-clamp-1 max-w-sm">{{ t.description }}</p>
+            </div>
+          </div>
+
+          <!-- Center: Dates (col-span-3) -->
+          <div class="md:col-span-3 flex flex-col gap-1 w-full text-xs text-muted-foreground">
+            <div>Créé le : <span class="font-bold text-foreground/80">{{ t.createdAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
+            <div *ngIf="t.resolvedAt">Résolu le : <span class="font-bold text-success/80">{{ t.resolvedAt | date:'dd/MM/yyyy HH:mm' }}</span></div>
+          </div>
+
+          <!-- Right: Status & Actions (col-span-3) -->
+          <div class="md:col-span-3 flex flex-col md:items-end gap-2.5 w-full">
+            <span
+                  class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"
+                  [style.background]="getStatusBg(t.statut)"
+                  [style.color]="getStatusColor(t.statut)"
+                  [style.border]="'1px solid ' + getStatusColor(t.statut)"
+                  style="backdrop-filter: blur(10px);">
+              <span class="w-1.5 h-1.5 rounded-full inline-block animate-pulse"
+                    [style.background-color]="getStatusColor(t.statut)"></span>
+              {{ getStatusLabel(t.statut) }}
+            </span>
+
+            <a [routerLink]="lienFil(t)"
+               class="inline-flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold text-white tracking-wide shadow-md transition-all duration-300 hover:scale-105 hover:-translate-y-0.5"
+               style="background: linear-gradient(135deg, #4f46e5, #2563eb); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);">
+              <span>Ouvrir la discussion</span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredTickets.length === 0" class="glass-card-premium p-12 text-center rounded-2xl"
+         style="background: hsl(var(--card)/0.5); border: 1px solid hsl(var(--border)/0.3); backdrop-filter: blur(10px);">
+      <div class="empty-state-premium flex flex-col items-center justify-center space-y-4">
+        <div class="empty-icon w-16 h-16 rounded-2xl flex items-center justify-center" style="background: hsl(var(--primary)/0.06);">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.5)"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <p class="text-lg font-bold text-foreground" style="font-family:'Outfit',sans-serif">
+          Aucun ticket de support
+        </p>
+
+        <p class="text-sm text-muted-foreground max-w-sm">
+          Il n'y a aucun ticket de support à afficher pour le moment.
+        </p>
+
+        <a *ngIf="isExternalUser()" routerLink="/client/projets"
+           class="btn-primary gap-2 text-xs inline-flex items-center justify-center no-underline"
+           style="height: 38px; border-radius: 10px; padding: 0 16px;">
+          Voir mes projets
+        </a>
+        <button *ngIf="isExternalUser()" (click)="openCreateModal()" class="btn-primary gap-2 text-xs" style="height: 38px; border-radius: 10px;">
+          Créer un ticket
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Create Modal ═══ -->
+  <div *ngIf="showCreateModal" class="modal-overlay-premium" (click)="closeCreateModal()">
+    <div class="modal-content-premium max-w-lg" (click)="$event.stopPropagation()">
+      <div class="card-header-premium">
+        <h3 class="font-semibold text-lg text-foreground">Créer un nouveau ticket</h3>
+        <button (click)="closeCreateModal()" class="btn-icon w-8 h-8">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <div class="card-body space-y-4">
+        <!-- Sujet -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Sujet du ticket *</label>
+          <input class="input-base" placeholder="Ex: Problème d'orientation de routage, question technique..." [(ngModel)]="newTicketForm.sujet"/>
+        </div>
+
+        <!-- Priorité -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Niveau de Priorité</label>
+          <select class="input-base" [(ngModel)]="newTicketForm.priorite">
+            <option value="BASSE">Basse</option>
+            <option value="MOYENNE">Moyenne</option>
+            <option value="HAUTE">Haute</option>
+            <option value="URGENTE">Urgente</option>
+          </select>
+        </div>
+
+        <!-- Projet lié -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lier à un projet (Optionnel)</label>
+          <select class="input-base" [(ngModel)]="newTicketForm.projetId">
+            <option value="">Aucun projet lié</option>
+            <option *ngFor="let p of projets" [value]="p.id">{{ p.nom }}</option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description détaillée *</label>
+          <textarea class="input-base" rows="4" placeholder="Veuillez détailler votre question, besoin ou problème..." [(ngModel)]="newTicketForm.description"></textarea>
+        </div>
+
+        <!-- Error Panel -->
+        <div *ngIf="createError" class="flex items-center gap-2 p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ createError }}</span>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button (click)="submitTicket()" class="btn-primary flex-1" [disabled]="creating || !newTicketForm.sujet || !newTicketForm.description">
+            <span *ngIf="creating" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            Soumettre le ticket
+          </button>
+          <button (click)="closeCreateModal()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,351 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ════ TOAST NOTIFICATION ════ -->
+  <div *ngIf="toast"
+       class="fixed top-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl shadow-xl animate-fade-up"
+       style="min-width:280px;max-width:400px;backdrop-filter:blur(12px);"
+       [style.background]="toast.type === 'success' ? 'hsl(var(--card))' : 'hsl(var(--card))'"
+       [style.border]="toast.type === 'success' ? '1px solid hsl(var(--success)/0.4)' : '1px solid hsl(var(--destructive)/0.4)'">
+    <!-- Icon -->
+    <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+         [style.background]="toast.type === 'success' ? 'hsl(var(--success)/0.12)' : 'hsl(var(--destructive)/0.12)'">
+      <svg *ngIf="toast.type === 'success'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           style="color:hsl(var(--success))">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <svg *ngIf="toast.type === 'error'" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+           style="color:hsl(var(--destructive))">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <!-- Message -->
+    <p class="text-sm font-medium text-foreground flex-1">{{ toast.message }}</p>
+    <!-- Close -->
+    <button (click)="toast = null" class="text-muted-foreground hover:text-foreground transition-colors">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- ════ CLIENT "WOW" HERO HEADER ════ -->
+  <div class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">
+        👥
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Espace Entreprise
+          </span>
+        </div>
+        <h1 class="client-header-title">
+          Mes Collaborateurs
+        </h1>
+        <p class="text-xs text-muted-foreground font-medium">
+          Gérez les membres de l'équipe de <span class="font-semibold text-foreground">{{ orgName || 'votre organisation' }}</span> et leurs accès.
+        </p>
+      </div>
+    </div>
+    <button *ngIf="isOwner" (click)="openInviteModal()" class="client-header-btn-primary self-start md:self-center z-10 cursor-pointer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+        <circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+      </svg>
+      <span>Inviter un collaborateur</span>
+    </button>
+  </div>
+
+  <!-- ════ TABLE ════ -->
+  <div class="glass-card rounded-2xl overflow-hidden">
+    <div *ngIf="loading" class="flex justify-center py-12">
+      <div class="w-7 h-7 border-2 rounded-full animate-spin"
+           style="border-color:hsl(var(--primary)/0.2);border-top-color:hsl(var(--primary))"></div>
+    </div>
+
+    <div *ngIf="!loading" class="overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="border-b border-border/50">
+            <th class="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3.5">Collaborateur</th>
+            <th class="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3.5">Email</th>
+            <th class="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider px-6 py-3.5">Rôle</th>
+            <th *ngIf="isOwner" class="px-6 py-3.5"></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-border/30">
+
+          <!-- Membres actifs -->
+          <tr *ngFor="let member of members" class="hover:bg-secondary/20 transition-colors">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2.5">
+                <!-- Avatar initiales -->
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                     style="background:hsl(var(--primary)/0.12);color:hsl(var(--primary))">
+                  {{ (member.prenom[0] || '') + (member.nom[0] || '') }}
+                </div>
+                <span class="text-sm font-semibold text-foreground">{{ member.prenom }} {{ member.nom }}</span>
+                <span *ngIf="isCurrentUser(member)"
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
+                      style="background:hsl(var(--success)/0.12);color:hsl(var(--success))">
+                  Vous
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-muted-foreground">{{ member.email }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    [style.background]="member.role === 'CLIENT_ENTREPRISE' ? 'hsl(var(--primary)/0.12)' : 'hsl(var(--accent)/0.12)'"
+                    [style.color]="member.role === 'CLIENT_ENTREPRISE' ? 'hsl(var(--primary))' : 'hsl(var(--accent))'">
+                {{ member.role === 'CLIENT_ENTREPRISE' ? 'Administrateur' : 'Ingénieur' }}
+              </span>
+            </td>
+            <td *ngIf="isOwner" class="px-6 py-4 text-right">
+              <button *ngIf="member.role === 'INGENIEUR'" (click)="openRemoveModal(member)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 hover:scale-[1.03]"
+                      style="background:hsl(var(--destructive)/0.1);color:hsl(var(--destructive))">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="18" y1="11" x2="23" y2="11"/>
+                </svg>
+                Retirer
+              </button>
+            </td>
+          </tr>
+
+          <!-- Invitations en attente -->
+          <tr *ngFor="let inv of pendingInvitations"
+              class="hover:bg-secondary/20 transition-colors"
+              style="background:hsl(var(--secondary)/0.06)">
+            <td class="px-6 py-4">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                     style="background:hsl(var(--warning)/0.12);color:hsl(var(--warning))">
+                  {{ (inv.prenom[0] || '') + (inv.nom[0] || '') }}
+                </div>
+                <span class="text-sm font-semibold text-foreground/70">{{ inv.prenom }} {{ inv.nom }}</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
+                      style="background:hsl(var(--warning)/0.12);color:hsl(var(--warning))">
+                  En attente
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-muted-foreground/70">{{ inv.email }}</span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                    style="background:hsl(var(--accent)/0.12);color:hsl(var(--accent))">
+                Ingénieur
+              </span>
+            </td>
+            <td *ngIf="isOwner" class="px-6 py-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button (click)="resendInvitation(inv.id)"
+                        class="btn-icon w-8 h-8"
+                        title="Renvoyer l'invitation" style="color:hsl(var(--primary))">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+                  </svg>
+                </button>
+                <button (click)="openCancelModal(inv)"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200 hover:scale-[1.03]"
+                        style="background:hsl(var(--destructive)/0.1);color:hsl(var(--destructive))">
+                  Annuler
+                </button>
+              </div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+
+      <!-- Empty state -->
+      <div *ngIf="members.length === 0 && pendingInvitations.length === 0" class="py-14 text-center">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
+             style="background:hsl(var(--primary)/0.08)">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+               style="color:hsl(var(--primary))">
+            <circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/><path d="M21 21v-2a4 4 0 0 0-3-3.85"/>
+          </svg>
+        </div>
+        <p class="text-sm font-medium text-foreground">Aucun collaborateur pour l'instant</p>
+        <p *ngIf="isOwner" class="text-xs text-muted-foreground mt-1">Invitez des membres pour commencer</p>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════ MODAL INVITATION ════ -->
+  <div *ngIf="showInviteModal"
+       class="fixed inset-0 z-[999] flex items-center justify-center p-4"
+       style="background:rgba(0,0,0,0.55);backdrop-filter:blur(6px)"
+       (click)="closeInviteModal()">
+
+    <div class="w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-fade-up"
+         style="background:hsl(var(--card));border:1px solid hsl(var(--border)/0.5);max-height:90vh;overflow-y:auto"
+         (click)="$event.stopPropagation()">
+
+      <!-- Barre couleur top -->
+      <div class="h-1" style="background:linear-gradient(90deg,hsl(var(--primary)),hsl(var(--accent)))"></div>
+
+      <!-- Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-border/40">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+               style="background:hsl(var(--primary)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 style="color:hsl(var(--primary))">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-foreground text-sm">Inviter un collaborateur</h3>
+            <p class="text-xs text-muted-foreground">Rejoindre <strong>{{ orgName }}</strong></p>
+          </div>
+        </div>
+        <button (click)="closeInviteModal()" class="btn-icon w-8 h-8">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <div class="px-6 py-5">
+        <form #inviteFormRef="ngForm" class="space-y-4">
+
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-foreground">Email *</label>
+            <input type="email" class="input-base" placeholder="collaborateur@email.com"
+                   [(ngModel)]="inviteForm.email" name="iEmail" required email/>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-foreground">Prénom *</label>
+              <input class="input-base" placeholder="Jean"
+                     [(ngModel)]="inviteForm.prenom" name="iPrenom" required minlength="2"/>
+            </div>
+            <div class="space-y-1.5">
+              <label class="text-xs font-semibold text-foreground">Nom *</label>
+              <input class="input-base" placeholder="Dupont"
+                     [(ngModel)]="inviteForm.nom" name="iNom" required minlength="2"/>
+            </div>
+          </div>
+
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-foreground">Rôle attribué</label>
+            <div class="input-base flex items-center gap-2 cursor-default"
+                 style="background:hsl(var(--secondary)/0.4)">
+              <div class="w-4 h-4 rounded flex items-center justify-center"
+                   style="background:hsl(var(--accent)/0.15)">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     style="color:hsl(var(--accent))">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+              </div>
+              <span class="text-sm text-foreground">Ingénieur</span>
+            </div>
+          </div>
+
+          <div *ngIf="inviteError"
+               class="p-3 rounded-xl text-sm font-medium"
+               style="background:hsl(var(--destructive)/0.08);border:1px solid hsl(var(--destructive)/0.25);color:hsl(var(--destructive))">
+            {{ inviteError }}
+          </div>
+
+          <div class="flex items-center justify-end gap-3 pt-1">
+            <button type="button" (click)="closeInviteModal()" class="btn-secondary text-sm px-4 py-2">
+              Annuler
+            </button>
+            <button type="button" (click)="sendInvitation()"
+                    [disabled]="inviting || inviteFormRef.invalid"
+                    class="btn-primary text-sm px-4 py-2 disabled:opacity-50 disabled:pointer-events-none">
+              <span *ngIf="inviting" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {{ inviting ? 'Envoi...' : 'Envoyer l\'invitation' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════ MODAL ANNULER INVITATION ════ -->
+  <div *ngIf="showCancelModal"
+       class="fixed inset-0 z-[999] flex items-center justify-center p-4"
+       style="background:rgba(0,0,0,0.55);backdrop-filter:blur(6px)">
+    <div class="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-fade-up"
+         style="background:hsl(var(--card));border:1px solid hsl(var(--border)/0.5)">
+      <div class="h-1" style="background:hsl(var(--destructive))"></div>
+      <div class="p-6 space-y-4 text-center">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto"
+             style="background:hsl(var(--destructive)/0.1)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               style="color:hsl(var(--destructive))">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-foreground text-base">Annuler l'invitation ?</h3>
+          <p class="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+            L'invitation pour <strong class="text-foreground">{{ invitationToCancel?.prenom }} {{ invitationToCancel?.nom }}</strong>
+            sera annulée et le lien ne fonctionnera plus.
+          </p>
+        </div>
+        <div class="flex gap-2.5">
+          <button (click)="closeCancelModal()" class="btn-secondary flex-1 text-sm">Garder</button>
+          <button (click)="confirmCancel()"
+                  class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02]"
+                  style="background:hsl(var(--destructive))">
+            Oui, annuler
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════ MODAL RETIRER MEMBRE ════ -->
+  <div *ngIf="showRemoveModal"
+       class="fixed inset-0 z-[999] flex items-center justify-center p-4"
+       style="background:rgba(0,0,0,0.55);backdrop-filter:blur(6px)">
+    <div class="w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden animate-fade-up"
+         style="background:hsl(var(--card));border:1px solid hsl(var(--border)/0.5)">
+      <div class="h-1" style="background:hsl(var(--destructive))"></div>
+      <div class="p-6 space-y-4 text-center">
+        <div class="w-12 h-12 rounded-2xl flex items-center justify-center mx-auto"
+             style="background:hsl(var(--destructive)/0.1)">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               style="color:hsl(var(--destructive))">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="8.5" cy="7" r="4"/><line x1="18" y1="11" x2="23" y2="11"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="font-bold text-foreground text-base">Retirer le collaborateur ?</h3>
+          <p class="text-sm text-muted-foreground mt-1.5 leading-relaxed">
+            <strong class="text-foreground">{{ memberToRemove?.prenom }} {{ memberToRemove?.nom }}</strong>
+            sera retiré de <strong class="text-foreground">{{ orgName }}</strong>. Son compte redeviendra un compte client standard.
+          </p>
+        </div>
+        <div class="flex gap-2.5">
+          <button (click)="closeRemoveModal()" class="btn-secondary flex-1 text-sm">Annuler</button>
+          <button (click)="confirmRemove()"
+                  class="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02]"
+                  style="background:hsl(var(--destructive))">
+            Oui, retirer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

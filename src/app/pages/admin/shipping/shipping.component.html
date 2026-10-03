@@ -1,0 +1,174 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🚚</span>
+        <h1 class="page-title-premium">
+          Gestion de la Livraison
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Configurez les zones d'expédition, transporteurs partenaires et délais logistiques
+      </p>
+    </div>
+    <div class="relative z-10">
+      <button (click)="openAddModal()" class="btn-primary gap-2 text-xs py-2.5 px-4 rounded-xl font-bold">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Ajouter une zone
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="showAddModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="glass-card rounded-2xl w-full max-w-lg shadow-2xl">
+      <div class="card-header">
+        <h3 class="font-semibold text-lg text-foreground">Nouvelle zone de livraison</h3>
+        <button (click)="closeAddModal()" class="btn-icon w-8 h-8">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+      <div class="card-body space-y-4">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Nom de la zone</label>
+          <input class="input-base" placeholder="Ex: Tunisie — Est"/>
+        </div>
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Régions (séparées par virgule)</label>
+          <input class="input-base" placeholder="Sfax, Sousse, Monastir"/>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Coût (TND)</label>
+            <input type="number" step="0.01" class="input-base" placeholder="10.00"/>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Délai estimé</label>
+            <input class="input-base" placeholder="2-3 jours"/>
+          </div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button class="btn-primary flex-1">Ajouter</button>
+          <button (click)="closeAddModal()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shipping Zones Grid -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div *ngFor="let zone of shippingZones" class="glass-card rounded-2xl hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+      <div class="card-header">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:hsl(var(--primary)/0.12)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(var(--primary))">
+              <rect x="1" y="3" width="15" height="13" rx="1"/>
+              <path d="M16 8h4l3 6v3h-7V8z"/>
+              <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-foreground">{{zone.zone}}</h3>
+        </div>
+        <div class="flex gap-1">
+          <button class="btn-icon w-8 h-8" title="Modifier" style="color:hsl(var(--primary))">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="btn-icon w-8 h-8" title="Supprimer" style="color:hsl(var(--destructive))">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+              <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-body pt-3">
+        <p class="text-xs text-muted-foreground mb-2 font-medium">Régions couvertes</p>
+        <div class="flex flex-wrap gap-1.5 mb-4">
+          <span *ngFor="let region of zone.regions"
+                class="px-2.5 py-0.5 bg-secondary rounded-full text-xs text-foreground border border-border/40">
+            {{region}}
+          </span>
+        </div>
+        <div class="flex items-center justify-between pt-3 border-t border-border/50">
+          <div>
+            <p class="text-xs text-muted-foreground mb-0.5">Coût de livraison</p>
+            <p class="text-xl font-bold" style="color:hsl(var(--primary))">{{zone.cost}} TND</p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-muted-foreground mb-0.5">Délai estimé</p>
+            <p class="font-semibold text-foreground">{{zone.estimatedDays}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carriers -->
+  <div class="glass-card rounded-2xl">
+    <div class="card-header">
+      <h3 class="font-semibold text-foreground">Transporteurs partenaires</h3>
+    </div>
+    <div class="card-body">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div *ngFor="let carrier of carriers"
+             class="p-5 bg-secondary/40 rounded-xl text-center border border-border/40 hover:border-primary/30 hover:bg-secondary/70 transition-all duration-200">
+          <div class="text-4xl mb-3">{{carrier.logo}}</div>
+          <p class="font-semibold text-foreground mb-2">{{carrier.name}}</p>
+          <span *ngIf="carrier.trackingAvailable" class="badge-success text-[10px]">Suivi disponible</span>
+          <span *ngIf="!carrier.trackingAvailable" class="badge-muted text-[10px]">Sans suivi</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="glass-card rounded-2xl">
+    <div class="card-header">
+      <h3 class="font-semibold text-foreground">Paramètres généraux</h3>
+    </div>
+    <div class="card-body space-y-4">
+      <div class="space-y-1.5">
+        <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Transporteur par défaut</label>
+        <select class="input-base max-w-xs">
+          <option value="rapid">Rapid Post</option>
+          <option value="express">Express Tunisia</option>
+          <option value="local">Local Delivery</option>
+        </select>
+      </div>
+      <div class="space-y-2">
+        <label class="flex items-center gap-3 p-4 bg-secondary/40 rounded-xl cursor-pointer hover:bg-secondary/70 transition-colors">
+          <input type="checkbox" checked class="rounded w-4 h-4 accent-primary"/>
+          <div>
+            <p class="font-medium text-foreground text-sm">Livraison gratuite</p>
+            <p class="text-xs text-muted-foreground">Pour les commandes supérieures à 500 TND</p>
+          </div>
+        </label>
+        <label class="flex items-center gap-3 p-4 bg-secondary/40 rounded-xl cursor-pointer hover:bg-secondary/70 transition-colors">
+          <input type="checkbox" class="rounded w-4 h-4 accent-primary"/>
+          <div>
+            <p class="font-medium text-foreground text-sm">Retrait en magasin</p>
+            <p class="text-xs text-muted-foreground">Permettre aux clients de retirer en personne</p>
+          </div>
+        </label>
+      </div>
+      <button class="btn-primary gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+        Enregistrer les paramètres
+      </button>
+    </div>
+  </div>
+
+</div>

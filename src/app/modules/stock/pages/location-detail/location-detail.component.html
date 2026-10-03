@@ -1,0 +1,285 @@
+<div class="space-y-5 animate-fade-up">
+
+  <!-- ═══ PAGE HEADER — Premium breadcrumb bar ═══ -->
+  <div class="ld-header">
+    <div class="ld-header-left">
+      <div class="ld-pin-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+      </div>
+      <div>
+        <span class="ld-header-label">Emplacement actuel</span>
+        <div class="ld-breadcrumb" *ngIf="location">
+          <ng-container *ngFor="let s of steps; let last=last">
+            <span *ngIf="!s.isActive" class="ld-bc-item">{{ s.label }}</span>
+            <span *ngIf="s.isActive" class="ld-bc-active">{{ s.label }}</span>
+            <span *ngIf="!last" class="ld-bc-sep">›</span>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <button (click)="goBack()" class="ld-back-btn">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Retour
+    </button>
+  </div>
+
+  <!-- Loading / Error -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.15)"></div><div class="absolute inset-0 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement…</p>
+  </div>
+  <div *ngIf="error" class="p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading && !error && location">
+
+    <!-- ═══ STEPPER — Horizontal flow ═══ -->
+    <div class="ld-stepper-panel">
+      <!-- Left blur blob -->
+      <div class="ld-blob-left"></div>
+      <!-- Right blur blob -->
+      <div class="ld-blob-right"></div>
+      <!-- Dot pattern overlay (right side) -->
+      <div class="ld-dots"></div>
+      <!-- Bottom SVG wave -->
+      <svg class="ld-wave" viewBox="0 0 1200 120" preserveAspectRatio="none">
+        <path d="M0,60 C150,100 350,0 600,60 C850,120 1050,20 1200,60 L1200,120 L0,120 Z" fill="rgba(59,130,246,0.04)"/>
+        <path d="M0,80 C200,40 400,100 600,70 C800,40 1000,100 1200,80 L1200,120 L0,120 Z" fill="rgba(14,165,233,0.03)"/>
+      </svg>
+
+      <div class="ld-stepper-row">
+        <ng-container *ngFor="let s of steps; let i=index; let last=last">
+          <!-- Step -->
+          <div class="ld-step" [class.ld-step-active]="s.isActive">
+            <!-- Glow rings for active -->
+            <div *ngIf="s.isActive" class="ld-glow-outer"></div>
+            <div *ngIf="s.isActive" class="ld-glow-inner"></div>
+
+            <div class="ld-step-circle" [class.ld-step-circle-active]="s.isActive">
+              <!-- Icons -->
+              <svg *ngIf="s.icon==='warehouse'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <svg *ngIf="s.icon==='zone'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              <svg *ngIf="s.icon==='rack'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>
+              <svg *ngIf="s.icon==='shelf'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/></svg>
+              <svg *ngIf="s.icon==='slot'" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+            </div>
+
+            <span class="ld-step-num">{{ s.num }}</span>
+            <span class="ld-step-label">{{ s.label }}</span>
+          </div>
+
+          <!-- Arrow connector -->
+          <div *ngIf="!last" class="ld-arrow">
+            <svg width="32" height="16" viewBox="0 0 32 16" fill="none">
+              <path d="M0 8 C8 8, 12 3, 16 3 S24 8, 32 8" [attr.stroke]="'url(#arrGrad'+i+')'" stroke-width="2" fill="none"/>
+              <polygon points="28,5 32,8 28,11" fill="#60A5FA"/>
+              <defs><linearGradient [attr.id]="'arrGrad'+i" x1="0" y1="0" x2="32" y2="0"><stop offset="0%" stop-color="#93C5FD"/><stop offset="100%" stop-color="#60A5FA"/></linearGradient></defs>
+            </svg>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- ═══ DETAILS + VUE DU ZONE ═══ -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+
+      <!-- LEFT: Details card -->
+      <div class="lg:col-span-2 glass-card-premium flex flex-col">
+
+        <!-- Card header -->
+        <div class="card-header-premium">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </div>
+            <h3>Détails de l'emplacement</h3>
+          </div>
+        </div>
+
+        <!-- Detail rows -->
+        <div class="flex-1 p-2">
+          <div *ngFor="let row of detailRows" class="loc-detail-row group">
+            <div class="flex items-center gap-3">
+              <div class="loc-detail-ico">
+                <svg *ngIf="row.icon==='warehouse'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                <svg *ngIf="row.icon==='zone'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+                <svg *ngIf="row.icon==='rack'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/></svg>
+                <svg *ngIf="row.icon==='shelf'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="2" y1="9" x2="22" y2="9"/><line x1="2" y1="15" x2="22" y2="15"/></svg>
+                <svg *ngIf="row.icon==='slot'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+              </div>
+              <span class="text-sm font-medium text-muted-foreground min-w-[70px]">{{ row.label }}</span>
+            </div>
+            <span class="text-sm font-bold" [class.loc-val-blue]="row.blue" [class.text-foreground]="!row.blue">{{ row.value }}</span>
+          </div>
+        </div>
+
+        <!-- Status strip -->
+        <div class="border-t border-border/40 p-4">
+          <div class="grid grid-cols-3 gap-3">
+            <!-- Taux d'occupation -->
+            <div class="loc-stat-card">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                   [style.background]="(location.reelCount || 0) > 0 ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     [attr.style]="'color:' + ((location.reelCount || 0) > 0 ? '#ef4444' : '#16a34a')">
+                  <path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Occupation</p>
+                <p class="text-sm font-extrabold mt-0.5"
+                   [style.color]="(location.reelCount || 0) > 0 ? '#ef4444' : '#16a34a'">
+                  {{ occupationText }}
+                </p>
+              </div>
+            </div>
+            <!-- Statut -->
+            <div class="loc-stat-card">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                   [style.background]="slotStatusColor + '20'">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                     [attr.style]="'color:' + slotStatusColor">
+                  <polyline *ngIf="location.slotStatus !== 'OCCUPE'" points="20 6 9 17 4 12"/>
+                  <circle *ngIf="location.slotStatus === 'OCCUPE'" cx="12" cy="12" r="10"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Statut</p>
+                <p class="text-sm font-extrabold mt-0.5" [style.color]="slotStatusColor">{{ slotStatusLabel }}</p>
+              </div>
+            </div>
+            <!-- Date -->
+            <div class="loc-stat-card">
+              <div class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style="background:hsl(217 91% 58%/0.1)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div>
+                <p class="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider">Mis à jour</p>
+                <p class="text-xs font-bold text-foreground mt-0.5">{{ lastUpdated }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick status buttons -->
+          <div class="mt-3 pt-3 border-t" style="border-color:hsl(var(--border)/0.3)">
+            <p class="text-[9px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">Changer le statut</p>
+            <div class="flex gap-2">
+              <button (click)="setStatus('LIBRE')"
+                [disabled]="updatingStatus || location.slotStatus === 'LIBRE'"
+                class="flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all"
+                [style.background]="location.slotStatus === 'LIBRE' ? 'rgba(34,197,94,0.2)' : 'rgba(34,197,94,0.08)'"
+                [style.color]="'#16a34a'"
+                [style.border]="'1px solid rgba(34,197,94,' + (location.slotStatus === 'LIBRE' ? '0.5' : '0.2') + ')'">
+                🟢 Libre
+              </button>
+              <button (click)="setStatus('OCCUPE')"
+                [disabled]="updatingStatus || location.slotStatus === 'OCCUPE'"
+                class="flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all"
+                [style.background]="location.slotStatus === 'OCCUPE' ? 'rgba(239,68,68,0.2)' : 'rgba(239,68,68,0.08)'"
+                [style.color]="'#ef4444'"
+                [style.border]="'1px solid rgba(239,68,68,' + (location.slotStatus === 'OCCUPE' ? '0.5' : '0.2') + ')'">
+                🔴 Occupé
+              </button>
+              <button (click)="setStatus('CIBLE_ACTIVE')"
+                [disabled]="updatingStatus || location.slotStatus === 'CIBLE_ACTIVE'"
+                class="flex-1 text-[10px] font-bold py-1.5 rounded-lg transition-all"
+                [style.background]="location.slotStatus === 'CIBLE_ACTIVE' ? 'rgba(234,179,8,0.2)' : 'rgba(234,179,8,0.08)'"
+                [style.color]="'#ca8a04'"
+                [style.border]="'1px solid rgba(234,179,8,' + (location.slotStatus === 'CIBLE_ACTIVE' ? '0.5' : '0.2') + ')'">
+                🎯 Cible
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- RIGHT: Vue du zone -->
+      <div class="lg:col-span-3 glass-card-premium">
+        <div class="card-header-premium">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--accent)/0.1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--accent))"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <h3>Vue du zone</h3>
+          </div>
+          <span class="badge-glow-primary">{{ activeRackLabel }}</span>
+        </div>
+
+        <div class="p-5 sm:p-6 overflow-x-auto">
+          <!-- Rack grid -->
+          <div class="vz-grid">
+
+            <!-- Shelf label column -->
+            <div class="vz-shelf-col">
+              <div class="vz-rack-title-spacer"></div>
+              <div *ngFor="let lbl of shelfLabels" class="vz-shelf-lbl">{{ lbl }}</div>
+            </div>
+
+            <!-- Rack columns -->
+            <div *ngFor="let rack of rackCols" class="vz-rack-col" [class.vz-rack-active]="rack.isActive">
+              <!-- Rack title -->
+              <div class="vz-rack-title" [class.vz-rack-title-active]="rack.isActive">
+                {{ rack.name }}
+                <span *ngIf="rack.isActive" class="vz-active-dot"></span>
+              </div>
+              <!-- Shelf rows -->
+              <div *ngFor="let shelf of rack.shelves" class="vz-shelf-row">
+                <div *ngFor="let slot of shelf.slots"
+                     class="vz-slot"
+                     [class.vz-slot-active]="slot.isHighlighted"
+                     [class.vz-slot-empty]="!slot.slotStatus"
+                     [style.background]="slotBg(slot)"
+                     [style.border]="slotBorder(slot)"
+                     [style.cursor]="slot.locationId && !slot.isHighlighted ? 'pointer' : 'default'"
+                     (click)="onSlotClick(slot)"
+                     [title]="slot.slotStatus === 'LIBRE' ? 'Libre' : slot.slotStatus === 'OCCUPE' ? 'Occupé' : slot.slotStatus === 'CIBLE_ACTIVE' ? 'Cible active' : ''">
+                  <!-- Icone si location existe -->
+                  <svg *ngIf="slot.slotStatus"
+                       width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                       class="vz-slot-icon"
+                       [attr.stroke]="slotIconColor(slot)">
+                    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom rack number labels -->
+          <div class="vz-bottom-row">
+            <div class="vz-shelf-col"></div>
+            <div *ngFor="let rack of rackCols" class="vz-rack-num-col">
+              <span class="vz-rack-num" [class.vz-rack-num-active]="rack.isActive">{{ rack.bottomLabel }}</span>
+            </div>
+          </div>
+
+          <!-- Légende -->
+          <div class="flex items-center gap-4 mt-4 pt-3 border-t" style="border-color:hsl(var(--border)/0.3)">
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 rounded-sm" style="background:rgba(34,197,94,0.2);border:1px solid rgba(34,197,94,0.5)"></div>
+              <span class="text-[10px] text-muted-foreground font-medium">Libre</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 rounded-sm" style="background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.5)"></div>
+              <span class="text-[10px] text-muted-foreground font-medium">Occupé</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 rounded-sm" style="background:rgba(234,179,8,0.2);border:1px solid rgba(234,179,8,0.5)"></div>
+              <span class="text-[10px] text-muted-foreground font-medium">Cible active</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <div class="w-3.5 h-3.5 rounded-sm" style="background:rgba(96,165,250,0.35);border:2px solid rgba(96,165,250,0.7)"></div>
+              <span class="text-[10px] text-muted-foreground font-medium">Emplacement actuel</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+</div>

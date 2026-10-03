@@ -1,0 +1,191 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ HEADER BAR ═══ -->
+  <div class="flex items-center justify-between pb-4 border-b border-border/20">
+    <button (click)="goBack()" class="flex items-center gap-2 text-xs font-bold text-muted-foreground hover:text-foreground transition-all duration-200">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      {{ retourLabel }}
+    </button>
+
+    <div class="flex items-center gap-3" *ngIf="ticket">
+      <span *ngIf="!estDiscussion"
+            class="inline-flex items-center gap-1.5 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider"
+            [style.background]="getStatusBg(ticket.statut)"
+            [style.color]="getStatusColor(ticket.statut)"
+            [style.border]="'1px solid ' + getStatusColor(ticket.statut)">
+        {{ getStatusLabel(ticket.statut) }}
+      </span>
+      <span *ngIf="!estDiscussion" class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md"
+            [ngStyle]="getPriorityStyle(ticket.priorite)">
+        Priorité {{ getPriorityLabel(ticket.priorite) }}
+      </span>
+      <span *ngIf="!estDiscussion" class="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-md"
+            [ngStyle]="getTypeStyle(ticket.type)">
+        <span>{{ getTypeIcon(ticket.type) }}</span> {{ getTypeLabel(ticket.type) }}
+      </span>
+    </div>
+  </div>
+
+  <!-- ═══ ERROR / LOADING ═══ -->
+  <div *ngIf="error" class="p-4 rounded-xl border border-destructive/30 bg-destructive/10 text-destructive text-sm font-semibold">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary))"></div>
+    </div>
+    <p class="text-sm text-muted-foreground">Chargement de la discussion...</p>
+  </div>
+
+  <!-- ═══ CHAT CONTAINER ═══ -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start" *ngIf="!loading && ticket">
+
+    <!-- 🟦 LEFT COLUMN: METADATA & ACTIONS (col-span-4) -->
+    <div class="lg:col-span-4 space-y-6">
+      <div class="glass-card-premium p-6 rounded-2xl border" style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5);">
+        <div class="space-y-4">
+          <div>
+            <h2 class="text-lg font-black text-foreground" style="font-family:'Outfit',sans-serif">
+              {{ estDiscussion ? 'Le projet' : 'Détails du ticket' }}
+            </h2>
+            <p *ngIf="!estDiscussion" class="text-[10px] text-muted-foreground uppercase font-semibold">ID: {{ ticket.id }}</p>
+          </div>
+
+          <div class="border-t border-border/10 pt-3 space-y-2.5">
+            <div>
+              <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Sujet</p>
+              <p class="text-sm font-bold text-foreground">{{ ticket.sujet }}</p>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Description</p>
+              <p class="text-xs text-muted-foreground/90 whitespace-pre-line bg-secondary/20 p-3 rounded-xl border border-border/10">{{ ticket.description }}</p>
+            </div>
+
+            <div *ngIf="ticket.projetId">
+              <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Projet lié</p>
+              <a [routerLink]="'/client/projets/' + ticket.projetId" class="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:underline">
+                <span>🔗 Voir le projet</span>
+              </a>
+            </div>
+
+            <div>
+              <p class="text-[10px] font-extrabold text-muted-foreground uppercase tracking-wider">Date de création</p>
+              <p class="text-xs text-muted-foreground">{{ ticket.createdAt | date:'dd MMMM yyyy, HH:mm' }}</p>
+            </div>
+          </div>
+
+          <!-- ACTIONS : Seulement pour le Support Technique -->
+          <div class="border-t border-border/10 pt-4 space-y-3" *ngIf="isSupportTechnique()">
+            <h4 class="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">Actions du support</h4>
+            
+            <div class="space-y-2">
+              <label class="text-[11px] text-muted-foreground">Changer le statut :</label>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button (click)="changeStatus('OUVERT')" [disabled]="updatingStatus" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-border/30"
+                        [style.background]="ticket.statut === 'OUVERT' ? 'rgba(74, 222, 128, 0.12)' : 'transparent'"
+                        [style.color]="ticket.statut === 'OUVERT' ? 'rgb(74, 222, 128)' : 'hsl(var(--muted-foreground))'">
+                  Ouvert
+                </button>
+                <button (click)="changeStatus('EN_COURS')" [disabled]="updatingStatus" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-border/30"
+                        [style.background]="ticket.statut === 'EN_COURS' ? 'rgba(56, 189, 248, 0.12)' : 'transparent'"
+                        [style.color]="ticket.statut === 'EN_COURS' ? 'rgb(56, 189, 248)' : 'hsl(var(--muted-foreground))'">
+                  En cours
+                </button>
+                <button (click)="changeStatus('RESOLU')" [disabled]="updatingStatus" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-border/30"
+                        [style.background]="ticket.statut === 'RESOLU' ? 'rgba(129, 140, 248, 0.12)' : 'transparent'"
+                        [style.color]="ticket.statut === 'RESOLU' ? 'rgb(129, 140, 248)' : 'hsl(var(--muted-foreground))'">
+                  Résolu
+                </button>
+                <button (click)="changeStatus('FERME')" [disabled]="updatingStatus" class="px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all border border-border/30"
+                        [style.background]="ticket.statut === 'FERME' ? 'rgba(148, 163, 184, 0.12)' : 'transparent'"
+                        [style.color]="ticket.statut === 'FERME' ? 'rgb(148, 163, 184)' : 'hsl(var(--muted-foreground))'">
+                  Fermé
+                </button>
+              </div>
+            </div>
+
+            <!-- Reclassement de la priorité (A2 — priorité hybride) -->
+            <div class="space-y-2">
+              <label class="text-[11px] text-muted-foreground">Reclasser la priorité :</label>
+              <select class="input-base" style="height:38px;" [ngModel]="ticket.priorite" (ngModelChange)="changePriority($event)" [disabled]="updatingPriority">
+                <option value="BASSE">Basse</option>
+                <option value="MOYENNE">Moyenne</option>
+                <option value="HAUTE">Haute</option>
+                <option value="URGENTE">Urgente</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🟦 RIGHT COLUMN: live MESSAGES CHAT (col-span-8) -->
+    <div class="lg:col-span-8 flex flex-col h-[600px] glass-card-premium rounded-2xl border overflow-hidden"
+         style="background: hsl(var(--card)); border-color: hsl(var(--border)/0.5);">
+      
+      <!-- Chat Header -->
+      <div class="p-4 border-b border-border/10 flex items-center justify-between" style="background: hsl(var(--secondary)/0.1)">
+        <div class="flex items-center gap-2">
+          <div class="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+          <span class="text-xs font-bold text-foreground">Assistance Discussion live</span>
+        </div>
+        <span class="text-[10px] text-muted-foreground font-semibold">Mises à jour toutes les 5s</span>
+      </div>
+
+      <!-- Messages Window -->
+      <div #chatWindow class="flex-1 p-6 overflow-y-auto space-y-4 scroll-smooth">
+        
+        <!-- Welcome message / System notice -->
+        <div class="p-4 rounded-xl border border-primary/20 bg-primary/5 text-center text-xs text-muted-foreground space-y-1">
+          <p class="font-bold text-foreground">💡 Session de discussion d'Assistance</p>
+          <p>Toutes vos réponses et échanges avec notre équipe de support technique sont archivés ici.</p>
+        </div>
+
+        <!-- Dynamic Message bubbles -->
+        <div *ngFor="let m of messages" class="flex flex-col" [class.items-end]="isMe(m.senderId)" [class.items-start]="!isMe(m.senderId)">
+          <!-- Sender info -->
+          <span class="text-[10px] text-muted-foreground font-bold mb-1 px-1">
+            {{ m.senderNom }} <span class="font-normal opacity-50">({{ m.senderRole === 'SUPPORT_TECHNIQUE' ? 'Support' : 'Client' }})</span>
+          </span>
+
+          <!-- Message Bubble -->
+          <div class="max-w-[70%] p-3.5 rounded-2xl text-xs font-medium leading-relaxed whitespace-pre-wrap transition-all"
+               [style.background]="isMe(m.senderId) ? 'linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)' : 'hsl(var(--secondary)/0.4)'"
+               [style.color]="isMe(m.senderId) ? '#ffffff' : 'hsl(var(--foreground))'"
+               [style.border]="isMe(m.senderId) ? 'none' : '1px solid hsl(var(--border)/0.3)'"
+               [style.border-top-right-radius]="isMe(m.senderId) ? '2px' : '16px'"
+               [style.border-top-left-radius]="!isMe(m.senderId) ? '2px' : '16px'">
+            {{ m.content }}
+          </div>
+
+          <!-- Date -->
+          <span class="text-[9px] text-muted-foreground/60 mt-1 px-1">
+            {{ m.createdAt | date:'HH:mm' }}
+          </span>
+        </div>
+
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="p-4 border-t border-border/10 flex items-center gap-3" style="background: hsl(var(--secondary)/0.1)">
+        <input class="input-base flex-1" style="height:44px; border-radius:12px;"
+               placeholder="Tapez votre message ici..."
+               [(ngModel)]="newMessageContent"
+               (keyup.enter)="sendMessage()"
+               [disabled]="ticket.statut === 'FERME'"/>
+        <button (click)="sendMessage()" [disabled]="sending || !newMessageContent.trim() || ticket.statut === 'FERME'"
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all hover:scale-105"
+                [style.background]="ticket.statut === 'FERME' ? 'hsl(var(--muted))' : 'linear-gradient(135deg, #4f46e5 0%, #2563eb 100%)'">
+          <span *ngIf="sending" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          <svg *ngIf="!sending" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

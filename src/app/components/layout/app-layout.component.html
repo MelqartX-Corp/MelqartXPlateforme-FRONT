@@ -1,0 +1,51 @@
+<div class="flex min-h-screen bg-background bg-dynamic transition-colors duration-400 relative">
+
+      <!-- Meeting Reminder Popup (Chef de Projet only, top-right, real-time countdown & live arrow) -->
+      <app-meeting-reminder-popup></app-meeting-reminder-popup>
+
+      <!-- Feedback qualité : popup global (client uniquement) dès qu'un projet livré n'a pas encore d'avis -->
+      <app-feedback-prompt-modal></app-feedback-prompt-modal>
+
+      <!-- Floating circuit grid background -->
+      <div class="circuit-bg pointer-events-none"></div>
+
+      <!-- Floating orb 1 — primary -->
+      <div class="orb pointer-events-none"
+           style="width:500px;height:500px;top:-10%;left:20%;
+                  background:radial-gradient(circle, hsl(var(--primary)/0.10) 0%, transparent 70%);
+                  animation-delay:0s;animation-duration:14s;"></div>
+
+      <!-- Floating orb 2 — accent -->
+      <div class="orb pointer-events-none"
+           style="width:400px;height:400px;bottom:5%;right:10%;
+                  background:radial-gradient(circle, hsl(var(--accent)/0.08) 0%, transparent 70%);
+                  animation-delay:5s;animation-duration:18s;"></div>
+
+      <!-- Floating orb 3 — chart-3, dark mode only -->
+      <div class="orb pointer-events-none"
+           style="width:350px;height:350px;top:40%;left:40%;
+                  background:radial-gradient(circle, hsl(var(--chart-3)/0.07) 0%, transparent 70%);
+                  animation-delay:9s;animation-duration:22s;"
+           [class.hidden]="!isDark"></div>
+
+      <!-- Sidebar -->
+      <app-sidebar class="z-40 relative" #sidebar></app-sidebar>
+
+      <!-- Spacer: shifts with sidebar on both hover AND pin -->
+      <div class="shrink-0 transition-[width] duration-[250ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+           [style.width]="sidebar.isExpanded() ? '256px' : '68px'">
+      </div>
+
+      <!-- Main content -->
+      <div class="flex-1 min-w-0 flex flex-col min-h-screen relative z-10">
+        <app-header></app-header>
+        <main class="flex-1 p-6 md:p-8 overflow-auto">
+          <div class="animate-fade-up">
+            <router-outlet></router-outlet>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Assistant IA : present sur toutes les pages authentifiees -->
+    <app-assistant-widget></app-assistant-widget>

@@ -1,0 +1,277 @@
+<div class="fixed inset-0 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md animate-fadeIn"
+         [style.z-index]="99999"
+         (click)="onBackdropClick($event)">
+      
+      <div class="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-900 flex flex-col md:flex-row overflow-hidden transition-all duration-300 text-slate-900 dark:text-white"
+           (click)="$event.stopPropagation()">
+
+        <!-- ═══ GAUCHE : Informations Chef de Projet & Contexte ═══ -->
+        <div class="w-full md:w-5/12 p-6 md:p-8 bg-slate-50 dark:bg-slate-800/40 border-b md:border-b-0 md:border-r border-slate-200/80 dark:border-slate-800 flex flex-col justify-between space-y-6">
+          <div>
+            <!-- Top Google Meet Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 mb-6">
+              <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              Google Meet Visioconférence
+            </div>
+
+            <!-- Chef de Projet Profile Card -->
+            <div class="flex items-center gap-3.5 p-3.5 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 shadow-xs mb-5">
+              <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm text-white shadow-sm shrink-0"
+                   style="background: linear-gradient(135deg, #3b82f6 0%, #0d9488 100%);">
+                {{ (chefProjetNom || 'CP').substring(0, 2).toUpperCase() }}
+              </div>
+              <div class="min-w-0">
+                <h3 class="text-sm font-black text-slate-900 dark:text-white truncate" style="font-family:'Outfit',sans-serif">
+                  {{ chefProjetNom || 'Chef de Projet' }}
+                </h3>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Expert Technique PCB &amp; PCBA</p>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">Créneaux en direct</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Project Context -->
+            <div class="p-3.5 rounded-2xl bg-white dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/60 mb-5">
+              <span class="text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-1">Projet concerné</span>
+              <p class="text-xs font-black text-slate-900 dark:text-white truncate">{{ projetNom || 'Projet PCB' }}</p>
+            </div>
+
+            <!-- Key Meeting Highlights with clean SVG icons -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
+                <div class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span>Durée standard : <strong class="text-slate-900 dark:text-white">30 minutes</strong></span>
+              </div>
+
+              <div class="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span>Visioconférence HD Google Meet</span>
+              </div>
+
+              <div class="flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400">
+                <div class="w-8 h-8 rounded-xl bg-amber-50 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center shrink-0">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <span>Invitation agenda (.ics) envoyée par email</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ DROITE : Calendrier Interactif & Choix du Créneau ═══ -->
+        <div class="w-full md:w-7/12 p-6 md:p-8 flex flex-col justify-between bg-white dark:bg-slate-900">
+
+          <!-- ── Booking View ── -->
+          <div *ngIf="!bookingSuccess" class="space-y-5">
+
+            <!-- Header with Close Button -->
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-base sm:text-lg font-black text-slate-900 dark:text-white" style="font-family:'Outfit',sans-serif">
+                  Sélectionnez une date &amp; heure
+                </h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Choisissez un créneau disponible pour votre échange</p>
+              </div>
+              <button (click)="close.emit()"
+                      class="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors font-bold text-sm">
+                ✕
+              </button>
+            </div>
+
+            <!-- Month Navigator -->
+            <div class="flex items-center justify-between p-2.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/80 dark:border-slate-700">
+              <button (click)="previousMonth()" [disabled]="isCurrentMonthOrPast()"
+                      class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-white transition-all disabled:opacity-30 disabled:pointer-events-none flex items-center gap-1 shadow-xs border border-slate-200/80 dark:border-slate-600">
+                ← Mois préc.
+              </button>
+
+              <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider" style="font-family:'Outfit',sans-serif">
+                {{ monthNames[currentMonth] }} {{ currentYear }}
+              </span>
+
+              <button (click)="nextMonth()"
+                      class="px-3 py-1.5 rounded-xl text-xs font-bold bg-white dark:bg-slate-700 hover:bg-slate-100 dark:hover:bg-slate-600 text-slate-800 dark:text-white transition-all flex items-center gap-1 shadow-xs border border-slate-200/80 dark:border-slate-600">
+                Mois suiv. →
+              </button>
+            </div>
+
+            <!-- Calendar Days Grid -->
+            <div>
+              <!-- Day Headers -->
+              <div class="grid grid-cols-7 gap-1 text-center mb-1">
+                <span *ngFor="let day of ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM']"
+                      class="text-[10px] font-black text-slate-400 dark:text-slate-500 py-1">
+                  {{ day }}
+                </span>
+              </div>
+
+              <!-- Days Cells -->
+              <div class="grid grid-cols-7 gap-1">
+                <button *ngFor="let d of calendarDays"
+                        (click)="selectDay(d)"
+                        [disabled]="d.isPast || !d.isCurrentMonth"
+                        class="aspect-square rounded-xl p-1 text-xs font-bold transition-all relative flex flex-col items-center justify-center group"
+                        [class.opacity-25]="!d.isCurrentMonth || d.isPast"
+                        [class.bg-blue-600]="isSelectedDay(d)"
+                        [class.text-white]="isSelectedDay(d)"
+                        [class.shadow-md]="isSelectedDay(d)"
+                        [class.hover:bg-slate-100]="!isSelectedDay(d) && d.isCurrentMonth && !d.isPast"
+                        [class.dark:hover:bg-slate-800]="!isSelectedDay(d) && d.isCurrentMonth && !d.isPast"
+                        [class.text-slate-900]="!isSelectedDay(d) && d.isCurrentMonth && !d.isPast"
+                        [class.dark:text-white]="!isSelectedDay(d) && d.isCurrentMonth && !d.isPast">
+                  
+                  <span>{{ d.dayNumber }}</span>
+
+                  <!-- Has slots dot indicator -->
+                  <span *ngIf="d.hasSlots && !isSelectedDay(d) && d.isCurrentMonth && !d.isPast"
+                        class="w-1 h-1 rounded-full bg-blue-600 dark:bg-blue-400 mt-0.5"></span>
+                  <span *ngIf="d.isToday && !isSelectedDay(d)"
+                        class="text-[8px] text-blue-600 dark:text-blue-400 font-black absolute bottom-0.5">•</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- ── Time Slots Grid ── -->
+            <div *ngIf="selectedDateStr" class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 dark:text-slate-300">
+                  Créneaux disponibles le <strong class="text-blue-600 dark:text-blue-400">{{ selectedDayLabel }}</strong> :
+                </span>
+                <span *ngIf="loadingSlots" class="text-[10px] text-blue-600 dark:text-blue-400 animate-pulse font-bold">
+                  Chargement...
+                </span>
+              </div>
+
+              <!-- Empty state for day -->
+              <div *ngIf="!loadingSlots && daySlots.length === 0"
+                   class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/80 dark:border-slate-700 text-center text-xs text-slate-500 dark:text-slate-400">
+                Aucun créneau disponible pour cette date. Veuillez choisir un autre jour.
+              </div>
+
+              <!-- Slots Grid -->
+              <div *ngIf="!loadingSlots && daySlots.length > 0" class="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-36 overflow-y-auto pr-1">
+                <button *ngFor="let s of daySlots"
+                        (click)="selectSlot(s)"
+                        [disabled]="!s.disponible"
+                        class="py-2 px-2.5 rounded-xl text-xs font-extrabold border transition-all text-center"
+                        [ngClass]="getSlotClass(s)">
+                  <div>{{ s.heureDebutFormattee }}</div>
+                  <div class="text-[9px] font-normal opacity-70">{{ s.heureFinFormattee }}</div>
+                </button>
+              </div>
+            </div>
+
+            <!-- ── Meeting Details Inputs (Optional subject & agenda) ── -->
+            <div *ngIf="selectedSlot" class="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-3 animate-fadeIn">
+              <div>
+                <label class="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Objet de la réunion
+                </label>
+                <input type="text" [(ngModel)]="titreReunion"
+                       placeholder="Ex: Échange technique &amp; validation des spécifications"
+                       class="w-full px-4 py-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/>
+              </div>
+
+              <div>
+                <label class="block text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
+                  Ordre du jour / Questions spécifiques (optionnel)
+                </label>
+                <textarea [(ngModel)]="ordreDuJour" rows="2"
+                          placeholder="Points précis que vous souhaitez aborder..."
+                          class="w-full px-4 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none"></textarea>
+              </div>
+            </div>
+
+            <!-- Visioconférence indisponible : le chef de projet n'a pas connecté Google Agenda -->
+            <div *ngIf="!visioDisponible" class="p-3.5 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-bold">
+              ⚠️ Votre chef de projet n'a pas encore activé la visioconférence. Réessayez plus tard ou écrivez-lui dans la discussion du projet.
+            </div>
+
+            <!-- Error banner -->
+            <div *ngIf="errorMessage" class="p-3.5 rounded-2xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-300 text-xs font-bold">
+              ⚠️ {{ errorMessage }}
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <button (click)="close.emit()"
+                      class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                Annuler
+              </button>
+              <button (click)="reserver()" [disabled]="!selectedSlot || reserving || !visioDisponible"
+                      class="px-6 py-2.5 rounded-xl text-xs font-black text-white transition-all shadow-md flex items-center gap-2 disabled:opacity-40 disabled:pointer-events-none"
+                      style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+                <span *ngIf="reserving" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span>{{ reserving ? 'Réservation...' : '📅 Confirmer la réunion' }}</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- ── Booking Success Screen ── -->
+          <div *ngIf="bookingSuccess" class="py-6 space-y-6 text-center animate-fadeIn">
+            <div class="w-16 h-16 rounded-3xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center mx-auto text-3xl shadow-sm">
+              ✓
+            </div>
+
+            <div>
+              <h3 class="text-lg font-black text-slate-900 dark:text-white" style="font-family:'Outfit',sans-serif">
+                Votre réunion Google Meet est confirmée !
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Une invitation agenda avec le lien Google Meet a été envoyée par email.
+              </p>
+            </div>
+
+            <!-- Recap Card -->
+            <div *ngIf="bookedReunion" class="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 text-left space-y-2 text-xs">
+              <div class="flex justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Projet :</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ bookedReunion.projetNom }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Date &amp; Heure :</span>
+                <span class="font-bold text-blue-600 dark:text-blue-400">{{ bookedReunion.dateDebut | date:'dd/MM/yyyy à HH:mm' }}</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Hôte :</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ bookedReunion.chefProjetNom }}</span>
+              </div>
+              <div class="flex justify-between items-center pt-2 border-t border-slate-200 dark:border-slate-700">
+                <span class="text-slate-500 dark:text-slate-400">Lien Google Meet :</span>
+                <a [href]="bookedReunion.lienVisio" target="_blank" class="font-bold text-blue-600 dark:text-blue-400 hover:underline">
+                  Ouvrir le salon ↗
+                </a>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-center gap-3">
+              <button (click)="close.emit()"
+                      class="px-6 py-2.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all">
+                Fermer
+              </button>
+              <a *ngIf="bookedReunion" [href]="bookedReunion.lienVisio" target="_blank"
+                 class="px-6 py-2.5 rounded-xl text-xs font-black text-white transition-all shadow-md flex items-center gap-2"
+                 style="background: linear-gradient(135deg, #1a73e8, #0d9488);">
+                <span>🎥 Rejoindre Google Meet</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>

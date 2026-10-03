@@ -1,0 +1,768 @@
+<!-- Toast Success Notification -->
+<div *ngIf="successMsg" class="fixed top-6 right-6 z-50 p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 backdrop-blur-md text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center gap-3 shadow-[0_20px_40px_rgba(16,185,129,0.15)] animate-fade-in">
+  <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center shrink-0">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <span>{{ successMsg }}</span>
+</div>
+
+<!-- Toast Error Notification -->
+<div *ngIf="errorToastMsg" class="fixed top-6 right-6 z-50 p-4 max-w-md rounded-2xl border border-rose-500/30 bg-rose-500/15 backdrop-blur-md text-rose-700 dark:text-rose-300 font-bold text-xs flex items-center gap-3 shadow-[0_20px_40px_rgba(244,63,94,0.2)] animate-fade-in">
+  <div class="w-7 h-7 rounded-xl bg-rose-500/20 flex items-center justify-center shrink-0 text-sm">
+    ⚠️
+  </div>
+  <span class="leading-relaxed">{{ errorToastMsg }}</span>
+</div>
+
+<div class="cockpit-canvas tech-grid-pattern pb-24 selection:bg-blue-600 selection:text-white">
+
+  <!-- ─── Décorations Lumineuses d'Arrière-Plan (Halos & Télémétrie) ─── -->
+  <div class="absolute top-0 right-1/4 w-[600px] h-[350px] bg-gradient-to-b from-blue-500/10 via-cyan-400/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute top-1/3 -left-20 w-[450px] h-[450px] bg-gradient-to-r from-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8 animate-fade-in">
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. CLIENT "WOW" HERO HEADER (External Users)                              -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="projet && isExternalUser()" class="client-header-hero">
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 w-full">
+        
+        <!-- Left: Fil d'Ariane & Titre Principal -->
+        <div class="space-y-2 max-w-3xl">
+          <div class="flex flex-wrap items-center gap-2">
+            <a routerLink="/client/projets" class="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors font-bold uppercase tracking-wider">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+              Projets
+            </a>
+            <span class="opacity-40 text-xs">/</span>
+            <a [routerLink]="['/client/projets', projet.id]" class="text-xs font-bold text-foreground hover:text-primary transition-colors">
+              {{ projet.nom }}
+            </a>
+            <span class="client-header-tag">
+              <span class="client-header-tag-dot"></span>
+              Étape 3 • Nomenclature BOM
+            </span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-3">
+            <h1 class="client-header-title">
+              Nomenclature &amp; Stocks
+            </h1>
+            <span class="px-3.5 py-0.5 rounded-full text-[11px] font-black bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/25 uppercase tracking-widest font-mono-tech shadow-xs">
+              {{ projet.cadrage?.objectif || 'PROTOTYPE' }}
+            </span>
+          </div>
+
+          <p class="text-xs text-muted-foreground font-medium">
+            Gérez la nomenclature de composants et examinez la disponibilité en temps réel sur le projet <strong class="text-foreground font-bold">{{ projet.nom }}</strong>.
+          </p>
+        </div>
+
+        <!-- Right: Stepper Pipeline Luxury Capsule -->
+        <div class="stepper-pipeline-capsule shrink-0 self-start lg:self-center">
+          <div class="flex items-center gap-2">
+            
+            <!-- Étape 1 : Cadrage (Complétée avec action Modifier) -->
+            <a [routerLink]="['/client/projets', projet.id, 'cadrage']"
+               class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer group"
+               title="Cliquez pour revenir et modifier le cadrage">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-xs">
+                ✓
+              </span>
+              <span>1. Cadrage</span>
+              <span class="text-[9px] font-bold font-inter px-1.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                Modifier
+              </span>
+            </a>
+
+            <!-- Connecteur Lumineux 1 -> 2 -->
+            <div class="step-connector-gradient"></div>
+
+            <!-- Étape 2 : Fichiers PCB (Complétée avec action Modifier) -->
+            <a [routerLink]="['/client/projets', projet.id, 'upload-gerber']"
+               class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer group"
+               title="Cliquez pour revenir et modifier les fichiers PCB">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-xs">
+                ✓
+              </span>
+              <span>2. Fichiers PCB</span>
+              <span class="text-[9px] font-bold font-inter px-1.5 py-0.5 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                Modifier
+              </span>
+            </a>
+
+            <!-- Connecteur Lumineux 2 -> 3 -->
+            <div class="step-connector-gradient"></div>
+
+            <!-- Étape 3 : BOM Active avec radar pulsant -->
+            <div class="step-pill-active flex items-center gap-2 px-4 py-1.5 text-xs font-black font-outfit tracking-wide">
+              <span class="relative flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-300 opacity-80"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400"></span>
+              </span>
+              <span>3. BOM</span>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <!-- 1. INTERNAL / STAFF WORKSPACE HEADER (Internal Users)                     -->
+    <!-- ══════════════════════════════════════════════════════════════════════════ -->
+    <div *ngIf="projet && !isExternalUser()" class="page-header-premium">
+      <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 w-full">
+        <div class="space-y-1.5">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">📋</span>
+            <h1 class="page-title-premium">
+              Nomenclature BOM &amp; Stocks • {{ projet.nom }}
+            </h1>
+          </div>
+          <p class="text-xs text-muted-foreground font-semibold">
+            Supervision et validation de la nomenclature composants, alternatives et stocks
+          </p>
+        </div>
+
+        <div class="stepper-pipeline-capsule shrink-0 self-start md:self-center">
+          <div class="flex items-center gap-2">
+            <a [routerLink]="['/client/projets', projet.id, 'cadrage']" class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
+              <span>1. Cadrage</span>
+            </a>
+            <div class="step-connector-gradient"></div>
+            <a [routerLink]="['/client/projets', projet.id, 'upload-gerber']" class="step-pill-completed flex items-center gap-2 px-3.5 py-1.5 text-xs font-black font-outfit tracking-wide cursor-pointer">
+              <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px]">✓</span>
+              <span>2. PCB</span>
+            </a>
+            <div class="step-connector-gradient"></div>
+            <div class="step-pill-active flex items-center gap-2 px-4 py-1.5 text-xs font-black font-outfit tracking-wide">
+              <span>3. BOM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-32 space-y-4">
+      <div class="relative w-12 h-12">
+        <div class="absolute inset-0 border-4 border-primary/10 rounded-full"></div>
+        <div class="absolute inset-0 border-4 border-t-primary rounded-full animate-spin"></div>
+      </div>
+      <p class="text-xs font-bold text-muted-foreground animate-pulse">Chargement des données du projet...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="p-8 rounded-3xl border border-destructive/20 bg-destructive/5 text-center max-w-md mx-auto space-y-4 animate-scale-up glass-card-luxury">
+      <div class="w-12 h-12 rounded-2xl bg-destructive/10 text-destructive flex items-center justify-center mx-auto text-xl">⚠️</div>
+      <h3 class="font-black text-foreground text-sm" style="font-family: 'Outfit', sans-serif;">Erreur de chargement</h3>
+      <p class="text-xs text-muted-foreground">{{ error }}</p>
+      <a routerLink="/client/projets" class="btn-primary inline-flex text-xs font-bold px-5 py-2.5 rounded-xl">Retour aux projets</a>
+    </div>
+
+    <!-- Main Content -->
+    <div *ngIf="!loading && !error && projet" class="space-y-8">
+
+      <!-- ═══ SCENARIO A: BOM NOT UPLOADED YET ═══ -->
+      <div *ngIf="!bomData?.filename" class="animate-scale-up">
+        <div class="glass-card-luxury rounded-3xl overflow-hidden p-8 md:p-16 text-center space-y-8 max-w-3xl mx-auto shadow-2xl relative"
+             style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.7) 0%, rgba(243, 244, 246, 0.6) 100%);">
+          
+          <div class="absolute -top-24 -left-24 w-48 h-48 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <!-- Pulsing Icon with Glow -->
+          <div class="mx-auto w-20 h-20 rounded-2xl bg-gradient-to-tr from-primary/10 to-accent/10 flex items-center justify-center shadow-lg relative group transition-all duration-300">
+            <div class="absolute inset-0 rounded-2xl bg-primary/10 blur-md group-hover:blur-lg opacity-70"></div>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-primary relative animate-pulse">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <path d="M12 18v-6"/>
+              <path d="m9 15 3-3 3 3"/>
+            </svg>
+          </div>
+          
+          <div class="space-y-3 max-w-xl mx-auto">
+            <h2 class="text-2xl font-black text-foreground tracking-tight" style="font-family: 'Outfit', sans-serif;">
+              Importation de la Nomenclature (BOM)
+            </h2>
+            <p class="text-xs text-muted-foreground leading-relaxed">
+              Importez votre fichier de nomenclature (BOM) au format Excel ou CSV. Notre système extraira automatiquement les références fabricant (MPN) et les quantités requises pour lancer l'analyse de stock en temps réel.
+            </p>
+          </div>
+
+          <!-- Uploader Zone for Project Owner -->
+          <div *ngIf="isProjectOwner" class="max-w-md mx-auto">
+            <div class="border-2 border-dashed border-primary/20 hover:border-primary/50 rounded-3xl p-10 transition-all duration-300 cursor-pointer relative group bg-white/40 shadow-inner glow-purple"
+                 [ngClass]="{'border-primary bg-primary/5 scale-[1.01]': isDragging}"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave($event)"
+                 (drop)="onDrop($event)"
+                 (click)="fileInput.click()">
+              
+              <input #fileInput type="file" class="hidden" accept=".xlsx,.xls,.csv" (change)="onFileSelected($event)">
+              
+              <!-- Drag loader -->
+              <div *ngIf="uploading" class="space-y-4 py-6 flex flex-col items-center justify-center">
+                <div class="relative w-12 h-12">
+                  <div class="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+                  <div class="absolute inset-0 border-4 border-t-primary rounded-full animate-spin"></div>
+                </div>
+                <p class="text-xs font-black text-primary uppercase tracking-wider animate-pulse">Extraction & Analyse en cours...</p>
+              </div>
+  
+              <!-- Drag prompt -->
+              <div *ngIf="!uploading" class="space-y-5 flex flex-col items-center">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-primary/10 to-indigo-500/10 flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-sm border border-primary/15">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                </div>
+                <div class="space-y-1.5">
+                  <p class="text-xs font-bold text-foreground">
+                    Glissez-déposez votre fichier ici, ou <span class="text-primary hover:underline">parcourez</span> vos dossiers
+                  </p>
+                  <p class="text-[10px] text-muted-foreground font-semibold">Formats acceptés : .xlsx, .xls, .csv</p>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Error Alert inside Uploader -->
+            <div *ngIf="uploadError" class="mt-4 p-4 rounded-xl border text-xs font-bold text-destructive bg-destructive/5 border-destructive/20 flex items-center gap-2 justify-center animate-fade-up">
+              <span>⚠️</span>
+              <span>{{ uploadError }}</span>
+            </div>
+          </div>
+
+          <!-- Warning for staff or guests who cannot upload -->
+          <div *ngIf="!isProjectOwner" class="p-4 rounded-xl border border-dashed border-amber-500/35 bg-amber-500/5 max-w-md mx-auto text-xs text-amber-600 dark:text-amber-400 font-medium flex items-center gap-2 justify-center">
+            <span>🔒</span> En attente de l'importation de la nomenclature par le client porteur du projet.
+          </div>
+
+          <!-- Specifications & Explanations -->
+          <div class="pt-8 border-t border-border/10 max-w-md mx-auto text-left space-y-4">
+            <h4 class="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Format de fichier attendu :</h4>
+            <ul class="text-[10px] text-muted-foreground space-y-2 list-disc pl-4 leading-normal font-medium">
+              <li>Le fichier doit contenir des colonnes claires pour la <strong class="text-foreground">Référence Fabricant (MPN)</strong> et la <strong class="text-foreground">Quantité</strong>.</li>
+              <li>Formats supportés : Fichiers Excel standard (.xlsx, .xls) ou fichiers délimités (.csv).</li>
+            </ul>
+          </div>
+  
+        </div>
+      </div>
+
+      <!-- ═══ SCENARIO B: BOM IS UPLOADED ═══ -->
+      <div *ngIf="bomData?.filename" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+  
+        <!-- Left Column: Components Table (Span 8) -->
+        <div [class]="isValidationProject ? 'lg:col-span-12 glass-card-luxury rounded-3xl border overflow-hidden flex flex-col shadow-xl' : 'lg:col-span-8 glass-card-luxury rounded-3xl border overflow-hidden flex flex-col shadow-xl'">
+          
+          <!-- Header -->
+          <div class="p-6 border-b border-border/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-secondary/5">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary/10 to-indigo-500/10 flex items-center justify-center shadow-inner border border-primary/15">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-primary"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <div>
+                <h3 class="font-black text-foreground text-sm" style="font-family:'Outfit',sans-serif">
+                  Liste des composants extraits
+                </h3>
+                <p class="text-[10px] text-muted-foreground mt-0.5" *ngIf="bomData">
+                  Fichier importé : <strong class="text-foreground/80 font-bold">{{ bomData.filename }}</strong>
+                </p>
+              </div>
+            </div>
+            
+            <div class="flex items-center gap-3">
+              <span class="text-xs font-bold text-muted-foreground shrink-0 bg-secondary/30 px-3 py-1.5 rounded-lg border border-border/10" *ngIf="bomData?.components?.length">
+                {{ bomData?.components?.length }} composants
+              </span>
+              <span class="text-xs font-black text-primary shrink-0 bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 flex items-center gap-1.5" *ngIf="projet?.cadrage">
+                <span>📦</span>
+                <span>Lot : {{ getQuantiteSouhaitee() }} carte{{ getQuantiteSouhaitee() > 1 ? 's' : '' }}</span>
+              </span>
+              <!-- Re-upload Action (Only for client owner) -->
+              <label *ngIf="isProjectOwner" 
+                     class="px-3 py-2 rounded-xl bg-white hover:bg-secondary/40 text-[10px] font-black text-foreground border border-border/60 transition-all duration-200 hover:shadow-sm cursor-pointer shrink-0 flex items-center gap-1.5">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Remplacer le BOM</span>
+                <input type="file" class="hidden" accept=".xlsx,.xls,.csv" (change)="onFileSelected($event)">
+              </label>
+            </div>
+          </div>
+  
+          <div class="p-6 flex-1 flex flex-col">
+
+            <!-- Small Chips Inline Choice (Option 2 — Ultra léger & compact) -->
+            <div *ngIf="hasMissingOrPartial && !isBomValidated && isProjectOwner && !isValidationProject && (projet?.stage === 'EN_ATTENTE_CLIENT' || (!hasGlobalClientSupply && projet?.stage !== 'ALTERNATIVES_EN_ATTENTE'))" 
+                 class="p-3 px-4 rounded-2xl border border-amber-500/20 bg-amber-500/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6 animate-fade-down">
+              <div class="flex items-center gap-2 text-xs font-bold text-foreground">
+                <span class="text-amber-500 text-sm">⚠️</span>
+                <span>Composants manquants — Comment souhaitez-vous procéder ?</span>
+              </div>
+              <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
+                <button (click)="onPromptDecision(true)" [disabled]="submittingDecision"
+                        class="px-3.5 py-1.5 rounded-xl text-[11px] font-black bg-primary text-white hover:bg-primary/90 transition-all duration-200 cursor-pointer shadow-sm flex items-center gap-1.5">
+                  <span>✓ Rechercher des alternatives</span>
+                </button>
+                <button (click)="onPromptDecision(false)" [disabled]="submittingDecision"
+                        class="px-3.5 py-1.5 rounded-xl text-[11px] font-bold border border-border/60 bg-card hover:bg-secondary/40 text-foreground transition-all duration-200 cursor-pointer flex items-center gap-1.5">
+                  <span>📦 Prise en charge client (Non-soudé)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Notice Mode Non-soudé (Client Supply) -->
+            <div *ngIf="hasGlobalClientSupply && !isBomValidated && !isValidationProject" 
+                 class="p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 text-indigo-700 dark:text-indigo-300 space-y-1 mb-6 animate-fade-in">
+              <div class="flex items-center gap-2 font-black text-xs">
+                <span>📦</span>
+                <span>Mode Prise en Charge Client (Non-soudé / DNP)</span>
+              </div>
+              <p class="text-[11px] leading-relaxed opacity-90">
+                L'entreprise ne fournira ni ne soudera les composants manquants. Les emplacements correspondants sur la carte PCB seront laissés libres (non assemblés). Vous assumez l'entière responsabilité de leur approvisionnement et de leur ajout par vos propres moyens.
+              </p>
+            </div>
+
+            <!-- Info Banner pour Phase Validation (Lecture seule / Consultation) -->
+            <div *ngIf="isValidationProject" 
+                 class="p-4 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 text-indigo-700 dark:text-indigo-300 space-y-1 mb-6 animate-fade-in flex items-center gap-3">
+              <span class="text-xl">📄</span>
+              <div>
+                <h4 class="font-black text-xs">Consultation de la Nomenclature — Phase Validation</h4>
+                <p class="text-[11px] opacity-90">Visualisation et extraction des composants à titre indicatif pour la conduite des tests et qualifications sur la carte existante.</p>
+              </div>
+            </div>
+
+            <!-- Table Wrapper -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="border-b border-border/10 text-[10px] font-black text-muted-foreground/75 uppercase tracking-wider">
+                    <th class="py-3.5 px-3">Composant</th>
+                    <th class="py-3.5 px-3 text-center">Marque</th>
+                    <th class="py-3.5 px-3 text-center">Quantité Requise</th>
+                    <th class="py-3.5 px-3 text-center" *ngIf="stockDetails">Qté Totale</th>
+                    <th class="py-3.5 px-3 text-center" *ngIf="stockDetails && isAdminOrSupport && !isValidationProject">Dispo. Stock</th>
+                    <th class="py-3.5 px-3 text-right" *ngIf="!isValidationProject">Statut</th>
+                    <th class="py-3.5 px-3 text-right" *ngIf="shouldShowAlternativesColumn">Alternatives</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/5">
+                  <ng-container *ngFor="let comp of bomData?.components || []">
+                    <tr class="hover:bg-secondary/15 transition-all duration-150 group">
+                      
+                      <!-- MPN + Custom Icon -->
+                      <td class="py-4 px-3 flex items-center gap-3">
+                        <!-- Component Type Icon with dynamic background based on stock -->
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center border transition-all duration-200 shadow-sm"
+                             [ngClass]="{
+                               'bg-emerald-500/5 border-emerald-500/15 text-emerald-500': getStockComponentStatus(comp.mpn)?.status === 'AVAILABLE',
+                               'bg-orange-500/5 border-orange-500/40 text-orange-500': getStockComponentStatus(comp.mpn)?.status === 'AVAILABLE_WITH_DELAY',
+                               'bg-amber-500/5 border-amber-500/40 text-amber-500': getStockComponentStatus(comp.mpn)?.status === 'PARTIAL',
+                               'bg-indigo-500/5 border-indigo-500/15 text-indigo-500': getStockComponentStatus(comp.mpn)?.status === 'PARTIAL_WITH_DELAY',
+                               'bg-rose-500/5 border-rose-500/15 text-rose-500': getStockComponentStatus(comp.mpn)?.status === 'MISSING',
+                               'bg-secondary/20 border-border/15 text-muted-foreground': !getStockComponentStatus(comp.mpn)
+                             }">
+                          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <rect x="4" y="4" width="16" height="16" rx="2"/>
+                            <path d="M9 9h6v6H9z"/>
+                            <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/>
+                          </svg>
+                        </div>
+                        <span class="font-mono text-xs text-foreground font-black tracking-tight group-hover:text-primary transition-colors">{{ comp.mpn }}</span>
+                      </td>
+
+                      <!-- Marque / Fabricant -->
+                      <td class="py-4 px-3 text-center text-xs font-bold text-foreground/80">
+                        <span>{{ comp.manufacturer || comp.marque || getStockComponentStatus(comp.mpn)?.requestedManufacturer || '—' }}</span>
+                      </td>
+
+                      <!-- Required Quantity (Unitaire par carte) -->
+                      <td class="py-4 px-3 text-center font-bold text-xs text-foreground">{{ comp.quantity }}</td>
+
+                      <!-- Total Required Quantity (pour N cartes) -->
+                      <td class="py-4 px-3 text-center font-black text-xs text-primary" *ngIf="stockDetails">
+                        {{ getTotalRequiredQuantity(comp.quantity) }}
+                      </td>
+
+                      <!-- Available Quantity (Admin / Support Technique only) -->
+                      <td class="py-4 px-3 text-center text-xs font-bold" *ngIf="stockDetails && isAdminOrSupport">
+                        <span *ngIf="getStockComponentStatus(comp.mpn) as st"
+                              [ngClass]="{
+                                'text-emerald-500': st.status === 'AVAILABLE',
+                                'text-orange-500': st.status === 'AVAILABLE_WITH_DELAY',
+                                'text-amber-500': st.status === 'PARTIAL',
+                                'text-indigo-500': st.status === 'PARTIAL_WITH_DELAY',
+                                'text-rose-500': st.status === 'MISSING'
+                              }">
+                          {{ st.availableQuantity }}
+                          <span *ngIf="st.onOrderQuantity" class="text-[9px] text-muted-foreground block font-normal mt-0.5" title="Quantité commandée sur les lots en commande">
+                            (+{{ st.onOrderQuantity }} commandés)
+                          </span>
+                        </span>
+                        <span *ngIf="!getStockComponentStatus(comp.mpn)" class="text-muted-foreground">—</span>
+                      </td>
+
+                      <!-- Component Stock Status Badge -->
+                      <td class="py-4 px-3 text-right" *ngIf="!isValidationProject">
+                        <ng-container *ngIf="stockDetails">
+                          <span *ngIf="getStockComponentStatus(comp.mpn) as st" 
+                                class="inline-flex items-center gap-1 text-[9px] font-extrabold px-2.5 py-1 rounded-full badge-luxury"
+                                [ngClass]="{
+                                  'bg-emerald-500/10 text-emerald-500 border border-emerald-500/15 shadow-[0_2px_8px_rgba(16,185,129,0.08)]': st.status === 'AVAILABLE',
+                                  'bg-orange-500/10 text-orange-500 border border-orange-500/40 shadow-[0_2px_8px_rgba(249,115,22,0.08)]': st.status === 'AVAILABLE_WITH_DELAY',
+                                  'bg-amber-500/10 text-amber-500 border border-amber-500/40 shadow-[0_2px_8px_rgba(245,158,11,0.08)]': st.status === 'PARTIAL',
+                                  'bg-indigo-500/10 text-indigo-500 border border-indigo-500/15 shadow-[0_2px_8px_rgba(99,102,241,0.08)]': st.status === 'PARTIAL_WITH_DELAY',
+                                  'bg-rose-500/10 text-rose-500 border border-rose-500/15 shadow-[0_2px_8px_rgba(239,68,68,0.08)]': st.status === 'MISSING'
+                                }">
+                            <span *ngIf="st.status === 'AVAILABLE'">✅ Disponible</span>
+                             <span *ngIf="st.status === 'AVAILABLE_WITH_DELAY'" [title]="'Livraison estimée : ' + (st.estimatedDelivery | date:'dd/MM/yyyy') + ' (' + st.onOrderQuantity + ' cmd)'">
+                               ⏳ Disponible avec délai
+                             </span>
+                             <span *ngIf="st.status === 'PARTIAL'">⚠️ {{ st.availableQuantity }} / {{ st.requiredQuantity }} dispo</span>
+                             <span *ngIf="st.status === 'PARTIAL_WITH_DELAY'" [title]="'Livraison estimée : ' + (st.estimatedDelivery | date:'dd/MM/yyyy') + ' (' + st.onOrderQuantity + ' cmd)'">
+                               ⏳ Partiel avec délai
+                             </span>
+                            <span *ngIf="st.status === 'MISSING'">❌ Rupture</span>
+                          </span>
+                          <span *ngIf="!getStockComponentStatus(comp.mpn)" class="inline-flex text-[9px] font-extrabold px-2.5 py-1 rounded-full bg-secondary border border-border/10 text-muted-foreground">Inconnu</span>
+                        </ng-container>
+                        <span *ngIf="!stockDetails" class="inline-flex text-[9px] font-extrabold px-2.5 py-1 rounded-full bg-secondary/50 text-muted-foreground/60 border border-border/5">Attente vérification</span>
+                      </td>
+
+                      <!-- Alternatives Action (visible only if requested) -->
+                      <td class="py-4 px-3 text-right" *ngIf="shouldShowAlternativesColumn">
+
+                        <span *ngIf="isClientSupplySelected(comp.mpn)"
+                              class="inline-flex items-center gap-1 px-2.5 py-1 mr-1.5 rounded-xl text-[9px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+                              title="Ce composant ne sera ni fourni ni soudé — les autres lignes gardent leurs alternatives">
+                          <span>📦 Non-soudé</span>
+                        </span>
+
+                        <button *ngIf="!isClient || (getStockComponentStatus(comp.mpn)?.status !== 'AVAILABLE' && getStockComponentStatus(comp.mpn)?.status !== 'AVAILABLE_WITH_DELAY')"
+                                (click)="toggleExpand(comp.mpn); $event.stopPropagation()"
+                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl text-[9px] font-black border uppercase transition-all duration-200 hover:shadow-sm cursor-pointer ml-auto"
+                                [ngClass]="{
+                                  'bg-primary text-white border-primary shadow-[0_2px_8px_rgba(99,102,241,0.25)]': expandedMpn === comp.mpn,
+                                  'bg-white hover:bg-secondary/40 text-foreground border-border/60': expandedMpn !== comp.mpn
+                                }">
+                          <span>Alternatives</span>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" 
+                               class="transition-transform duration-200"
+                               [ngClass]="{'rotate-180': expandedMpn === comp.mpn}">
+                            <polyline points="6 9 12 15 18 9"/>
+                          </svg>
+                        </button>
+                      </td>
+
+                    </tr>
+
+                    <!-- Expandable Alternatives Row -->
+                    <tr *ngIf="expandedMpn === comp.mpn" class="bg-secondary/5 dark:bg-slate-900/10">
+                      <td colspan="10" class="p-6">
+                        <div class="space-y-5 animate-fade-in">
+                          <!-- Provider Select Bar -->
+                          <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border/5 pb-3">
+                            <div class="flex items-center gap-1.5">
+                              <span class="text-xs font-bold text-foreground">Alternatives pour {{ comp.mpn }}</span>
+                              <span *ngIf="!isClient" class="text-[9px] text-muted-foreground font-semibold uppercase tracking-wider">(Sélectionnez un fournisseur)</span>
+                            </div>
+                            
+                            <div *ngIf="!isClient" class="flex items-center gap-1 bg-secondary/30 p-0.5 rounded-xl border border-border/10">
+                              <button *ngFor="let prov of providers"
+                                      (click)="onProviderChange(prov); $event.stopPropagation()"
+                                      class="px-2.5 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all duration-200 cursor-pointer"
+                                      [ngClass]="{
+                                        'bg-white dark:bg-slate-800 text-primary shadow-sm border border-border/10': selectedProvider === prov,
+                                        'text-muted-foreground hover:text-foreground': selectedProvider !== prov
+                                      }">
+                                {{ prov }}
+                              </button>
+                            </div>
+                          </div>
+
+                          <!-- Loading Indicator -->
+                          <div *ngIf="loadingAlternatives" class="flex flex-col items-center justify-center py-8 space-y-3">
+                            <div class="w-6 h-6 border-3 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                            <span class="text-[10px] text-muted-foreground font-bold tracking-wider uppercase animate-pulse">Interrogation des bases fournisseurs...</span>
+                          </div>
+
+                          <!-- Error Alert -->
+                          <div *ngIf="alternativesError && !loadingAlternatives" 
+                               class="p-4 rounded-2xl border text-[10px] font-black text-destructive bg-destructive/5 border-destructive/20 flex items-center gap-2">
+                            <span>⚠️</span>
+                            <span>{{ alternativesError }}</span>
+                          </div>
+
+                          <!-- Alternatives Grid Content -->
+                          <div *ngIf="!loadingAlternatives && !alternativesError">
+                            <!-- Empty Case -->
+                            <div *ngIf="getAlternatives(comp.mpn).length === 0" class="text-center py-8 text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+                              <span *ngIf="isClient">Aucune pièce alternative disponible pour cette référence.</span>
+                              <span *ngIf="!isClient">Aucune pièce alternative disponible pour cette référence chez {{ selectedProvider }}.</span>
+                            </div>
+
+                            <!-- List of pieces -->
+                            <div *ngIf="getAlternatives(comp.mpn).length > 0" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div *ngFor="let alt of getAlternatives(comp.mpn)" 
+                                   class="glass-card-luxury p-4 rounded-2xl border flex flex-col justify-between hover:scale-[1.005] duration-200">
+                                
+                                <div class="space-y-2">
+                                  <div class="flex items-center justify-between">
+                                    <span class="font-mono text-xs font-black text-foreground tracking-tight">{{ alt.mpn }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                      <span class="text-[8px] font-extrabold px-2.5 py-1 rounded-full border"
+                                            [ngClass]="{
+                                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/15': alt.lifecycleStatus === 'ACTIVE' || alt.lifecycleStatus === 'NEW',
+                                              'bg-rose-500/10 text-rose-500 border-rose-500/15': alt.lifecycleStatus === 'OBSOLETE' || alt.lifecycleStatus === 'NRND',
+                                              'bg-secondary/40 text-muted-foreground border-border/10': alt.lifecycleStatus !== 'ACTIVE' && alt.lifecycleStatus !== 'NEW' && alt.lifecycleStatus !== 'OBSOLETE' && alt.lifecycleStatus !== 'NRND'
+                                            }">
+                                        {{ alt.lifecycleStatus }}
+                                      </span>
+                                      <span *ngIf="alt.status" 
+                                            class="text-[8px] font-extrabold px-2.5 py-1 rounded-full border"
+                                            [ngClass]="{
+                                              'bg-emerald-500/10 text-emerald-500 border-emerald-500/15': alt.status === 'AVAILABLE',
+                                              'bg-orange-500/10 text-orange-500 border-orange-500/40': alt.status === 'AVAILABLE_WITH_DELAY',
+                                              'bg-amber-500/10 text-amber-500 border-amber-500/40': alt.status === 'PARTIAL',
+                                              'bg-indigo-500/10 text-indigo-500 border-indigo-500/15': alt.status === 'PARTIAL_WITH_DELAY',
+                                              'bg-rose-500/10 text-rose-500 border-rose-500/15': alt.status === 'MISSING'
+                                            }">
+                                        <span *ngIf="alt.status === 'AVAILABLE'">🟢 En Stock</span>
+                                        <span *ngIf="alt.status === 'AVAILABLE_WITH_DELAY'">⏳ En Arrivage</span>
+                                        <span *ngIf="alt.status === 'PARTIAL'">⚠️ Partiel</span>
+                                        <span *ngIf="alt.status === 'PARTIAL_WITH_DELAY'">⏳ Partiel avec délai</span>
+                                        <span *ngIf="alt.status === 'MISSING'">🔴 Indisponible</span>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <p class="text-[9px] text-muted-foreground leading-relaxed font-medium">{{ alt.description }}</p>
+                                </div>
+
+                                <div class="flex items-center justify-between border-t border-border/5 pt-3 mt-4">
+                                  <div class="flex flex-col">
+                                    <span class="text-[8px] text-muted-foreground/60 font-black uppercase tracking-wider">Fabricant</span>
+                                    <span class="text-[9px] font-black text-foreground/80">{{ alt.manufacturer }}</span>
+                                  </div>
+                                  <div class="flex items-center gap-2">
+                                    <a *ngIf="alt.datasheetUrl" [href]="alt.datasheetUrl" target="_blank"
+                                       class="p-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/10 transition-all duration-150"
+                                       title="Visualiser la fiche technique (Datasheet)">
+                                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                    </a>
+                                    <button *ngIf="isProjectOwner && !isBomValidated && !isAlternativeSelected(comp.mpn, alt.mpn)"
+                                            (click)="onSelectAlternative(comp.mpn, alt.mpn, alt.source)"
+                                            [disabled]="submittingDecision"
+                                            class="px-3 py-1.5 rounded-xl text-[9px] font-black bg-primary text-white hover:bg-primary/90 transition-all cursor-pointer shadow-sm disabled:opacity-50 flex items-center gap-1.5">
+                                      <span *ngIf="submittingDecision" class="w-2.5 h-2.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                                      <span>Choisir cette alternative</span>
+                                    </button>
+                                    <span *ngIf="isAlternativeSelected(comp.mpn, alt.mpn)"
+                                          class="px-3 py-1.5 rounded-xl text-[9px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm">
+                                      <span>✅ Alternative sélectionnée</span>
+                                    </span>
+                                  </div>
+                                </div>
+
+                              </div>
+                            </div>
+
+                            <!-- Client Supply fallback option button -->
+                            <div *ngIf="isProjectOwner && !isBomValidated" class="mt-4 pt-3 border-t border-border/10 flex items-center justify-between">
+                              <span class="text-[10px] text-muted-foreground font-bold">Aucune alternative ne convient ?</span>
+                              <button *ngIf="!isClientSupplySelected(comp.mpn)"
+                                      (click)="onSelectClientSupply(comp.mpn)" 
+                                      [disabled]="submittingDecision"
+                                      class="px-3 py-1.5 rounded-xl text-[9px] font-bold border border-border/60 bg-card hover:bg-secondary/40 text-foreground transition-all cursor-pointer disabled:opacity-50 flex items-center gap-1.5">
+                                <span *ngIf="submittingDecision" class="w-2.5 h-2.5 border-2 border-foreground/30 border-t-foreground rounded-full animate-spin"></span>
+                                <span>📦 Non-soudé (Prise en charge client)</span>
+                              </button>
+                              <span *ngIf="isClientSupplySelected(comp.mpn)"
+                                    class="px-3 py-1.5 rounded-xl text-[9px] font-black bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 flex items-center gap-1.5">
+                                <span>📦 Prise en charge client sélectionnée</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+
+                  </ng-container>
+                </tbody>
+              </table>
+            </div>
+  
+            <!-- Replace loader inside table area if replacing file -->
+            <div *ngIf="uploading" class="flex items-center justify-center gap-3 p-4 mt-6 rounded-2xl border border-primary/20 bg-primary/5 text-xs text-primary font-bold animate-pulse">
+              <div class="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+              <span>Remplacement du fichier en cours...</span>
+            </div>
+  
+            <!-- Barre de Validation Finale de la BOM -->
+            <div class="mt-8 pt-6 border-t border-border/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+              
+              <!-- Si la BOM est déjà validée -->
+              <div *ngIf="isBomValidated" class="w-full p-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-2">
+                  <span class="text-base">🎉</span>
+                  <span>BOM Validée & Gelée — Prêt pour la génération du devis</span>
+                </div>
+                <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-500 text-[10px] font-black uppercase">VALIDÉ</span>
+              </div>
+
+              <!-- Si la BOM est en cours et l'utilisateur est le propriétaire -->
+              <div *ngIf="!isBomValidated && isProjectOwner && !isValidationProject" class="w-full flex flex-col sm:flex-row items-center justify-between gap-4 bg-secondary/10 p-4 rounded-2xl border border-border/10">
+                <div class="space-y-0.5">
+                  <h4 class="text-xs font-black text-foreground" style="font-family:'Outfit',sans-serif">Validation Finale de la Nomenclature</h4>
+                  <p class="text-[10px] text-muted-foreground">Validez l'ensemble des choix composants pour geler la BOM et passer à l'étape devis.</p>
+                </div>
+                
+                <button (click)="onValidateFinalBom()" [disabled]="validatingBom"
+                        class="px-6 py-3 rounded-2xl text-xs font-black bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-[0_4px_14px_rgba(16,185,129,0.35)] transition-all duration-200 cursor-pointer shrink-0 flex items-center gap-2">
+                  <span *ngIf="validatingBom" class="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  <span>🔒 Valider la BOM Finale</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+  
+        <!-- Right Column: Stock Checker widget (Span 4 - Hidden for Validation) -->
+        <div *ngIf="!isValidationProject" class="lg:col-span-4 space-y-6">
+  
+          <!-- Stock Status Widget -->
+          <div class="glass-card-luxury rounded-3xl border overflow-hidden flex flex-col shadow-xl">
+            
+            <div class="p-6 border-b border-border/10 flex items-center gap-2 bg-secondary/5">
+              <span class="text-base">⚡</span>
+              <h3 class="font-bold text-foreground text-sm" style="font-family:'Outfit',sans-serif">
+                Vérification en Temps Réel
+              </h3>
+            </div>
+  
+            <div class="p-6 space-y-6">
+              <div class="space-y-3">
+                <div class="text-[10px] font-black text-muted-foreground uppercase tracking-wider">État global des stocks</div>
+                
+                <!-- Global Status Display with Premium alert style -->
+                <div *ngIf="stockDetails" class="p-4 rounded-2xl border transition-all duration-300 flex items-start gap-4 relative overflow-hidden"
+                     [ngClass]="{
+                       'bg-emerald-500/5 border-emerald-500/20 shadow-[inset_0_1px_0_rgba(16,185,129,0.05)]': stockDetails.status === 'FULLY_AVAILABLE',
+                       'bg-amber-500/5 border-amber-500/20 shadow-[inset_0_1px_0_rgba(245,158,11,0.05)]': stockDetails.status === 'PARTIALLY_AVAILABLE',
+                       'bg-rose-500/5 border-rose-500/20 shadow-[inset_0_1px_0_rgba(239,68,68,0.05)]': stockDetails.status === 'INSUFFICIENT'
+                     }">
+                  <div class="absolute -right-6 -bottom-6 w-16 h-16 rounded-full opacity-10 pointer-events-none"
+                       [ngClass]="{
+                         'bg-emerald-500': stockDetails.status === 'FULLY_AVAILABLE',
+                         'bg-amber-500': stockDetails.status === 'PARTIALLY_AVAILABLE',
+                         'bg-rose-500': stockDetails.status === 'INSUFFICIENT'
+                       }"></div>
+                  <div class="text-3xl shrink-0">
+                    <span *ngIf="stockDetails.status === 'FULLY_AVAILABLE'">🟢</span>
+                    <span *ngIf="stockDetails.status === 'PARTIALLY_AVAILABLE'">🟡</span>
+                    <span *ngIf="stockDetails.status === 'INSUFFICIENT'">🔴</span>
+                  </div>
+                  <div class="space-y-1">
+                    <h4 class="text-xs font-black" 
+                        [ngClass]="{
+                          'text-emerald-500': stockDetails.status === 'FULLY_AVAILABLE',
+                          'text-amber-500': stockDetails.status === 'PARTIALLY_AVAILABLE',
+                          'text-rose-500': stockDetails.status === 'INSUFFICIENT'
+                        }">
+                      <span *ngIf="stockDetails.status === 'FULLY_AVAILABLE'">Stock Complet</span>
+                      <span *ngIf="stockDetails.status === 'PARTIALLY_AVAILABLE'">Stock Partiel</span>
+                      <span *ngIf="stockDetails.status === 'INSUFFICIENT'">Stock Insuffisant</span>
+                    </h4>
+                    <p class="text-[10px] text-muted-foreground leading-normal font-medium">
+                      <span *ngIf="stockDetails.status === 'FULLY_AVAILABLE'">Tous les composants de la nomenclature sont disponibles en stock.</span>
+                      <span *ngIf="stockDetails.status === 'PARTIALLY_AVAILABLE'">Certains composants sont disponibles uniquement en quantité partielle.</span>
+                      <span *ngIf="stockDetails.status === 'INSUFFICIENT'">Des composants importants sont manquants en magasin.</span>
+                    </p>
+                  </div>
+                </div>
+  
+                <!-- Unchecked status -->
+                <div *ngIf="!stockDetails && !checkingStock" class="p-6 rounded-2xl border border-dashed border-border bg-secondary/5 text-center text-xs text-muted-foreground font-medium">
+                  Le stock n'a pas encore été analysé pour cette nomenclature.
+                </div>
+  
+                <!-- Real-time checking loader -->
+                <div *ngIf="checkingStock" class="p-6 rounded-2xl border border-primary/10 bg-primary/5 flex items-center justify-center gap-3">
+                  <div class="w-4 h-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                  <span class="text-xs text-primary font-bold">Interrogation des stocks en direct...</span>
+                </div>
+              </div>
+  
+              <!-- Error message if stock check fails -->
+              <div *ngIf="stockCheckError" class="p-4 rounded-2xl border text-xs text-destructive bg-destructive/5 border-destructive/20 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{{ stockCheckError }}</span>
+              </div>
+  
+              <!-- Informational card about real-time stocks -->
+              <div class="p-4 rounded-2xl bg-secondary/10 border border-border/10 text-[10px] text-muted-foreground leading-relaxed space-y-1.5 font-medium">
+                <span class="font-extrabold text-foreground flex items-center gap-1">
+                  <span>💡</span> Bon à savoir :
+                </span>
+                <p>L'analyse interroge dynamiquement l'état des bobines (magasin physique) et nos lignes de production actives.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Cards stacked vertically (when stockDetails is loaded) -->
+          <div *ngIf="stockDetails" class="space-y-4">
+            
+            <div class="text-[10px] font-black text-muted-foreground uppercase tracking-wider pl-2">Informations de synthèse</div>
+            
+            <div class="grid grid-cols-3 gap-4">
+              <!-- KPI: Total -->
+              <div class="glass-card-luxury p-4 rounded-2xl flex flex-col justify-between h-24 relative overflow-hidden">
+                <span class="text-[9px] font-bold text-muted-foreground">Total</span>
+                <span class="text-2xl font-black text-foreground tracking-tight" style="font-family:'Outfit',sans-serif">
+                  {{ totalComponentsCount }}
+                </span>
+                <div class="absolute -right-3 -bottom-3 w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center font-bold text-xs pointer-events-none">#</div>
+              </div>
+
+              <!-- KPI: Available -->
+              <div class="glass-card-luxury p-4 rounded-2xl flex flex-col justify-between h-24 relative overflow-hidden">
+                <span class="text-[9px] font-bold text-emerald-500">Dispo.</span>
+                <span class="text-2xl font-black text-emerald-500 tracking-tight" style="font-family:'Outfit',sans-serif">
+                  {{ availableComponentsCount }}
+                </span>
+                <div class="absolute -right-3 -bottom-3 w-8 h-8 rounded-full bg-emerald-500/5 flex items-center justify-center font-bold text-xs pointer-events-none">✓</div>
+              </div>
+
+              <!-- KPI: Missing / Partial -->
+              <div class="glass-card-luxury p-4 rounded-2xl flex flex-col justify-between h-24 relative overflow-hidden">
+                <span class="text-[9px] font-bold text-rose-500 font-bold">Rupture / Avert.</span>
+                <span class="text-2xl font-black text-rose-500 tracking-tight" style="font-family:'Outfit',sans-serif">
+                  {{ missingComponentsCount + partialComponentsCount }}
+                </span>
+                <div class="absolute -right-3 -bottom-3 w-8 h-8 rounded-full bg-rose-500/5 flex items-center justify-center font-bold text-xs pointer-events-none">✗</div>
+              </div>
+            </div>
+
+            <!-- Last Updated Info -->
+            <div *ngIf="stockDetails.checkedAt" class="text-center text-[9px] text-muted-foreground/80 font-bold">
+              Dernière mise à jour : {{ stockDetails.checkedAt | date:'medium' }}
+            </div>
+            
+          </div>
+  
+        </div>
+  
+      </div>
+  
+    </div>
+  
+  </div>
+
+</div>

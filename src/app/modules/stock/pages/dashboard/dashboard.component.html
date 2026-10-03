@@ -1,0 +1,375 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="badge-glow-primary text-[10px]">
+          <span class="status-dot status-dot-success inline-block mr-1"></span>
+          Stock en ligne
+        </span>
+      </div>
+      <h1 class="page-title-premium">Gestion de Stock</h1>
+      <p class="text-sm text-muted-foreground mt-1 font-medium">Vue d'ensemble de l'inventaire et des mouvements</p>
+    </div>
+    <div class="relative z-10 flex items-center gap-3">
+      <button (click)="loadDashboard()" [class.refreshing]="loading" class="btn-refresh">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement du tableau de bord…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:hsl(var(--destructive)/0.12)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading && !error">
+
+    <!-- ═══ KPI CARDS ═══ -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <!-- Catalogue -->
+      <a routerLink="/stock/components" class="kpi-card stagger-1 group">
+        <div class="kpi-blob" style="background:hsl(var(--primary))"></div>
+        <div class="flex items-center justify-between">
+          <div class="kpi-icon" style="background:linear-gradient(135deg,hsl(var(--primary)/0.15),hsl(var(--primary)/0.06))">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:hsl(var(--primary))">
+              <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+            </svg>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="kpi-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <p class="kpi-value">{{ totalComponents }}</p>
+        <p class="kpi-label" style="color:hsl(var(--primary))">Composants</p>
+      </a>
+
+      <!-- Fournisseurs -->
+      <a routerLink="/stock/suppliers" class="kpi-card stagger-2 group">
+        <div class="kpi-blob" style="background:hsl(var(--accent))"></div>
+        <div class="flex items-center justify-between">
+          <div class="kpi-icon" style="background:linear-gradient(135deg,hsl(var(--accent)/0.15),hsl(var(--accent)/0.06))">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:hsl(var(--accent))">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="kpi-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <p class="kpi-value">{{ totalSuppliers }}</p>
+        <p class="kpi-label" style="color:hsl(var(--accent))">Fournisseurs</p>
+      </a>
+
+      <!-- Bobines Magasin -->
+      <a routerLink="/stock/reels" class="kpi-card stagger-3 group">
+        <div class="kpi-blob" style="background:hsl(var(--success))"></div>
+        <div class="flex items-center justify-between">
+          <div class="kpi-icon" style="background:linear-gradient(135deg,hsl(var(--success)/0.15),hsl(var(--success)/0.06))">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:hsl(var(--success))">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full status-dot-success animate-pulse" style="background:hsl(var(--success))"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="kpi-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+        <p class="kpi-value">{{ reelsMagasin }}</p>
+        <p class="kpi-label" style="color:hsl(var(--success))">Magasin · Intact</p>
+      </a>
+
+      <!-- Bobines Production -->
+      <a routerLink="/stock/reels" class="kpi-card stagger-4 group">
+        <div class="kpi-blob" style="background:hsl(var(--warning))"></div>
+        <div class="flex items-center justify-between">
+          <div class="kpi-icon" style="background:linear-gradient(135deg,hsl(var(--warning)/0.15),hsl(var(--warning)/0.06))">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:hsl(var(--warning))">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="6"/>
+            </svg>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full animate-pulse" style="background:hsl(var(--warning))"></span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="kpi-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+          </div>
+        </div>
+        <p class="kpi-value">{{ reelsProduction }}</p>
+        <p class="kpi-label" style="color:hsl(var(--warning))">Production · Ouvert</p>
+      </a>
+    </div>
+
+    <!-- ═══ DONUT CHART + SUMMARY ═══ -->
+    <div class="glass-card-premium">
+      <div class="card-header-premium">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20"/></svg>
+          </div>
+          <h3>Répartition Magasin / Production</h3>
+        </div>
+        <span class="badge-glow-primary">{{ totalReels }} bobines au total</span>
+      </div>
+      <div class="p-6">
+        <div class="flex flex-col md:flex-row items-center gap-10">
+          <!-- Donut SVG -->
+          <div class="relative w-40 h-40 shrink-0">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="16" fill="none" stroke="hsl(var(--secondary))" stroke-width="7"/>
+              <circle cx="22" cy="22" r="16" fill="none" stroke="hsl(var(--warning))" stroke-width="7" stroke-linecap="round"
+                      [attr.stroke-dasharray]="donutCircumference"
+                      [attr.stroke-dashoffset]="0"
+                      style="opacity:0.3"/>
+              <circle cx="22" cy="22" r="16" fill="none" stroke="hsl(var(--success))" stroke-width="7" stroke-linecap="round"
+                      [attr.stroke-dasharray]="donutCircumference"
+                      [attr.stroke-dashoffset]="donutCircumference - (donutCircumference * magasinPercent / 100)"
+                      class="transition-all duration-1000 ease-out"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span class="text-3xl font-black text-foreground" style="font-family:'Outfit',sans-serif;letter-spacing:-0.04em">{{ totalReels }}</span>
+              <span class="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">total</span>
+            </div>
+          </div>
+
+          <!-- Legend -->
+          <div class="flex-1 space-y-3 w-full">
+            <div class="flex items-center justify-between p-4 rounded-2xl border transition-all hover:border-success/30" style="background:hsl(var(--success)/0.05);border-color:hsl(var(--success)/0.15)">
+              <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full" style="background:hsl(var(--success));box-shadow:0 0 8px hsl(var(--success)/0.5)"></div>
+                <div>
+                  <p class="text-sm font-bold text-foreground">Magasin (Intact)</p>
+                  <p class="text-[10px] text-muted-foreground mt-0.5">Bobines non ouvertes</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ reelsMagasin }}</span>
+                <span class="badge-glow-success">{{ magasinPercent }}%</span>
+              </div>
+            </div>
+            <div class="flex items-center justify-between p-4 rounded-2xl border transition-all hover:border-warning/30" style="background:hsl(var(--warning)/0.05);border-color:hsl(var(--warning)/0.15)">
+              <div class="flex items-center gap-3">
+                <div class="w-3 h-3 rounded-full" style="background:hsl(var(--warning));box-shadow:0 0 8px hsl(var(--warning)/0.5)"></div>
+                <div>
+                  <p class="text-sm font-bold text-foreground">Sur machine</p>
+                  <p class="text-[10px] text-muted-foreground mt-0.5">
+                    Sorties vers la production &middot; {{ reelsOuvertes }} entamée(s) au total
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-2xl font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ reelsProduction }}</span>
+                <span class="badge-glow-warning">{{ 100 - magasinPercent }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ STOCK PAR COMPOSANT ═══ -->
+    <div *ngIf="stockSummary.length > 0" class="glass-card-premium">
+      <div class="card-header-premium">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          </div>
+          <h3>Stock par composant</h3>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="badge-glow-primary">{{ totalReels }} bobines</span>
+          <span class="badge-glow-accent">{{ totalPieces | number }} pièces</span>
+        </div>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full data-table-premium">
+          <thead>
+            <tr>
+              <th>Composant</th>
+              <th>Fabricant</th>
+              <th>Bobines</th>
+              <th>Seuil</th>
+              <th>Statut</th>
+              <th>Réservé</th>
+              <th>Disponible</th>
+              <th>Stock pièces</th>
+              <th>Répartition</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of stockSummary; let i = index" [class]="'stagger-' + ((i % 6) + 1)">
+              <td>
+                <span class="font-mono text-xs font-bold text-foreground px-2.5 py-1.5 rounded-lg" style="background:hsl(var(--secondary)/0.6)">{{ s.componentMpn || '—' }}</span>
+              </td>
+              <td class="text-xs text-muted-foreground font-medium">{{ s.manufacturer || '—' }}</td>
+              <td>
+                <span class="text-base font-black text-foreground" style="font-family:'Outfit',sans-serif">{{ s.reelCount }}</span>
+              </td>
+              <td>
+                <span *ngIf="s.seuilMinReels" class="text-xs font-semibold text-muted-foreground">{{ s.seuilMinReels }}</span>
+                <span *ngIf="!s.seuilMinReels" class="text-muted-foreground/30 text-xs">—</span>
+              </td>
+              <td>
+                <span *ngIf="s.reelCount === 0" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold animate-pulse" style="background:hsl(var(--destructive)/0.12);color:hsl(var(--destructive))">🔴 RUPTURE</span>
+                <span *ngIf="s.reelCount > 0 && s.belowThreshold" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold" style="background:hsl(var(--warning)/0.12);color:hsl(var(--warning))">🟠 STOCK BAS</span>
+                <span *ngIf="s.reelCount > 0 && !s.belowThreshold" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-bold" style="background:hsl(var(--success)/0.12);color:hsl(var(--success))">🟢 EN STOCK</span>
+              </td>
+              <!-- Ce qu'un projet payé a mis de côté : présent sur la bobine,
+                   mais plus offert à personne. Sans cette colonne, l'appro
+                   commandait sur un chiffre déjà promis. -->
+              <td>
+                <span *ngIf="reserve(s) > 0" class="text-xs font-black tabular-nums" style="color:hsl(var(--warning))">{{ reserve(s) | number }}</span>
+                <span *ngIf="reserve(s) === 0" class="text-muted-foreground/30 text-xs">—</span>
+              </td>
+              <td>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-black tabular-nums"
+                        [style.color]="disponible(s) === 0 ? 'hsl(var(--destructive))' : 'hsl(var(--success))'">
+                    {{ disponible(s) | number }}
+                  </span>
+                  <div *ngIf="reserve(s) > 0" class="w-10 h-1.5 rounded-full overflow-hidden shrink-0" style="background:hsl(var(--secondary))">
+                    <div class="h-full rounded-full" style="background:hsl(var(--warning))" [style.width.%]="partReservee(s)"></div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <div class="progress-premium">
+                    <div class="progress-fill" [style.width.%]="usagePercentSummary(s)"
+                         [style.background]="usagePercentSummary(s) > 20 ? 'linear-gradient(90deg,hsl(var(--success)),hsl(var(--success)/0.7))' : 'linear-gradient(90deg,hsl(var(--destructive)),hsl(var(--destructive)/0.7))'"></div>
+                  </div>
+                  <span class="text-xs font-mono font-semibold text-foreground">{{ s.totalQuantityRemaining | number }}/{{ s.totalQuantityInitial | number }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span *ngIf="s.intactCount" class="badge-glow-success">🟢 {{ s.intactCount }}</span>
+                  <span *ngIf="s.ouvertCount" class="badge-glow-warning">🟠 {{ s.ouvertCount }}</span>
+                  <span *ngIf="s.videCount" class="badge-glow-destructive">🔴 {{ s.videCount }}</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ═══ LOTS + CRITICAL REELS ═══ -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+      <!-- Derniers lots reçus -->
+      <div class="glass-card-premium">
+        <div class="card-header-premium">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--accent)/0.1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--accent))"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            </div>
+            <h3>Derniers lots reçus</h3>
+          </div>
+          <a routerLink="/stock/lots" class="inline-flex items-center gap-1 text-xs font-semibold transition-colors hover:text-primary" style="color:hsl(var(--primary))">
+            Voir tout
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full data-table-premium">
+            <thead>
+              <tr><th>Lot fabricant</th><th>Fournisseur</th><th>Qté</th><th>Reçu</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let lot of recentLots; let i = index" [class]="'stagger-' + ((i % 5) + 1)">
+                <td class="font-bold text-foreground">{{ lot.manufacturerLot || '—' }}</td>
+                <td>
+                  <span *ngIf="lot.supplierName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium" style="background:hsl(var(--secondary)/0.5)">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                    {{ lot.supplierName }}
+                  </span>
+                  <span *ngIf="!lot.supplierName" class="text-xs text-muted-foreground">—</span>
+                </td>
+                <td><span class="badge-glow-primary">{{ lot.totalReceived || 0 }}</span></td>
+                <td class="text-xs text-muted-foreground font-medium">{{ getTimeAgo(lot.receivedDate) }}</td>
+              </tr>
+              <tr *ngIf="recentLots.length === 0">
+                <td colspan="4">
+                  <div class="empty-state-premium">
+                    <div class="empty-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.5)"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                    </div>
+                    <p class="empty-title">Aucun lot reçu</p>
+                    <p class="empty-subtitle">Les lots apparaîtront ici une fois créés</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Bobines critiques -->
+      <div class="glass-card-premium">
+        <div class="card-header-premium">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--destructive)/0.1)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <h3>Bobines critiques</h3>
+            <span *ngIf="criticalReels.length > 0" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black animate-pulse" style="background:hsl(var(--destructive));color:#fff">{{ criticalReels.length }}</span>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full data-table-premium">
+            <thead>
+              <tr><th>Serial</th><th>Composant</th><th>Restant</th><th>Niveau</th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of criticalReels; let i = index" [class]="'stagger-' + ((i % 5) + 1)">
+                <td>
+                  <a [routerLink]="'/stock/reels/' + r.id" class="font-mono text-xs font-bold transition-colors hover:text-primary" style="color:hsl(var(--primary))">{{ r.serialnumber }}</a>
+                </td>
+                <td class="text-xs text-muted-foreground font-medium">{{ r.componentMpn || '—' }}</td>
+                <td>
+                  <div class="flex items-center gap-2.5">
+                    <div class="progress-premium">
+                      <div class="progress-fill" [style.width.%]="criticalPercent(r)"
+                           [style.background]="criticalPercent(r) < 10 ? 'linear-gradient(90deg,hsl(var(--destructive)),hsl(var(--destructive)/0.7))' : 'linear-gradient(90deg,hsl(var(--warning)),hsl(var(--warning)/0.7))'"></div>
+                    </div>
+                    <span class="text-xs font-mono font-semibold" [style.color]="criticalPercent(r) < 10 ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'">{{ r.quantityRemaining }}/{{ r.quantityInitial }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span class="text-[10px] font-bold px-2.5 py-1 rounded-lg"
+                        [class]="criticalPercent(r) < 10 ? 'badge-glow-destructive' : 'badge-glow-warning'">
+                    {{ criticalPercent(r) }}%
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="criticalReels.length === 0">
+                <td colspan="4">
+                  <div class="empty-state-premium">
+                    <div class="empty-icon" style="background:linear-gradient(135deg,hsl(var(--success)/0.12),hsl(var(--success)/0.06))">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--success))"><circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 15 10"/></svg>
+                    </div>
+                    <p class="empty-title" style="color:hsl(var(--success))">Aucune bobine critique</p>
+                    <p class="empty-subtitle">Toutes les bobines sont au-dessus du seuil critique</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

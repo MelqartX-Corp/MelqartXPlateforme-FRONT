@@ -1,0 +1,484 @@
+<div class="space-y-6 animate-fade-up font-sans text-slate-900 dark:text-slate-100">
+      
+      <!-- ═══ PREMIUM PAGE HEADER (Matching Workspace Projets Style) ═══ -->
+      <div class="page-header-premium">
+        <div class="relative z-10 space-y-1.5">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">💳</span>
+            <h1 class="page-title-premium">
+              Facturation & Règlements Projets
+            </h1>
+          </div>
+          <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span>{{ invoices.length }} factures au total</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-success font-bold">{{ paidInvoicesCount }} payées</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-primary font-bold">{{ partialInvoicesCount }} acomptes partiels</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-warning font-bold">{{ pendingInvoicesCount }} en attente</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           SUCCESS NOTIFICATION BANNER
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="successMsg" class="p-3.5 bg-emerald-50/90 dark:bg-emerald-950/40 border-l-4 border-emerald-500 rounded-r-xl flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200 animate-in fade-in">
+        <div class="flex items-center gap-2 font-medium">
+          <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path></svg>
+          <span>{{ successMsg }}</span>
+        </div>
+        <button (click)="successMsg = ''" class="text-emerald-700 hover:text-emerald-950 text-xs font-bold cursor-pointer">✕</button>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           SOPHISTICATED FINANCIAL COMMAND STRIP
+      ══════════════════════════════════════════════════════ -->
+      <section class="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden space-y-6"
+               style="background: linear-gradient(135deg, hsl(var(--card)/0.9) 0%, hsl(var(--primary)/0.03) 100%); border: 1px solid hsl(var(--border)/0.4); backdrop-filter: blur(20px);">
+        
+        <!-- Top Metrics Narrative Row -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+          
+          <!-- Dominant Anchor: Volume Global Facturé -->
+          <div class="lg:col-span-4 space-y-2 lg:pr-6 lg:border-r border-border/60">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+              TOTAL FACTURÉ DU PORTEFEUILLE
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl sm:text-4xl font-black tracking-tight text-foreground font-mono">
+                {{ totalInvoicedTtc | number:'1.3-3' }}
+              </span>
+              <span class="text-xs font-bold text-primary uppercase tracking-wide">TND TTC</span>
+            </div>
+            <div class="flex items-center gap-3 text-[11px] text-muted-foreground font-mono pt-0.5">
+              <span>HT : {{ totalInvoicedHt | number:'1.3-3' }}</span>
+              <span class="text-muted-foreground/30">•</span>
+              <span>TVA 19% : {{ totalInvoicedTax | number:'1.3-3' }}</span>
+            </div>
+          </div>
+
+          <!-- Secondary Connected Narrative Metrics -->
+          <div class="lg:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
+            
+            <!-- Dossiers Facturés -->
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-muted-foreground">
+                <span class="w-1.5 h-1.5 rounded-full bg-muted-foreground/60"></span>
+                <span>DOSSIERS FACTURÉS</span>
+              </div>
+              <div class="text-2xl font-black text-foreground font-mono">
+                {{ invoices.length }}
+              </div>
+              <p class="text-[11px] text-muted-foreground font-medium">Factures officielles émises</p>
+            </div>
+
+            <!-- Montant Encaissé -->
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-success">
+                <span class="w-1.5 h-1.5 rounded-full bg-success"></span>
+                <span>TOTAL ENCAISSÉ</span>
+              </div>
+              <div class="text-2xl font-black text-success font-mono">
+                {{ totalPaid | number:'1.3-3' }}
+              </div>
+              <p class="text-[11px] text-success font-semibold">{{ recoveryRate | number:'1.1-1' }}% du total</p>
+            </div>
+
+            <!-- Reste à Percevoir -->
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-warning">
+                <span class="w-1.5 h-1.5 rounded-full bg-warning" [ngClass]="{'animate-ping': totalBalanceDue > 0}"></span>
+                <span>RESTE À PERCEVOIR</span>
+              </div>
+              <div class="text-2xl font-black text-warning font-mono">
+                {{ totalBalanceDue | number:'1.3-3' }}
+              </div>
+              <p class="text-[11px] text-muted-foreground font-medium">Encours restant dû</p>
+            </div>
+
+            <!-- Dossiers Soldés -->
+            <div class="space-y-1">
+              <div class="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-primary">
+                <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                <span>FACTURES SOLDÉES</span>
+              </div>
+              <div class="text-2xl font-black text-primary font-mono">
+                {{ paidInvoicesCount }} / {{ invoices.length }}
+              </div>
+              <p class="text-[11px] text-muted-foreground font-medium">Dossiers réglés à 100%</p>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Refined Horizontal Cash-Collection Journey (Proportional Segmented Ribbon) -->
+        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
+          <div class="flex justify-between items-center text-[10px] font-mono uppercase tracking-wider text-slate-400">
+            <span class="font-bold">FLUX DU RECOUVREMENT : FACTURÉ (100%) → ENCAISSÉ ({{ recoveryRate | number:'1.1-1' }}%) → RESTE ({{ (100 - recoveryRate) | number:'1.1-1' }}%)</span>
+            <span>{{ totalPaid | number:'1.3-3' }} TND encaissés sur {{ totalInvoicedTtc | number:'1.3-3' }} TND</span>
+          </div>
+
+          <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden flex border border-slate-200/60 dark:border-slate-700/60">
+            <!-- Collected Segment -->
+            <div [style.width.%]="recoveryRate" 
+                 class="bg-emerald-500 h-full transition-all duration-500 relative group"
+                 title="Encaissé">
+            </div>
+            <!-- Outstanding Segment -->
+            <div [style.width.%]="100 - recoveryRate" 
+                 class="bg-amber-400 dark:bg-amber-500 h-full transition-all duration-500 relative group"
+                 title="Reste à percevoir">
+            </div>
+          </div>
+
+          <div class="flex justify-between text-[11px] font-mono text-slate-400 pt-0.5">
+            <span class="text-emerald-600 dark:text-emerald-400 font-bold">● Encaissé : {{ totalPaid | number:'1.3-3' }} TND</span>
+            <span class="text-amber-600 dark:text-amber-400 font-bold">● Reste à percevoir : {{ totalBalanceDue | number:'1.3-3' }} TND</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           "À SURVEILLER" / PROJECT ATTENTION SIGNAL LAYER
+      ══════════════════════════════════════════════════════ -->
+      <section *ngIf="attentionInvoices.length > 0" 
+               class="bg-slate-50 dark:bg-slate-800/40 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs">
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+              SIGNAL SYSTÈME : DOSSIERS NÉCESSITANT UNE ATTENTION ({{ attentionInvoices.length }})
+            </h3>
+          </div>
+          <span class="text-[11px] font-mono text-slate-400">Encours de relance & livrables</span>
+        </div>
+
+        <!-- Attention Chips Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div *ngFor="let inv of attentionInvoices | slice:0:3" 
+               class="bg-white dark:bg-slate-900 p-3 rounded-xl border border-slate-200 dark:border-slate-700 flex items-start justify-between gap-3 shadow-2xs">
+            
+            <div class="space-y-1 min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-mono font-bold text-xs text-blue-600 dark:text-blue-400">{{ inv.invoiceNumber }}</span>
+                <span class="text-slate-300 dark:text-slate-700">•</span>
+                <span class="text-xs font-semibold text-slate-900 dark:text-white truncate">{{ inv.projectName || 'Projet #' + inv.projectId.slice(0, 6) }}</span>
+              </div>
+
+              <!-- Contextual Reason -->
+              <p class="text-[11px] text-slate-500">
+                <span *ngIf="inv.amountPaid > 0" class="text-blue-600 dark:text-blue-400 font-semibold">Paiement partiel (Acompte 50%)</span>
+                <span *ngIf="inv.amountPaid === 0" class="text-amber-600 dark:text-amber-400 font-semibold">En attente du 1er acompte</span>
+                <span class="text-slate-400"> — {{ inv.balanceDue | number:'1.3-3' }} TND à solder</span>
+              </p>
+            </div>
+
+            <!-- Due Date Badge -->
+            <div class="text-right shrink-0">
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold"
+                    [ngClass]="isOverdue(inv) ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300' : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300'">
+                {{ getDueCountdown(inv.dueDate) }}
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           PREMIUM PROJECT BILLING REGISTRY (TABLE)
+      ══════════════════════════════════════════════════════ -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        
+        <!-- Filter Controls Toolbar -->
+        <div class="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+          
+          <!-- Search Field -->
+          <div class="relative flex-1 max-w-md">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input 
+              type="text" 
+              [(ngModel)]="searchTerm" 
+              placeholder="Rechercher référence facture [MX-F-...], contrat, projet ou client..." 
+              class="w-full pl-10 pr-9 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none transition font-sans">
+            <button *ngIf="searchTerm" (click)="searchTerm = ''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <!-- Segmented Filter Tabs -->
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button 
+              (click)="selectedStatus = 'ALL'"
+              [ngClass]="selectedStatus === 'ALL' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'"
+              class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
+              TOUTES <span class="ml-1 opacity-70 font-mono">({{ invoices.length }})</span>
+            </button>
+            <button 
+              (click)="selectedStatus = 'ISSUED'"
+              [ngClass]="selectedStatus === 'ISSUED' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'"
+              class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer flex items-center gap-1.5">
+              <span>EN COURS À RECOUVRER</span>
+              <span *ngIf="pendingInvoicesCount > 0" class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              <span class="opacity-70 font-mono">({{ pendingInvoicesCount }})</span>
+            </button>
+            <button 
+              (click)="selectedStatus = 'PAID'"
+              [ngClass]="selectedStatus === 'PAID' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'"
+              class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
+              SOLDÉES 100% <span class="ml-1 opacity-70 font-mono">({{ paidInvoicesCount }})</span>
+            </button>
+          </div>
+
+          <!-- Secondary Label & Sort -->
+          <div class="flex items-center gap-3 text-xs">
+            <span class="text-slate-400 font-mono text-[11px] hidden sm:inline">{{ filteredInvoices.length }} dossier(s) affiché(s)</span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-slate-400 font-mono text-[11px] uppercase">Trier :</span>
+              <select 
+                [(ngModel)]="sortBy"
+                class="bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-700 dark:text-slate-200 outline-none">
+                <option value="NEWEST">Date : Plus récentes</option>
+                <option value="OLDEST">Date : Plus anciennes</option>
+                <option value="AMOUNT_DESC">Montant : Décroissant</option>
+                <option value="AMOUNT_ASC">Montant : Croissant</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════
+             FINANCIAL ACTIVITY DATA LEDGER
+        ══════════════════════════════════════════════════════ -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200/80 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                <th class="py-3.5 pl-6 pr-4">N° Facture</th>
+                <th class="py-3.5 px-4">Projet & Contrat</th>
+                <th class="py-3.5 px-4">Client</th>
+                <th class="py-3.5 px-4">Émission & Échéance</th>
+                <th class="py-3.5 px-4 text-right">Total HT</th>
+                <th class="py-3.5 px-4 text-right">Total TTC</th>
+                <th class="py-3.5 px-4 text-right">Encaissé / Reste</th>
+                <th class="py-3.5 px-4 text-center">État Règlement</th>
+                <th class="py-3.5 pr-6 pl-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
+              <tr *ngFor="let inv of filteredInvoices" 
+                  [ngClass]="{'bg-rose-50/20 dark:bg-rose-950/10': isOverdue(inv)}"
+                  class="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition-colors group">
+                
+                <!-- 1. N° Facture -->
+                <td class="py-4 pl-6 pr-4 whitespace-nowrap">
+                  <div class="inline-flex items-center gap-2">
+                    <span class="font-mono font-extrabold text-slate-900 dark:text-blue-400 text-xs tracking-tight">
+                      {{ inv.invoiceNumber }}
+                    </span>
+                    <button 
+                      (click)="copyToClipboard(inv.invoiceNumber, inv.id)" 
+                      title="Copier le numéro de facture" 
+                      class="text-slate-400 hover:text-blue-600 transition cursor-pointer p-0.5">
+                      <svg *ngIf="copiedInvoiceId !== inv.id" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                      </svg>
+                      <svg *ngIf="copiedInvoiceId === inv.id" class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+
+                <!-- 2. Projet & Contrat (Project visually dominant) -->
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <div class="space-y-0.5">
+                    <a [routerLink]="['/client/projets', inv.projectId]" class="inline-flex items-center gap-1.5 text-slate-950 dark:text-white hover:text-blue-600 font-bold group/proj">
+                      <svg class="w-3.5 h-3.5 text-slate-400 group-hover/proj:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                      </svg>
+                      <span>{{ inv.projectName || 'Projet #' + inv.projectId.slice(0, 8) }}</span>
+                    </a>
+                    <div class="text-[11px] font-mono text-slate-400 pl-5">
+                      Contrat : <strong class="text-slate-600 dark:text-slate-300 font-mono">{{ inv.contractNumber }}</strong>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- 3. Client -->
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <div class="font-bold text-slate-800 dark:text-slate-200">
+                    {{ inv.customer?.name || (inv.userId ? 'Client #' + inv.userId.slice(0, 8) : 'Client') }}
+                  </div>
+                  <div *ngIf="inv.customer?.companyName || inv.customer?.email" class="text-[11px] text-slate-400 font-mono">
+                    {{ inv.customer?.companyName || inv.customer?.email }}
+                  </div>
+                </td>
+
+                <!-- 4. Émission & Échéance -->
+                <td class="py-4 px-4 whitespace-nowrap font-mono text-[11px]">
+                  <div class="text-slate-700 dark:text-slate-300 font-bold">
+                    Émise : {{ inv.issuedAt | date:'dd/MM/yyyy' }}
+                  </div>
+                  <div class="flex items-center gap-1 text-slate-400">
+                    <span>Échéance : {{ inv.dueDate | date:'dd/MM/yyyy' }}</span>
+                    <span *ngIf="isOverdue(inv)" class="text-[10px] font-bold text-rose-600 uppercase">⚠ Échue</span>
+                  </div>
+                </td>
+
+                <!-- 5. Total HT -->
+                <td class="py-4 px-4 text-right whitespace-nowrap font-mono text-slate-600 dark:text-slate-300">
+                  {{ inv.subtotalHt | number:'1.3-3' }} <span class="text-[10px] text-slate-400">TND</span>
+                </td>
+
+                <!-- 6. Total TTC (Prominent Typography) -->
+                <td class="py-4 px-4 text-right whitespace-nowrap font-mono font-extrabold text-slate-950 dark:text-white text-sm">
+                  {{ inv.totalTtc | number:'1.3-3' }} <span class="text-[10px] text-blue-600 dark:text-blue-400 font-bold">TND</span>
+                </td>
+
+                <!-- 7. Encaissé / Reste (Miniature Stacked Indicator) -->
+                <td class="py-4 px-4 text-right whitespace-nowrap font-mono">
+                  <div class="space-y-1">
+                    <div class="flex items-center justify-end gap-1.5">
+                      <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">{{ inv.amountPaid | number:'1.3-3' }}</span>
+                      <span class="text-[10px] text-slate-400">/ {{ inv.totalTtc | number:'1.3-3' }} TND</span>
+                    </div>
+
+                    <!-- Micro Proportion Meter -->
+                    <div class="w-24 ml-auto h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                      <div [style.width.%]="getInvoicePaidPercent(inv)" class="bg-emerald-500 h-full"></div>
+                      <div [style.width.%]="100 - getInvoicePaidPercent(inv)" class="bg-amber-400 h-full"></div>
+                    </div>
+
+                    <div *ngIf="inv.balanceDue > 0" class="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                      Reste : {{ inv.balanceDue | number:'1.3-3' }} TND
+                    </div>
+                  </div>
+                </td>
+
+                <!-- 8. État Règlement (Contextual States) -->
+                <td class="py-4 px-4 text-center whitespace-nowrap">
+                  <span *ngIf="inv.status === 'PAID'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span>SOLDÉE 100%</span>
+                  </span>
+                  
+                  <span *ngIf="inv.status === 'ISSUED' && inv.amountPaid > 0 && !isOverdue(inv)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                    <span>ACOMPTE (50%)</span>
+                  </span>
+
+                  <span *ngIf="inv.status === 'ISSUED' && inv.amountPaid === 0 && !isOverdue(inv)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>EN ATTENTE (0%)</span>
+                  </span>
+
+                  <span *ngIf="inv.status === 'ISSUED' && isOverdue(inv)" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping"></span>
+                    <span>ÉCHUE / EN RETARD</span>
+                  </span>
+
+                  <span *ngIf="inv.status === 'CANCELLED'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                    <span>ANNULÉE</span>
+                  </span>
+                </td>
+
+                <!-- 9. Actions -->
+                <td class="py-4 pr-6 pl-4 text-right whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-1.5">
+                    
+                    <!-- View PDF Modal Trigger -->
+                    <button (click)="viewInvoicePdf(inv)" [disabled]="previewingId === inv.id"
+                            title="Visualiser la facture PDF officielle"
+                            class="px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                      <span *ngIf="previewingId === inv.id" class="w-3 h-3 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></span>
+                      <svg *ngIf="previewingId !== inv.id" class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                      <span>Voir [PDF]</span>
+                    </button>
+
+                    <!-- Download PDF -->
+                    <button (click)="downloadPdf(inv)" [disabled]="downloadingId === inv.id"
+                            title="Télécharger le fichier PDF"
+                            class="px-2.5 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-700 rounded-lg transition flex items-center gap-1 cursor-pointer">
+                      <span *ngIf="downloadingId === inv.id" class="w-3 h-3 border-2 border-slate-600 border-t-transparent rounded-full animate-spin"></span>
+                      <svg *ngIf="downloadingId !== inv.id" class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                      <span>PDF</span>
+                    </button>
+
+                    <!-- Test Simulator Action -->
+                    <button *ngIf="inv.status === 'ISSUED'" (click)="simulatePayment(inv)" [disabled]="simulatingId === inv.id"
+                            title="Simuler encaissement avec succès (Mode Test)"
+                            class="px-2 py-1 text-[11px] font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700 rounded-lg transition cursor-pointer">
+                      <span>{{ simulatingId === inv.id ? '...' : 'Encaisser' }}</span>
+                    </button>
+
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="filteredInvoices.length === 0">
+                <td colspan="9" class="py-16 text-center text-slate-400">
+                  <div class="flex flex-col items-center gap-2">
+                    <span class="text-2xl">📑</span>
+                    <p class="text-xs font-medium text-slate-600 dark:text-slate-400">
+                      {{ searchTerm || selectedStatus !== 'ALL' ? 'Aucune facture ne correspond à vos critères de filtre.' : 'Aucune facture émise enregistrée dans le registre.' }}
+                    </p>
+                    <button *ngIf="searchTerm || selectedStatus !== 'ALL'" (click)="searchTerm = ''; selectedStatus = 'ALL'" class="mt-1 text-xs font-semibold text-blue-600 hover:underline cursor-pointer">
+                      Réinitialiser les filtres
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           FULLSCREEN INVOICE PDF VIEWER MODAL
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="previewPdfUrl" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-slate-950/80 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-5xl w-full h-[92vh] p-6 shadow-2xl border border-slate-300 dark:border-slate-700 flex flex-col space-y-4 animate-in zoom-in-98 duration-150">
+          
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2 text-[11px] font-mono uppercase text-slate-400">
+                <span>FACTURE OFFICIELLE</span>
+                <span>•</span>
+                <span class="font-bold text-slate-900 dark:text-white">{{ previewInvoice?.invoiceNumber }}</span>
+              </div>
+              <p class="text-xs text-slate-500 font-mono">Projet : {{ previewInvoice?.projectName || previewInvoice?.projectId }} • Montant : {{ previewInvoice?.totalTtc | number:'1.3-3' }} TND</p>
+            </div>
+            
+            <div class="flex items-center gap-2">
+              <button *ngIf="previewInvoice" (click)="downloadPdf(previewInvoice)" class="px-3.5 py-1.5 bg-slate-900 dark:bg-blue-600 hover:bg-slate-800 dark:hover:bg-blue-700 text-white font-semibold text-xs rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <span>Télécharger PDF</span>
+              </button>
+              <button (click)="closePreview()" class="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white font-bold text-sm transition cursor-pointer">
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <!-- PDF Viewer Frame -->
+          <div class="flex-1 w-full bg-slate-100 dark:bg-slate-950 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800">
+            <iframe [src]="previewPdfUrl" class="w-full h-full border-0"></iframe>
+          </div>
+        </div>
+      </div>
+
+    </div>

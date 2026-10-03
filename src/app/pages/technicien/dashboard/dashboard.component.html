@@ -1,0 +1,244 @@
+<div class="space-y-6 animate-fade-up pb-10">
+
+  <!-- ═══ EN-TÊTE ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5 min-w-0">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🔧</span>
+        <h1 class="page-title-premium">Mon atelier</h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Ce qui vous est confié, ce qui presse, et ce que vous avez laissé sur une machine
+      </p>
+    </div>
+    <div class="flex items-center gap-2 relative z-10 shrink-0">
+      <a routerLink="/production" class="btn-primary gap-2">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="10" rx="1"/>
+        </svg>
+        Tableau de production
+      </a>
+    </div>
+  </div>
+
+  <!-- Chargement -->
+  <div *ngIf="chargement()" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin"
+           style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-xs text-muted-foreground font-medium">Lecture de votre atelier&hellip;</p>
+  </div>
+
+  <div *ngIf="erreur()" class="flex items-start gap-3 p-4 rounded-2xl border"
+       style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <span class="text-lg shrink-0">&#9888;</span>
+    <p class="text-sm font-semibold" style="color:hsl(var(--destructive))">{{ erreur() }}</p>
+  </div>
+
+  <ng-container *ngIf="!chargement() && !erreur()">
+
+    <!-- ═══ LES QUATRE CHIFFRES ═══ -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+      <a routerLink="/production" class="glass-card-premium p-5 space-y-2 stagger-1 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">À lancer</span>
+          <span class="text-sm">🚀</span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="aLancer().length ? 'hsl(var(--warning))' : 'hsl(var(--foreground))'">
+          {{ aLancer().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">commande(s) réglée(s) en attente</p>
+      </a>
+
+      <a routerLink="/production" class="glass-card-premium p-5 space-y-2 stagger-2 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">En cours</span>
+          <span class="text-sm">⚙️</span>
+        </div>
+        <p class="text-3xl font-black text-foreground tabular-nums">{{ enCours().length }}</p>
+        <p class="text-[11px] text-muted-foreground">{{ totalCartes() | number }} carte(s) au total</p>
+      </a>
+
+      <a routerLink="/production" class="glass-card-premium p-5 space-y-2 stagger-3 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Priorité haute</span>
+          <span class="text-sm">⚡</span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="urgentes().length ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))'">
+          {{ urgentes().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">à faire passer devant</p>
+      </a>
+
+      <a routerLink="/stock/reels" class="glass-card-premium p-5 space-y-2 stagger-4 block hover:shadow-lg transition-shadow">
+        <div class="flex items-center justify-between">
+          <span class="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground">Bobines en machine</span>
+          <span class="text-sm">📼</span>
+        </div>
+        <p class="text-3xl font-black tabular-nums"
+           [style.color]="bobinesDormantes().length ? 'hsl(var(--destructive))' : 'hsl(var(--foreground))'">
+          {{ enMachine().length }}
+        </p>
+        <p class="text-[11px] text-muted-foreground">
+          {{ bobinesDormantes().length }} depuis 2 j ou plus
+        </p>
+      </a>
+    </div>
+
+    <!-- ═══ ALERTE BOBINES DORMANTES ═══
+         Une bobine oubliée sur un chargeur immobilise ses pièces pour tous les
+         autres projets, et rien dans l'atelier ne vient le rappeler. -->
+    <div *ngIf="bobinesDormantes().length > 0"
+         class="p-4 rounded-2xl border flex items-start gap-3"
+         style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+      <span class="text-lg shrink-0">⏱️</span>
+      <div class="min-w-0 flex-1">
+        <p class="text-xs font-black" style="color:hsl(var(--destructive))">
+          {{ bobinesDormantes().length }} bobine(s) sur une machine depuis 2 jours ou plus
+        </p>
+        <p class="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+          Tant qu'elles ne sont pas rendues, leurs pièces restent bloquées pour les autres projets
+          et le stock ne les décompte pas. Rendez-les depuis la préparation du projet concerné.
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ CHARGE PAR COLONNE ═══ -->
+    <div class="glass-card-premium p-5 sm:p-6 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-border/40">
+        <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+          Ma charge par étape
+        </h2>
+        <span class="text-[11px] font-bold text-muted-foreground">{{ total() }} commande(s)</span>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        <a *ngFor="let c of colonnes()" routerLink="/production"
+           class="p-3.5 rounded-2xl border border-border/50 bg-card hover:shadow-sm transition-shadow">
+          <div class="flex items-center gap-1.5 mb-1.5">
+            <span class="w-2 h-2 rounded-full shrink-0" [style.background]="'hsl(' + c.couleur + ')'"></span>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-muted-foreground truncate">
+              {{ c.titre }}
+            </span>
+          </div>
+          <p class="text-2xl font-black tabular-nums" [style.color]="'hsl(' + c.couleur + ')'">
+            {{ c.commandes.length }}
+          </p>
+        </a>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+      <!-- ═══ À TRAITER EN PRIORITÉ ═══ -->
+      <div class="glass-card-premium p-5 sm:p-6 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-border/40">
+          <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+            À traiter en priorité
+          </h2>
+          <a routerLink="/production" class="text-[11px] font-bold text-primary hover:underline">
+            Le tableau →
+          </a>
+        </div>
+
+        <div *ngIf="aTraiter().length === 0" class="py-8 text-center">
+          <span class="text-2xl">✅</span>
+          <p class="text-xs text-muted-foreground mt-2">Aucune commande ne vous est confiée.</p>
+        </div>
+
+        <div *ngFor="let o of aTraiter()"
+             class="p-3.5 rounded-2xl border border-border/50 bg-card space-y-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="font-mono text-xs font-black text-foreground">{{ o.orderNumber }}</span>
+            <span class="text-[9px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded-md"
+                  [ngClass]="prioriteClass(o.priorite)">
+              {{ o.priorite }}
+            </span>
+            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-md ml-auto shrink-0"
+                  [style.background]="'hsl(' + couleurDe(o.stage) + ' / 0.12)'"
+                  [style.color]="'hsl(' + couleurDe(o.stage) + ')'">
+              {{ titreDe(o.stage) }}
+            </span>
+          </div>
+
+          <p class="text-xs font-semibold text-foreground truncate">{{ projetsLabel(o) }}</p>
+
+          <div class="flex items-center gap-3 text-[10.5px] text-muted-foreground">
+            <span>{{ cartesDe(o) }} carte(s)</span>
+            <span>· {{ joursEnFile(o) }} j en file</span>
+            <span *ngIf="o.shipping?.method === 'EXPRESS'" class="font-bold" style="color:hsl(var(--accent))">
+              · ⚡ Express
+            </span>
+          </div>
+
+          <!-- Avancement dans le flux -->
+          <div class="h-1.5 w-full rounded-full overflow-hidden" style="background:hsl(var(--secondary))">
+            <div class="h-full rounded-full transition-all duration-700"
+                 [style.background]="'hsl(' + couleurDe(o.stage) + ')'"
+                 [style.width.%]="avancement(o.stage)"></div>
+          </div>
+
+          <a *ngIf="premierProjet(o)"
+             [routerLink]="['/production', o.id, 'kitting']"
+             [queryParams]="{ projet: premierProjet(o) }"
+             class="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+            Préparer les bobines →
+          </a>
+        </div>
+      </div>
+
+      <!-- ═══ BOBINES SUR MACHINE ═══ -->
+      <div class="glass-card-premium p-5 sm:p-6 space-y-3">
+        <div class="flex items-center justify-between pb-2 border-b border-border/40">
+          <div>
+            <h2 class="text-sm font-black text-foreground" style="font-family:'Outfit',sans-serif">
+              Bobines sur machine
+            </h2>
+            <p class="text-[11px] text-muted-foreground mt-0.5">
+              Tous projets confondus · {{ piecesImmobilisees() | number }} pièce(s) immobilisée(s)
+            </p>
+          </div>
+          <a routerLink="/stock/reels" class="text-[11px] font-bold text-primary hover:underline shrink-0">
+            Les bobines →
+          </a>
+        </div>
+
+        <div *ngIf="enMachine().length === 0" class="py-8 text-center">
+          <span class="text-2xl">🟢</span>
+          <p class="text-xs text-muted-foreground mt-2">Aucune bobine sur une machine — tout est rendu.</p>
+        </div>
+
+        <div *ngFor="let l of enMachine()"
+             class="p-3.5 rounded-2xl border bg-card flex items-center gap-3"
+             [style.border-color]="joursEnMachine(l) >= 2 ? 'hsl(var(--destructive)/0.35)' : 'hsl(var(--border)/0.5)'">
+          <div class="min-w-0 flex-1 space-y-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-mono text-xs font-black text-foreground">#{{ l.serialnumber }}</span>
+              <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md"
+                    [style.background]="joursEnMachine(l) >= 2 ? 'hsl(var(--destructive)/0.12)' : 'hsl(var(--accent)/0.12)'"
+                    [style.color]="joursEnMachine(l) >= 2 ? 'hsl(var(--destructive))' : 'hsl(var(--accent))'">
+                ⏱ {{ joursEnMachine(l) }} j
+              </span>
+            </div>
+            <p class="text-[11px] text-muted-foreground truncate">
+              {{ l.componentMpn || '—' }}
+              <span *ngIf="l.blockingProjetNom"> · {{ l.blockingProjetNom }}</span>
+            </p>
+          </div>
+          <span class="text-xs font-black text-foreground shrink-0 tabular-nums">
+            {{ l.quantityForProject | number }} pcs
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </ng-container>
+</div>

@@ -1,0 +1,133 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📚</span>
+        <h1 class="page-title-premium">
+          Base de Connaissances de l'Assistant IA
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Ces entrées enrichissent dynamiquement les réponses de l'assistant sans redéploiement
+      </p>
+    </div>
+    <div class="relative z-10">
+      <button (click)="startCreate()" class="btn-primary gap-2 text-xs py-2.5 px-4 rounded-xl font-bold">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Nouvelle entrée</span>
+      </button>
+    </div>
+  </div>
+
+  <p *ngIf="errorMessage" class="text-[11px] text-rose-500 font-medium">{{ errorMessage }}</p>
+
+  <!-- Formulaire -->
+  <div *ngIf="editing" class="rounded-2xl border border-blue-500/30 bg-white dark:bg-slate-900 shadow-sm p-5 space-y-4">
+    <h2 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+      {{ editing.id ? 'Modifier' : 'Nouvelle entrée' }}
+    </h2>
+
+    <div class="space-y-1.5">
+      <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Titre</label>
+      <input [(ngModel)]="editing.title" type="text" placeholder="Ex. Politique de remboursement"
+             class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all">
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Contenu</label>
+      <textarea [(ngModel)]="editing.content" rows="7"
+                placeholder="Rédigez l'information que l'assistant doit connaître…"
+                class="w-full resize-y px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 leading-relaxed focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all"></textarea>
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Mots-clés (séparés par des virgules)</label>
+      <input [(ngModel)]="tagsInput" type="text" placeholder="facturation, devis, paiement"
+             class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500 transition-all">
+    </div>
+
+    <div class="space-y-1.5">
+      <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        Rôles concernés <span class="font-normal normal-case text-slate-400">— aucun sélectionné = visible par tous</span>
+      </label>
+      <div class="flex flex-wrap gap-1.5">
+        <button *ngFor="let role of allRoles" (click)="toggleRole(role)"
+                [ngClass]="editing.roles.includes(role)
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-slate-50 dark:bg-slate-950 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'"
+                class="px-2.5 py-1 rounded-lg border text-[10px] font-bold transition-all cursor-pointer">
+          {{ role }}
+        </button>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 pt-1">
+      <button (click)="save()" [disabled]="saving || !editing.title.trim() || !editing.content.trim()"
+              class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold shadow-md transition-all cursor-pointer">
+        {{ saving ? 'Enregistrement…' : 'Enregistrer' }}
+      </button>
+      <button (click)="cancel()"
+              class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all cursor-pointer">
+        Annuler
+      </button>
+    </div>
+  </div>
+
+  <!-- Liste -->
+  <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm p-5">
+    <div *ngIf="loading" class="flex justify-center py-10">
+      <div class="w-8 h-8 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+    </div>
+
+    <div *ngIf="!loading && !entries.length" class="text-center py-12 space-y-2">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xl">📭</div>
+      <p class="text-xs text-slate-500 dark:text-slate-400">Aucune entrée pour l'instant.</p>
+      <p class="text-[11px] text-slate-400">
+        L'assistant s'appuie déjà sur la connaissance générée depuis le code.
+        Ajoutez ici ce qu'il ne peut pas deviner : politiques, procédures internes, FAQ.
+      </p>
+    </div>
+
+    <div *ngIf="!loading && entries.length" class="space-y-2.5">
+      <div *ngFor="let entry of entries"
+           class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0 flex-1">
+            <p class="text-xs font-black text-slate-900 dark:text-white">{{ entry.title }}</p>
+            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">{{ entry.content }}</p>
+            <div class="flex flex-wrap items-center gap-1.5 mt-2">
+              <span *ngFor="let tag of entry.tags"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                {{ tag }}
+              </span>
+              <span *ngFor="let role of entry.roles"
+                    class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                {{ role }}
+              </span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button (click)="startEdit(entry)" title="Modifier"
+                    class="w-7 h-7 rounded-lg text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 hover:text-blue-600 flex items-center justify-center transition-all cursor-pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </button>
+            <button (click)="remove(entry)" title="Supprimer"
+                    class="w-7 h-7 rounded-lg text-slate-400 hover:bg-rose-500/10 hover:text-rose-500 flex items-center justify-center transition-all cursor-pointer">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

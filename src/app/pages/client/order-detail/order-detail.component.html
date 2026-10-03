@@ -1,0 +1,139 @@
+<div class="space-y-8 animate-fade-up">
+  <!-- ═══ CLIENT "WOW" HERO HEADER ═══ -->
+  <div class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">
+        📦
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <a routerLink="/client/orders" class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors font-medium mr-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+            Retour
+          </a>
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Suivi Commande
+          </span>
+        </div>
+        <div class="flex items-center gap-3 flex-wrap">
+          <h1 class="client-header-title">
+            Commande {{order.ref}}
+          </h1>
+          <span class="client-header-chip font-bold text-primary">
+            <span class="client-chip-dot bg-primary"></span>
+            {{order.status}}
+          </span>
+        </div>
+        <p class="text-xs text-muted-foreground font-medium">
+          Détails contractuels, jalons de production et expédition.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Order Info -->
+    <div class="glass-card rounded-xl">
+      <div class="p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Informations</h3>
+      </div>
+      <div class="p-6 pt-0 mt-4">
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-muted-foreground">Référence</p>
+            <p class="text-foreground font-medium">{{order.ref}}</p>
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">Date</p>
+            <p class="text-foreground">{{order.date}}</p>
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">Montant</p>
+            <p class="text-primary font-bold text-xl">{{order.amount}} TND</p>
+          </div>
+          <div>
+            <p class="text-sm text-muted-foreground">Adresse de livraison</p>
+            <p class="text-foreground text-sm">{{order.adresse}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="glass-card rounded-xl lg:col-span-2">
+      <div class="p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Suivi de la commande</h3>
+      </div>
+      <div class="p-6 pt-0 mt-4">
+        <div class="relative">
+          <div *ngFor="let step of timeline; let index = index; let isLast = last" class="flex items-start mb-8 last:mb-0">
+            <!-- Line connector -->
+            <div *ngIf="!isLast" class="absolute left-5 top-12 w-0.5 h-16" [ngClass]="step.completed ? 'bg-success' : 'bg-border'"></div>
+            
+            <!-- Status indicator -->
+            <div class="relative z-10">
+              <div
+                class="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+                [ngClass]="step.completed ? 'bg-success text-success-foreground shadow-lg shadow-success/30' : (index === currentStepIndex ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30 animate-pulse' : 'bg-secondary text-muted-foreground')"
+              >
+                <ng-container *ngIf="step.completed; else notCompletedTpl">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><polyline points="20 6 9 17 4 12"/></svg>
+                </ng-container>
+                <ng-template #notCompletedTpl>{{index + 1}}</ng-template>
+              </div>
+            </div>
+            
+            <!-- Status info -->
+            <div class="ml-4 flex-1">
+              <p class="font-medium" [ngClass]="step.completed || index === currentStepIndex ? 'text-foreground' : 'text-muted-foreground'">
+                {{step.status}}
+              </p>
+              <p *ngIf="step.date" class="text-sm text-muted-foreground mt-1">{{step.date}}</p>
+              <div *ngIf="index === currentStepIndex && !step.completed" class="mt-2">
+                <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-warning text-warning-foreground">En cours</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="glass-card rounded-xl lg:col-span-3">
+      <div class="p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Documents</h3>
+      </div>
+      <div class="p-6 pt-0 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div *ngFor="let doc of documents" class="p-4 bg-secondary rounded-lg hover:bg-secondary/70 transition-colors">
+            <div class="flex items-start justify-between mb-3">
+              <div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-primary text-primary-foreground">{{doc.type}}</div>
+            </div>
+            <p class="text-sm text-foreground font-medium mb-1">{{doc.name}}</p>
+            <p class="text-xs text-muted-foreground mb-3">{{doc.date}}</p>
+            <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-3 w-full bg-secondary text-secondary-foreground">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 mr-2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+              Télécharger
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Support -->
+    <div class="glass-card rounded-xl lg:col-span-3">
+      <div class="p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Support pour cette commande</h3>
+      </div>
+      <div class="p-6 pt-0 mt-4">
+        <p class="text-muted-foreground mb-4">
+          Besoin d'aide concernant cette commande? Contactez notre équipe support.
+        </p>
+        <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 border border-border">
+          Ouvrir un ticket de support
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

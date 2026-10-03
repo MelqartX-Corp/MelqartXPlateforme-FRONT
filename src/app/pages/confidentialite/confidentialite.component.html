@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-background px-4 py-12">
+  <article class="mx-auto max-w-3xl text-foreground">
+    <!-- En-tête -->
+    <a routerLink="/features" class="mb-8 inline-flex items-center gap-3">
+      <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary">
+        <span class="text-lg font-bold text-primary-foreground">M</span>
+      </span>
+      <span class="text-lg font-semibold">MelqartX</span>
+    </a>
+
+    <h1 class="mb-2 text-3xl font-bold text-primary">Politique de confidentialité</h1>
+    <p class="mb-10 text-sm text-muted-foreground">Dernière mise à jour : {{ miseAJour }}</p>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">1. Qui sommes-nous</h2>
+      <p class="leading-relaxed text-muted-foreground">
+        MelqartX est une plateforme web de gestion de projets de cartes électroniques (PCB et PCBA) :
+        cadrage du besoin, dépôt et analyse des fichiers techniques, devis, commande et suivi de fabrication.
+        Pour toute question relative à vos données, contactez-nous à
+        <a [href]="'mailto:' + contact" class="text-primary underline">{{ contact }}</a>.
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">2. Données que nous collectons</h2>
+      <ul class="list-disc space-y-2 pl-6 leading-relaxed text-muted-foreground">
+        <li><strong class="text-foreground">Informations de compte</strong> : nom, prénom, adresse e-mail et, pour un compte entreprise, les informations de l'organisation et de ses collaborateurs invités.</li>
+        <li><strong class="text-foreground">Données de projet</strong> : cadrage, fichiers techniques déposés (Gerber, nomenclature, fichier de placement, documents), analyses, devis, commandes et factures.</li>
+        <li><strong class="text-foreground">Échanges</strong> : tickets, messages de projet, avis et questions posées à l'assistant.</li>
+        <li><strong class="text-foreground">Données de sécurité</strong> : sessions, appareils de connexion et codes de vérification à usage unique.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">3. Données reçues de Google</h2>
+      <p class="mb-3 leading-relaxed text-muted-foreground">MelqartX utilise les services Google dans deux cas seulement :</p>
+      <ul class="list-disc space-y-3 pl-6 leading-relaxed text-muted-foreground">
+        <li>
+          <strong class="text-foreground">Connexion avec Google</strong> : lorsque vous choisissez de vous connecter avec votre compte Google,
+          nous recevons votre nom, votre adresse e-mail et votre photo de profil (autorisations <em>email</em> et <em>profile</em>).
+          Ces informations servent uniquement à créer votre compte et à vous identifier.
+        </li>
+        <li>
+          <strong class="text-foreground">Google Agenda</strong> : un chef de projet peut, à sa demande, connecter son compte Google.
+          MelqartX utilise alors l'autorisation <em>calendar.events</em> pour créer dans son agenda l'événement d'une réunion
+          planifiée sur la plateforme, avec un lien Google Meet, et y inviter le client concerné.
+          MelqartX ne lit pas les autres événements de l'agenda. Les jetons d'accès sont conservés de manière sécurisée et
+          servent uniquement à créer ces événements.
+        </li>
+      </ul>
+      <p class="mt-4 leading-relaxed text-muted-foreground">
+        L'utilisation et le transfert à toute autre application des informations reçues des API Google respectent les
+        <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener" class="text-primary underline">Règles relatives aux données utilisateur des services d'API Google</a>,
+        y compris les exigences d'utilisation limitée. Les données issues de Google ne sont ni vendues, ni utilisées à des fins
+        publicitaires, ni transmises à des modèles d'intelligence artificielle.
+      </p>
+      <p class="mt-3 leading-relaxed text-muted-foreground">
+        Vous pouvez retirer cet accès à tout moment en déconnectant votre compte Google depuis la plateforme, ou depuis
+        <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener" class="text-primary underline">la page des autorisations de votre compte Google</a>.
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">4. Pourquoi nous utilisons vos données</h2>
+      <ul class="list-disc space-y-2 pl-6 leading-relaxed text-muted-foreground">
+        <li>Gérer votre compte et sécuriser l'accès à la plateforme.</li>
+        <li>Suivre vos projets : analyse des fichiers, vérification des composants, devis, commande, fabrication et livraison.</li>
+        <li>Organiser les réunions avec votre chef de projet et vous informer de l'avancement de vos projets.</li>
+        <li>Établir les contrats et les factures liés à vos commandes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">5. Partage avec des prestataires</h2>
+      <p class="mb-3 leading-relaxed text-muted-foreground">
+        Vos données ne sont jamais vendues. Elles sont traitées par les prestataires techniques nécessaires au fonctionnement du service :
+      </p>
+      <ul class="list-disc space-y-2 pl-6 leading-relaxed text-muted-foreground">
+        <li>Hébergement de l'application et des services : Google Cloud et Firebase Hosting.</li>
+        <li>Base de données : MongoDB Atlas ; stockage des fichiers déposés : Cloudinary.</li>
+        <li>Envoi des e-mails de notification et de vérification.</li>
+        <li>Distributeurs de composants (Mouser, DigiKey) : interrogés avec les seules références des composants, sans donnée personnelle.</li>
+        <li>Fournisseurs de modèles d'intelligence artificielle : pour l'assistant, la question posée et les informations de projet nécessaires à la réponse ; pour le rapport de fabricabilité, les mesures calculées, jamais le fichier d'origine.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">6. Conservation et sécurité</h2>
+      <p class="leading-relaxed text-muted-foreground">
+        Les données sont conservées tant que votre compte est actif, et les factures pendant la durée exigée par la loi.
+        Les échanges sont chiffrés (HTTPS), l'accès est protégé par une vérification en deux étapes, et chaque utilisateur
+        n'accède qu'aux projets qui le concernent.
+      </p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="mb-3 text-xl font-semibold">7. Vos droits</h2>
+      <p class="leading-relaxed text-muted-foreground">
+        Conformément à la législation tunisienne relative à la protection des données personnelles, vous pouvez demander
+        l'accès à vos données, leur rectification ou leur suppression en écrivant à
+        <a [href]="'mailto:' + contact" class="text-primary underline">{{ contact }}</a>.
+      </p>
+    </section>
+
+    <div class="mt-12 border-t border-border pt-6">
+      <a routerLink="/features" class="text-sm font-medium text-primary hover:underline">← Retour à l'accueil</a>
+    </div>
+  </article>
+</div>

@@ -1,0 +1,322 @@
+<div class="max-w-4xl mx-auto space-y-6">
+  <!-- ═══ CLIENT "WOW" HERO HEADER ═══ -->
+  <div class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <div class="client-header-icon-box">
+        ⚡
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Calculateur Express
+          </span>
+        </div>
+        <h1 class="client-header-title">
+          Nouveau Devis {{quoteType === 'pcb' ? 'PCB Nu' : 'PCBA Assemblé'}}
+        </h1>
+        <p class="text-xs text-muted-foreground font-medium">
+          {{quoteType === 'pcb' ? 'Fabrication industrielle de circuits imprimés nus multicouches.' : 'Fabrication et assemblage complet de circuits imprimés avec approvisionnement CMS/BOM.'}}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress indicator -->
+  <div class="glass-card rounded-xl">
+    <div class="p-6">
+      <div class="flex items-center justify-between">
+        <ng-container *ngFor="let s of getStepsArray(); let i = index; let isLast = last">
+          <div class="flex items-center">
+            <div
+              class="w-10 h-10 rounded-full flex items-center justify-center transition-all"
+              [ngClass]="s < step ? 'bg-success text-success-foreground' : (s === step ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground')"
+            >
+              <ng-container *ngIf="s < step; else nrSign">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><polyline points="20 6 9 17 4 12"/></svg>
+              </ng-container>
+              <ng-template #nrSign>{{s}}</ng-template>
+            </div>
+            <span class="ml-2 text-sm" [ngClass]="s === step ? 'text-foreground' : 'text-muted-foreground'">
+              {{getStepLabel(s)}}
+            </span>
+          </div>
+          <div *ngIf="!isLast" class="flex-1 h-1 mx-4" [ngClass]="s < step ? 'bg-success' : 'bg-secondary'"></div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step content -->
+  <div class="glass-card rounded-xl">
+    <!-- PCB Steps -->
+    <ng-container *ngIf="quoteType === 'pcb' && step === 1">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Upload fichiers Gerber</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="border-2 border-dashed border-border rounded-lg p-10 text-center hover:border-primary/50 transition-colors cursor-pointer bg-secondary/50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10 text-muted-foreground mx-auto mb-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <p class="text-foreground font-medium">Fichiers Gerber</p>
+          <p class="text-sm text-muted-foreground mt-1 mb-4">Format accepté: ZIP, RAR (contenant les fichiers Gerber)</p>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-3 border border-border">Parcourir</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="quoteType === 'pcb' && step === 2">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Paramètres PCB</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Longueur (mm)</label>
+              <input type="number" [(ngModel)]="formData.longueur" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" placeholder="100" />
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Largeur (mm)</label>
+              <input type="number" [(ngModel)]="formData.largeur" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" placeholder="100" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Nombre de couches</label>
+              <select [(ngModel)]="formData.nbCouches" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                <option value="1">1 couche</option>
+                <option value="2">2 couches</option>
+                <option value="4">4 couches</option>
+                <option value="6">6 couches</option>
+              </select>
+            </div>
+            <div class="space-y-2">
+              <label class="text-sm font-medium leading-none">Épaisseur (mm)</label>
+              <select [(ngModel)]="formData.epaisseur" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+                <option value="0.8">0.8 mm</option>
+                <option value="1.6">1.6 mm</option>
+                <option value="2.0">2.0 mm</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none">Finition de surface</label>
+            <select [(ngModel)]="formData.finitionSurface" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+              <option value="HASL">HASL (Hot Air Solder Leveling)</option>
+              <option value="ENIG">ENIG (Electroless Nickel Immersion Gold)</option>
+              <option value="OSP">OSP (Organic Solderability Preservative)</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none">Couleur solder mask</label>
+            <select [(ngModel)]="formData.couleurMask" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background">
+              <option value="Vert">Vert</option>
+              <option value="Rouge">Rouge</option>
+              <option value="Bleu">Bleu</option>
+              <option value="Noir">Noir</option>
+              <option value="Blanc">Blanc</option>
+              <option value="Jaune">Jaune</option>
+            </select>
+          </div>
+
+          <div class="space-y-2">
+            <label class="text-sm font-medium leading-none">Quantité</label>
+            <input type="number" [(ngModel)]="formData.quantite" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background" placeholder="10" />
+          </div>
+
+          <div>
+            <label class="block text-sm text-foreground mb-3 font-medium">Délai de fabrication</label>
+            <div class="grid grid-cols-3 gap-4">
+              <button
+                type="button"
+                (click)="setDelai('standard')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.delai === 'standard' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium capitalize">Standard</p>
+                <p class="text-xs text-muted-foreground mt-1">10-15 jours</p>
+              </button>
+              <button
+                type="button"
+                (click)="setDelai('express')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.delai === 'express' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium capitalize">Express</p>
+                <p class="text-xs text-muted-foreground mt-1">5-7 jours</p>
+              </button>
+              <button
+                type="button"
+                (click)="setDelai('urgent')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.delai === 'urgent' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium capitalize">Urgent</p>
+                <p class="text-xs text-muted-foreground mt-1">2-3 jours</p>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="(quoteType === 'pcb' && step === 3) || (quoteType === 'pcba' && step === 4)">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Résumé du devis</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="space-y-6">
+          <div class="bg-secondary p-6 rounded-lg space-y-4">
+            <div class="flex justify-between items-center pb-4 border-b border-border">
+              <span class="text-muted-foreground">Coût fabrication</span>
+              <span class="text-foreground font-medium">{{prices.fabrication | number:'1.2-2'}} TND</span>
+            </div>
+            <div class="flex justify-between items-center pb-4 border-b border-border">
+              <span class="text-muted-foreground">Coût livraison</span>
+              <span class="text-foreground font-medium">{{prices.livraison | number:'1.2-2'}} TND</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-lg text-foreground">Prix total</span>
+              <span class="text-2xl text-primary font-bold">{{prices.total | number:'1.2-2'}} TND</span>
+            </div>
+          </div>
+
+          <div class="bg-secondary p-4 rounded-lg">
+            <p class="text-sm text-muted-foreground mb-2">Délai estimé</p>
+            <p class="text-foreground font-medium">
+              <ng-container *ngIf="formData.delai === 'standard'">10-15 jours</ng-container>
+              <ng-container *ngIf="formData.delai === 'express'">5-7 jours</ng-container>
+              <ng-container *ngIf="formData.delai === 'urgent'">2-3 jours</ng-container>
+            </p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- PCBA Steps -->
+    <ng-container *ngIf="quoteType === 'pcba' && step === 1">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Upload BOM (Bill of Materials)</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="border-2 border-dashed border-border rounded-lg p-10 text-center hover:border-primary/50 transition-colors cursor-pointer bg-secondary/50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10 text-muted-foreground mx-auto mb-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <p class="text-foreground font-medium">Fichier BOM</p>
+          <p class="text-sm text-muted-foreground mt-1 mb-4">Format accepté: CSV, Excel (XLSX, XLS)</p>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-3 border border-border">Parcourir</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="quoteType === 'pcba' && step === 2">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Upload Pick & Place</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="border-2 border-dashed border-border rounded-lg p-10 text-center hover:border-primary/50 transition-colors cursor-pointer bg-secondary/50">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-10 w-10 text-muted-foreground mx-auto mb-4"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+          <p class="text-foreground font-medium">Fichier Pick & Place</p>
+          <p class="text-sm text-muted-foreground mt-1 mb-4">Format accepté: CSV, Excel, TXT (coordonnées des composants)</p>
+          <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground h-9 px-3 border border-border">Parcourir</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="quoteType === 'pcba' && step === 3">
+      <div class="mb-4 p-6 border-b border-border">
+        <h3 class="text-card-foreground font-semibold leading-none tracking-tight text-xl">Options d'assemblage</h3>
+      </div>
+      <div class="p-6 pt-0">
+        <div class="space-y-6">
+          <div>
+            <label class="block text-sm text-foreground mb-3 font-medium">Type d'assemblage</label>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <button
+                type="button"
+                (click)="setAssemblyType('SMT')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.assemblyType === 'SMT' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium">SMT</p>
+                <p class="text-xs text-muted-foreground mt-1">Surface Mount Technology</p>
+              </button>
+              <button
+                type="button"
+                (click)="setAssemblyType('THT')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.assemblyType === 'THT' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium">THT</p>
+                <p class="text-xs text-muted-foreground mt-1">Through-Hole Technology</p>
+              </button>
+              <button
+                type="button"
+                (click)="setAssemblyType('MIXTE')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.assemblyType === 'MIXTE' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium">Mixte</p>
+                <p class="text-xs text-muted-foreground mt-1">SMT + THT</p>
+              </button>
+              <button
+                type="button"
+                (click)="setAssemblyType('SIMPLE_FACE')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.assemblyType === 'SIMPLE_FACE' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium">Simple face</p>
+                <p class="text-xs text-muted-foreground mt-1">Un côté seulement</p>
+              </button>
+              <button
+                type="button"
+                (click)="setAssemblyType('DOUBLE_FACE')"
+                class="p-4 rounded-lg border-2 transition-all text-left block"
+                [ngClass]="formData.assemblyType === 'DOUBLE_FACE' ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'"
+              >
+                <p class="text-foreground font-medium">Double face</p>
+                <p class="text-xs text-muted-foreground mt-1">Deux côtés</p>
+              </button>
+            </div>
+          </div>
+
+          <div class="bg-secondary p-6 rounded-lg">
+            <h4 class="text-foreground font-medium mb-4">Analyse des composants</h4>
+            <div class="space-y-2">
+              <div class="flex justify-between">
+                <span class="text-muted-foreground">Composants disponibles</span>
+                <span class="text-success">45/50</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-muted-foreground">Composants manquants</span>
+                <span class="text-warning">5/50</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Navigation buttons -->
+  <div class="flex justify-between">
+    <button
+      class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2 disabled:opacity-50 disabled:pointer-events-none"
+      (click)="handlePrevious()"
+      [disabled]="step === 1"
+    >
+      Précédent
+    </button>
+    
+    <button *ngIf="step < totalSteps; else lastStepBtn" class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors  btn-primary  h-10 px-4 py-2" (click)="handleNext()">
+      Suivant
+    </button>
+    <ng-template #lastStepBtn>
+      <button class="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors  btn-primary  h-10 px-4 py-2" (click)="handleSubmit()">
+        Valider le devis
+      </button>
+    </ng-template>
+  </div>
+</div>

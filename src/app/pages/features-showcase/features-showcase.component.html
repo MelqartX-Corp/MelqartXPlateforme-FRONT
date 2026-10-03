@@ -1,0 +1,554 @@
+<div class="min-h-screen">
+
+  <!-- ══ NAV FLOTTANTE ══ -->
+  <header class="fixed inset-x-0 top-0 z-50 transition-all duration-500"
+          [ngClass]="scrolled ? 'py-2' : 'py-4'">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+      <div class="glass-panel flex items-center justify-between rounded-2xl px-4 sm:px-6 py-3 transition-all duration-500"
+           [ngClass]="scrolled ? 'shadow-elegant' : ''">
+
+        <!-- Logo -->
+        <a routerLink="/features" class="flex h-8 items-center" aria-label="MelqartX">
+          <img src="1000044998.png" alt="MELQARTX" class="h-full w-auto object-contain dark:invert" draggable="false" />
+        </a>
+
+        <!-- Liens de sections -->
+        <nav class="hidden items-center gap-1 md:flex">
+          <button *ngFor="let link of navLinks" type="button" (click)="scrollTo(link.id)"
+                  class="rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+            {{ link.label }}
+          </button>
+        </nav>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-2">
+          <!-- Thème -->
+          <button (click)="theme.toggleTheme()" type="button"
+                  class="chip hairline hidden items-center justify-center rounded-md px-2.5 py-1.5 text-muted-foreground transition-colors hover:text-foreground sm:inline-flex"
+                  [title]="theme.isDarkMode() ? 'Mode clair' : 'Mode sombre'">
+            <svg *ngIf="!theme.isDarkMode()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <svg *ngIf="theme.isDarkMode()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"/>
+              <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+              <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+          </button>
+
+          <!-- Langue -->
+          <button (click)="toggleLang()" type="button" aria-label="Changer de langue"
+                  class="chip hairline hidden items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground sm:inline-flex">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/>
+              <path d="m22 22-5-10-5 10"/><path d="M14 18h6"/>
+            </svg>
+            {{ lang.toUpperCase() }}
+          </button>
+
+          <!-- CTA : connecté → Dashboard, sinon → Connexion / Inscription -->
+          <ng-container *ngIf="auth.isLoggedIn(); else guestNav">
+            <a routerLink="/dashboard"
+               class="btn-primary-sm hidden items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium md:inline-flex">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/>
+              </svg>
+              {{ c.space }}
+            </a>
+          </ng-container>
+          <ng-template #guestNav>
+            <a routerLink="/login"
+               class="btn-ghost hidden whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground md:inline-block">
+              {{ c.signin }}
+            </a>
+            <a routerLink="/register"
+               class="btn-primary-sm hidden whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium md:inline-block">
+              {{ c.signup }}
+            </a>
+          </ng-template>
+
+          <!-- Burger mobile -->
+          <button type="button" (click)="menuOpen = !menuOpen" aria-label="Menu"
+                  class="inline-flex items-center justify-center rounded-md p-2 text-foreground md:hidden">
+            <svg *ngIf="!menuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/>
+            </svg>
+            <svg *ngIf="menuOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Menu mobile -->
+      <div *ngIf="menuOpen" class="glass-panel animate-fade-up mt-2 rounded-2xl p-4 md:hidden">
+        <nav class="flex flex-col">
+          <button *ngFor="let link of navLinks" type="button" (click)="scrollTo(link.id)"
+                  class="rounded-md px-3 py-2.5 text-left text-sm text-muted-foreground transition-colors hover:text-foreground">
+            {{ link.label }}
+          </button>
+          <div class="mt-2 flex items-center gap-2">
+            <button (click)="theme.toggleTheme()" type="button"
+                    class="hairline inline-flex items-center justify-center rounded-md px-3 py-2 text-muted-foreground">
+              <svg *ngIf="!theme.isDarkMode()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+              <svg *ngIf="theme.isDarkMode()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+            </button>
+            <button (click)="toggleLang()" type="button"
+                    class="hairline inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-xs text-muted-foreground">
+              {{ lang.toUpperCase() }}
+            </button>
+            <ng-container *ngIf="auth.isLoggedIn(); else guestNavMobile">
+              <a routerLink="/dashboard" class="btn-primary-sm flex-1 rounded-md px-4 py-2 text-center text-sm font-medium">
+                {{ c.space }}
+              </a>
+            </ng-container>
+            <ng-template #guestNavMobile>
+              <a routerLink="/login" class="btn-ghost flex-1 rounded-md px-4 py-2 text-center text-sm font-medium text-muted-foreground">
+                {{ c.signin }}
+              </a>
+              <a routerLink="/register" class="btn-primary-sm flex-1 rounded-md px-4 py-2 text-center text-sm font-medium">
+                {{ c.signup }}
+              </a>
+            </ng-template>
+          </div>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ══ HERO ══ -->
+    <section id="top" class="relative overflow-hidden pt-36 pb-28 md:pt-48 md:pb-40">
+      <div class="bg-hero absolute inset-0" aria-hidden="true"></div>
+      <div class="grid-bg absolute inset-0" aria-hidden="true"></div>
+      <div class="orb -top-32 left-[calc(50%-260px)] h-[520px] w-[520px] opacity-60"
+           style="background: radial-gradient(circle, hsl(var(--primary) / 0.55), transparent 70%)" aria-hidden="true"></div>
+      <div class="orb -bottom-40 right-0 h-[420px] w-[420px] opacity-40"
+           style="background: radial-gradient(circle, hsl(var(--primary) / 0.40), transparent 70%); animation-delay: -4s" aria-hidden="true"></div>
+
+      <div class="relative mx-auto max-w-5xl px-6 text-center">
+        <!-- Badge -->
+        <div class="chip hairline animate-fade-up inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur">
+          <svg class="text-primary-glow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+          </svg>
+          {{ c.hero.badge }}
+        </div>
+
+        <!-- Titre -->
+        <h1 class="title-hero text-gradient animate-fade-up stagger-1 mt-6">{{ c.hero.title }}</h1>
+
+        <p class="hero-subhead text-soft animate-fade-up stagger-2">{{ c.hero.subhead }}</p>
+
+        <p class="hero-lead animate-fade-up stagger-3 max-w-2xl text-muted-foreground">
+          {{ c.hero.subtitle }}
+        </p>
+
+        <!-- CTAs : connecté → Dashboard, sinon → Inscription / Connexion -->
+        <div class="animate-fade-up stagger-4 mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <ng-container *ngIf="auth.isLoggedIn(); else guestHero">
+            <a routerLink="/dashboard"
+               class="btn-primary group inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+              {{ c.hero.ctaSpace }}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <button type="button" (click)="scrollTo('capabilities')"
+                    class="btn-ghost inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium text-foreground backdrop-blur">
+              {{ c.hero.ctaExplore }}
+            </button>
+          </ng-container>
+          <ng-template #guestHero>
+            <a routerLink="/register"
+               class="btn-primary group inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+              {{ c.hero.cta1 }}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <a routerLink="/login"
+               class="btn-ghost inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium text-foreground backdrop-blur">
+              {{ c.hero.cta2 }}
+            </a>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ L'ENTREPRISE ══ -->
+    <section id="overview" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.overview.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.overview.title }}</h2>
+        </div>
+        <p class="section-lead mx-auto max-w-3xl text-center text-muted-foreground">{{ c.overview.body }}</p>
+      </div>
+    </section>
+
+    <!-- ══ COMPÉTENCES CLÉS ══ -->
+    <section id="capabilities" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.cap.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.cap.title }}</h2>
+        </div>
+
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div *ngFor="let cap of c.cap.items"
+               class="cap-card surface-card hairline group relative overflow-hidden rounded-2xl p-6 backdrop-blur">
+            <div class="cap-icon mb-5 inline-flex h-11 w-11 items-center justify-center rounded-xl">
+              <ng-container [ngSwitch]="cap.iconId">
+                <svg *ngSwitchCase="'circuit-board'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M11 9h4a2 2 0 0 0 2-2V3"/>
+                  <circle cx="9" cy="9" r="2"/><path d="M7 21v-4a2 2 0 0 1 2-2h4"/><circle cx="15" cy="15" r="2"/>
+                </svg>
+                <svg *ngSwitchCase="'cpu'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>
+                  <path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/>
+                  <path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>
+                </svg>
+                <svg *ngSwitchCase="'rocket'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91 0z"/>
+                  <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/>
+                  <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>
+                </svg>
+                <svg *ngSwitchCase="'factory'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/>
+                  <path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/>
+                </svg>
+                <svg *ngSwitchCase="'box'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+                  <path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>
+                </svg>
+                <svg *ngSwitchCase="'lightbulb'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/>
+                  <path d="M9 18h6"/><path d="M10 22h4"/>
+                </svg>
+              </ng-container>
+            </div>
+            <h3 class="title-card text-foreground">{{ cap.title }}</h3>
+            <p class="cap-desc text-muted-foreground">{{ cap.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ POURQUOI MELQARTX ══ -->
+    <section id="why" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.why.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.why.title }}</h2>
+        </div>
+        <p class="section-lead mx-auto max-w-3xl text-center text-muted-foreground">{{ c.why.body }}</p>
+      </div>
+    </section>
+
+    <!-- ══ PROCESSUS ══ -->
+    <section id="process" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.proc.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.proc.title }}</h2>
+        </div>
+
+        <ol class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <li *ngFor="let step of c.proc.steps; let i = index"
+              class="glass-panel relative rounded-2xl p-6 transition-transform hover:-translate-y-0.5">
+            <div class="text-primary-glow text-xs font-medium uppercase tracking-wider">
+              {{ i + 1 | number: '2.0-0' }}
+            </div>
+            <div class="mt-2 text-base font-semibold tracking-tight text-foreground">{{ step }}</div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ══ PRODUCTION & ÉQUIPEMENTS ══ -->
+    <section id="production" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.prod.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.prod.title }}</h2>
+        </div>
+        <p class="section-lead mx-auto max-w-3xl text-center text-muted-foreground">{{ c.prod.body }}</p>
+      </div>
+    </section>
+
+    <!-- ══ INDUSTRIES ══ -->
+    <section id="industries" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.ind.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.ind.title }}</h2>
+        </div>
+        <div class="section-lead mx-auto max-w-3xl text-center text-muted-foreground">{{ c.ind.list }}</div>
+      </div>
+    </section>
+
+    <!-- ══ INNOVATION PHARE ══ -->
+    <section id="navitrack" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.navi.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.navi.title }}</h2>
+        </div>
+        <div class="surface-card hairline mx-auto max-w-3xl rounded-2xl p-8 text-center backdrop-blur md:p-10">
+          <p class="section-lead text-muted-foreground">{{ c.navi.body }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ RESSOURCES ══ -->
+    <section id="resources" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.res.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.res.title }}</h2>
+        </div>
+        <p class="section-lead mx-auto mb-12 max-w-3xl text-center text-muted-foreground">{{ c.res.body }}</p>
+
+        <!-- Thématiques -->
+        <div class="mb-12">
+          <h3 class="title-card mb-5 text-center text-foreground">{{ c.res.catTitle }}</h3>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <span *ngFor="let cat of c.res.cats"
+                  class="surface-card hairline rounded-full px-4 py-2 text-sm text-muted-foreground backdrop-blur">
+              {{ cat }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Articles à venir -->
+        <h3 class="title-card mb-5 text-center text-foreground">{{ c.res.featTitle }}</h3>
+        <ul class="mx-auto grid max-w-4xl gap-3">
+          <li *ngFor="let article of c.res.articles"
+              class="surface-card hairline flex items-center justify-between gap-4 rounded-2xl px-5 py-4 backdrop-blur">
+            <span class="text-sm font-medium text-foreground">{{ article }}</span>
+            <span class="chip hairline shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+              {{ c.res.soon }}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ══ FAQ ══ -->
+    <section id="faq" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.faq.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.faq.title }}</h2>
+        </div>
+
+        <div class="mx-auto grid max-w-3xl gap-3">
+          <div *ngFor="let item of c.faq.items; let i = index"
+               class="surface-card hairline overflow-hidden rounded-2xl backdrop-blur">
+            <button type="button" (click)="toggleFaq(i)" [attr.aria-expanded]="openFaq === i"
+                    class="flex w-full items-center justify-between gap-4 px-6 py-5 text-left">
+              <span class="text-base font-semibold tracking-tight text-foreground">{{ item.q }}</span>
+              <svg class="faq-caret shrink-0 text-muted-foreground" [class.is-open]="openFaq === i"
+                   width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="m6 9 6 6 6-6"/>
+              </svg>
+            </button>
+            <div *ngIf="openFaq === i" class="faq-answer px-6 pb-5 text-sm leading-relaxed text-muted-foreground">
+              {{ item.a }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CONTACT ══ -->
+    <section id="contact" class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="mx-auto mb-14 max-w-2xl text-center">
+          <div class="chip hairline mb-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {{ c.contact.kicker }}
+          </div>
+          <h2 class="title-section text-gradient">{{ c.contact.title }}</h2>
+        </div>
+        <p class="section-lead mx-auto mb-12 max-w-3xl text-center text-muted-foreground">{{ c.contact.subtitle }}</p>
+
+        <div class="grid gap-6 lg:grid-cols-5">
+          <!-- Coordonnées -->
+          <div class="grid gap-3 lg:col-span-2">
+            <a [href]="'mailto:' + contactInfo.email"
+               class="surface-card hairline flex items-center gap-4 rounded-2xl p-4 link-card backdrop-blur transition-colors">
+              <span class="cap-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                </svg>
+              </span>
+              <span>
+                <span class="block text-xs uppercase tracking-wider text-muted-foreground">{{ c.contact.labels.email }}</span>
+                <span class="block text-sm font-medium text-foreground">{{ contactInfo.email }}</span>
+              </span>
+            </a>
+
+            <a [href]="'tel:' + contactInfo.phone.split(' ').join('')"
+               class="surface-card hairline flex items-center gap-4 rounded-2xl p-4 link-card backdrop-blur transition-colors">
+              <span class="cap-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+              </span>
+              <span>
+                <span class="block text-xs uppercase tracking-wider text-muted-foreground">{{ c.contact.labels.phone }}</span>
+                <span class="block text-sm font-medium text-foreground">{{ contactInfo.phone }}</span>
+              </span>
+            </a>
+
+            <div class="surface-card hairline flex items-center gap-4 rounded-2xl p-4 backdrop-blur">
+              <span class="cap-icon inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>
+                </svg>
+              </span>
+              <span>
+                <span class="block text-xs uppercase tracking-wider text-muted-foreground">{{ c.contact.labels.address }}</span>
+                <span class="block text-sm font-medium text-foreground">{{ contactInfo.address }}</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Engagement + actions -->
+          <div class="surface-card hairline flex flex-col justify-between gap-8 rounded-2xl p-8 backdrop-blur lg:col-span-3 md:p-10">
+            <div>
+              <h3 class="title-card text-foreground">{{ c.contact.infoTitle }}</h3>
+              <p class="cap-desc text-muted-foreground">{{ c.contact.commit }}</p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row">
+              <ng-container *ngIf="auth.isLoggedIn(); else guestContact">
+                <a routerLink="/dashboard"
+                   class="btn-primary inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+                  {{ c.contact.quote }}
+                </a>
+              </ng-container>
+              <ng-template #guestContact>
+                <a routerLink="/register"
+                   class="btn-primary inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+                  {{ c.contact.quote }}
+                </a>
+              </ng-template>
+              <a [href]="'mailto:' + contactInfo.email"
+                 class="btn-ghost inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium text-foreground">
+                {{ c.contact.cta }}
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ CTA FINAL ══ -->
+    <section class="relative py-24 md:py-32">
+      <div class="mx-auto max-w-4xl px-6 text-center">
+        <h2 class="title-section text-gradient">{{ c.final.title }}</h2>
+        <p class="section-lead is-spaced max-w-2xl text-muted-foreground">{{ c.final.body }}</p>
+        <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+          <ng-container *ngIf="auth.isLoggedIn(); else guestCta">
+            <a routerLink="/dashboard"
+               class="btn-primary group inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+              {{ c.space }}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+          </ng-container>
+          <ng-template #guestCta>
+            <a routerLink="/register"
+               class="btn-primary group inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium">
+              {{ c.hero.cta2 }}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:translate-x-0.5">
+                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+              </svg>
+            </a>
+            <a routerLink="/login"
+               class="btn-ghost inline-flex items-center justify-center gap-2 rounded-md px-6 py-3 text-sm font-medium text-foreground">
+              {{ c.signin }}
+            </a>
+          </ng-template>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ══ FOOTER ══ -->
+  <footer class="bg-deep hairline-t relative py-14">
+    <div class="mx-auto grid max-w-6xl gap-10 px-6 md:grid-cols-3">
+      <div>
+        <img src="1000044998.png" alt="MELQARTX" class="h-7 w-auto object-contain dark:invert" />
+        <p class="footer-tagline max-w-xs text-muted-foreground">{{ c.footer.tagline }}</p>
+      </div>
+
+      <div>
+        <div class="text-xs font-medium uppercase tracking-wider text-muted-foreground">{{ c.footer.links }}</div>
+        <ul class="mt-4 space-y-2 text-sm">
+          <li *ngFor="let link of navLinks">
+            <button type="button" (click)="scrollTo(link.id)"
+                    class="text-muted-foreground transition-colors hover:text-foreground">
+              {{ link.label }}
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="text-xs font-medium uppercase tracking-wider text-muted-foreground">{{ c.footer.space }}</div>
+        <ul class="mt-4 space-y-2 text-sm">
+          <ng-container *ngIf="auth.isLoggedIn(); else guestFooter">
+            <li>
+              <a routerLink="/dashboard" class="text-primary-glow font-semibold transition-colors hover:text-foreground">
+                {{ c.space }}
+              </a>
+            </li>
+          </ng-container>
+          <ng-template #guestFooter>
+            <li><a routerLink="/login" class="text-muted-foreground transition-colors hover:text-foreground">{{ c.signin }}</a></li>
+            <li><a routerLink="/register" class="text-muted-foreground transition-colors hover:text-foreground">{{ c.signup }}</a></li>
+            <li><a routerLink="/register-enterprise" class="text-muted-foreground transition-colors hover:text-foreground">Entreprise</a></li>
+          </ng-template>
+        </ul>
+      </div>
+    </div>
+
+    <div class="hairline-t-faint mx-auto mt-10 max-w-6xl px-6 pt-6 text-center text-xs text-muted-foreground">
+      © {{ year }} MelqartX. {{ c.footer.rights }}
+      · <a routerLink="/confidentialite" class="transition-colors hover:text-foreground">Politique de confidentialité</a>
+    </div>
+  </footer>
+
+</div>

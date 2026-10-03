@@ -1,0 +1,314 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10">
+      <h1 class="page-title-premium">Catalogue de composants</h1>
+      <p class="text-sm text-muted-foreground mt-1 font-medium">Référentiel des composants électroniques</p>
+    </div>
+    <button (click)="openCreate()" class="btn-primary gap-2 relative z-10">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Ajouter
+    </button>
+  </div>
+
+  <!-- ═══ Search & Filters ═══ -->
+  <div class="search-panel">
+    <div class="p-5 space-y-4">
+      <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div class="relative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40 transition-colors"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="input-base text-xs pl-9 w-full" placeholder="Fabricant..." [(ngModel)]="filterManufacturer" (keyup.enter)="search()"/>
+        </div>
+        <div class="relative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="input-base text-xs pl-9 w-full" placeholder="MPN..." [(ngModel)]="filterMpn" (keyup.enter)="search()"/>
+        </div>
+        <div class="relative">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/40"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="input-base text-xs pl-9 w-full" placeholder="Package..." [(ngModel)]="filterPackage" (keyup.enter)="search()"/>
+        </div>
+        <div>
+          <select class="input-base text-xs w-full py-2.5 px-3" [(ngModel)]="filterCategory" (change)="onFilterCategoryChange()">
+            <option value="">Toutes les catégories</option>
+            <option *ngFor="let cat of categoryKeys" [value]="cat">
+              {{ classification[cat].label }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <select class="input-base text-xs w-full py-2.5 px-3" [(ngModel)]="filterSubCategory" (change)="search()" [disabled]="!filterCategory">
+            <option value="">Toutes les sous-catégories</option>
+            <option *ngFor="let sub of getSubCategoriesFor(filterCategory || undefined)" [value]="sub.key">
+              {{ sub.label }}
+            </option>
+          </select>
+        </div>
+        <button (click)="search()" class="btn-primary text-xs py-2.5 gap-2">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Rechercher
+        </button>
+      </div>
+
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <span class="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Montage :</span>
+          <div class="flex gap-1 p-0.5 rounded-xl border border-border/30" style="background:hsl(var(--secondary)/0.4)">
+            <button (click)="filterMount = ''; search()" class="px-3.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                    [class]="filterMount === '' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'">Tous</button>
+            <button (click)="filterMount = 'SMD'; search()" class="px-3.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                    [class]="filterMount === 'SMD' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'">SMD</button>
+            <button (click)="filterMount = 'THT'; search()" class="px-3.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                    [class]="filterMount === 'THT' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'">THT</button>
+            <button (click)="filterMount = 'MIXTE'; search()" class="px-3.5 py-1.5 rounded-lg text-[11px] font-semibold transition-all duration-200"
+                    [class]="filterMount === 'MIXTE' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'">Mixte</button>
+          </div>
+        </div>
+        <button *ngIf="hasActiveFilter" (click)="clearFilters()"
+                class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all hover:bg-destructive/10"
+                style="color:hsl(var(--destructive))">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Effacer les filtres
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" style="background:hsl(var(--destructive)/0.12)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    </div>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12">
+      <div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div>
+      <div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div>
+    </div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement du catalogue…</p>
+  </div>
+
+  <!-- ═══ Component Cards Grid ═══ -->
+  <div *ngIf="!loading">
+    <div class="flex items-center justify-between mb-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--primary)/0.1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--primary))"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+        </div>
+        <h3 class="font-semibold text-foreground">Catalogue</h3>
+      </div>
+      <span class="badge-glow-primary">{{ totalElements }} composant(s)</span>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div *ngFor="let c of components; let i = index"
+           class="cat-card group"
+           [class]="'stagger-' + ((i % 8) + 1)"
+           (click)="navigateToDetail(c)">
+
+        <!-- Image area: clean, white background, object-contain -->
+        <div class="cat-card-img-wrap">
+          <img *ngIf="c.imageUrl" [src]="c.imageUrl" [alt]="c.mpn" class="cat-card-img"/>
+          <div *ngIf="!c.imageUrl" class="cat-card-img-placeholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.3)"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/></svg>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="cat-card-body">
+          <!-- Manufacturer -->
+          <div class="flex items-center gap-2 mb-1.5">
+            <div class="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-[8px] font-black uppercase"
+                 style="background:hsl(var(--primary)/0.1);color:hsl(var(--primary))">
+              {{ c.manufacturer.substring(0,2) }}
+            </div>
+            <span class="text-[10px] font-bold text-muted-foreground uppercase tracking-wider truncate">{{ c.manufacturer }}</span>
+          </div>
+          <!-- MPN -->
+          <h4 class="font-mono text-sm font-bold text-foreground leading-tight">{{ c.mpn }}</h4>
+
+
+          <!-- Badges -->
+          <div class="flex items-center gap-1.5 mt-3 flex-wrap">
+            <span *ngIf="c.mountType" class="text-[9px] font-bold px-2 py-0.5 rounded-md"
+                  [class]="c.mountType === 'SMD' ? 'badge-glow-primary' : c.mountType === 'THT' ? 'badge-glow-accent' : 'badge-glow-warning'">
+              {{ c.mountType }}
+            </span>
+            <span *ngIf="c.packageType" class="text-[9px] font-semibold px-2 py-0.5 rounded-md" style="background:hsl(var(--secondary)/0.6)">{{ c.packageType }}</span>
+            <span *ngIf="c.mslLevel" class="text-[9px] font-bold px-2 py-0.5 rounded-md" [style.background]="mslBg(c.mslLevel)" [style.color]="mslColor(c.mslLevel)">
+              MSL {{ c.mslLevel }}
+            </span>
+            <span *ngIf="c.category" class="text-[9px] font-semibold px-2 py-0.5 rounded-md text-foreground/80" style="background:hsl(var(--primary)/0.08)" [title]="classification[c.category].label + ' / ' + (c.subCategory ? classification[c.category].subCategories[c.subCategory] : '')">
+              {{ c.subCategory ? classification[c.category].subCategories[c.subCategory] : classification[c.category].label }}
+            </span>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex items-center justify-end gap-1 mt-3 pt-2 border-t" style="border-color:hsl(var(--border)/0.2)">
+            <button (click)="openEdit(c); $event.stopPropagation()" class="btn-icon w-8 h-8" title="Modifier" style="color:hsl(var(--primary))">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button (click)="confirmDelete(c.id); $event.stopPropagation()" class="btn-icon w-8 h-8" title="Supprimer" style="color:hsl(var(--destructive))">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="components.length === 0" class="glass-card-premium rounded-2xl">
+      <div class="empty-state-premium">
+        <div class="empty-icon">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.5)">
+            <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/>
+          </svg>
+        </div>
+        <p class="empty-title">Aucun composant trouvé</p>
+        <p class="empty-subtitle">Ajoutez votre premier composant ou ajustez les filtres</p>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="totalElements > pageSize" class="pagination-premium mt-4">
+      <button (click)="prevPage()" [disabled]="currentPage === 0" class="page-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Précédent
+      </button>
+      <span class="page-info">Page {{ currentPage + 1 }} sur {{ totalPages }}</span>
+      <button (click)="nextPage()" [disabled]="(currentPage + 1) * pageSize >= totalElements" class="page-btn">
+        Suivant
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ Create/Edit Modal ═══ -->
+  <div *ngIf="showModal" class="modal-overlay-premium" (click)="closeModal()">
+    <div class="modal-content-premium max-w-lg" (click)="$event.stopPropagation()">
+      <div class="card-header-premium">
+        <h3 class="font-semibold text-lg text-foreground">{{ isEditing ? 'Modifier le composant' : 'Ajouter un composant' }}</h3>
+        <button (click)="closeModal()" class="btn-icon w-8 h-8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="card-body space-y-4">
+        <!-- Image upload -->
+        <div class="space-y-2">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Image du composant</label>
+          <div class="flex items-center gap-4">
+            <div class="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-dashed flex items-center justify-center shrink-0"
+                 style="border-color:hsl(var(--border)/0.5);background:hsl(var(--secondary)/0.2)">
+              <img *ngIf="imagePreview" [src]="imagePreview" class="w-full h-full object-contain"/>
+              <svg *ngIf="!imagePreview" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--muted-foreground)/0.3)"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <!-- Bouton supprimer image -->
+              <button *ngIf="imagePreview" (click)="clearImage()" type="button"
+                      class="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full flex items-center justify-center shadow-sm transition-all hover:scale-110"
+                      style="background:hsl(var(--destructive));color:#fff" title="Retirer l'image">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+            <div class="flex-1">
+              <label class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition-all hover:shadow-sm"
+                     style="background:hsl(var(--primary)/0.08);color:hsl(var(--primary))">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Choisir une image
+                <input type="file" accept="image/jpeg,image/png,image/webp" class="hidden" (change)="onFileSelected($event)"/>
+              </label>
+              <p class="text-[10px] text-muted-foreground/60 mt-1">JPG, PNG ou WebP (max 2 MB)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fabricant *</label><input class="input-base" placeholder="Texas Instruments" [(ngModel)]="form.manufacturer"/></div>
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MPN *</label><input class="input-base" placeholder="LM358DR" [(ngModel)]="form.mpn"/></div>
+        </div>
+        <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Description</label><input class="input-base" placeholder="Op-amp dual, general purpose" [(ngModel)]="form.description"/></div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Package</label><input class="input-base" placeholder="SOIC-8" [(ngModel)]="form.packageType"/></div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Montage</label>
+            <select class="input-base" [(ngModel)]="form.mountType"><option [ngValue]="undefined">—</option><option value="SMD">SMD</option><option value="THT">THT</option><option value="MIXTE">MIXTE</option></select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">MSL</label>
+            <select class="input-base" [(ngModel)]="form.mslLevel"><option [ngValue]="undefined">—</option><option [ngValue]="1">1</option><option [ngValue]="2">2</option><option [ngValue]="3">3</option><option [ngValue]="4">4</option><option [ngValue]="5">5</option><option [ngValue]="6">6</option></select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Catégorie principale</label>
+            <select class="input-base" [(ngModel)]="form.category" (change)="onCategoryChange()">
+              <option [ngValue]="undefined">—</option>
+              <option *ngFor="let cat of categoryKeys" [value]="cat">
+                {{ classification[cat].label }}
+              </option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Sous-catégorie</label>
+            <select class="input-base" [(ngModel)]="form.subCategory" [disabled]="!form.category">
+              <option [ngValue]="undefined">—</option>
+              <option *ngFor="let sub of getSubCategoriesFor(form.category || undefined)" [value]="sub.key">
+                {{ sub.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Seuil min bobines -->
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--warning))"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            Seuil min bobines
+          </label>
+          <div class="flex items-center gap-2">
+            <input type="number" class="input-base w-24" placeholder="0" min="0" [(ngModel)]="form.seuilMinReels"/>
+            <span class="text-[10px] text-muted-foreground/60">Nombre min de bobines (alerte si stock en dessous)</span>
+          </div>
+        </div>
+
+        <div *ngIf="saveError" class="flex items-center gap-2 p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError }}</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button (click)="save()" class="btn-primary flex-1" [disabled]="saving || !form.manufacturer || !form.mpn">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            {{ saving ? 'Enregistrement...' : (isEditing ? 'Enregistrer' : 'Créer') }}
+          </button>
+          <button (click)="closeModal()" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all" 
+        style="background:hsl(var(--destructive)/0.1);color:hsl(var(--destructive));border:1px solid hsl(var(--destructive)/0.25)">
+  Annuler
+</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ Delete Confirm Modal ═══ -->
+  <div *ngIf="showDeleteModal" class="modal-overlay-premium">
+    <div class="modal-content-premium max-w-sm" style="border:1px solid hsl(var(--destructive)/0.25)">
+      <div class="h-1.5 w-full" style="background: linear-gradient(90deg, hsl(var(--destructive)), hsl(var(--destructive)/0.4))"></div>
+      <div class="p-6 space-y-5 text-center">
+        <div class="flex justify-center">
+          <div class="w-16 h-16 rounded-2xl flex items-center justify-center" style="background:hsl(var(--destructive)/0.12)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="color:hsl(var(--destructive))"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          </div>
+        </div>
+        <h3 class="font-bold text-foreground text-xl" style="font-family:'Outfit',sans-serif">Supprimer ce composant ?</h3>
+        <p class="text-sm text-muted-foreground">Cette action est irréversible.</p>
+        <div class="flex gap-2.5 pt-1">
+          <button (click)="cancelDelete()" class="btn-secondary flex-1 text-sm">Annuler</button>
+          <button (click)="doDelete()" [disabled]="deleting" class="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all" style="background:hsl(var(--destructive));color:#fff">
+            {{ deleting ? 'Suppression...' : 'Supprimer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

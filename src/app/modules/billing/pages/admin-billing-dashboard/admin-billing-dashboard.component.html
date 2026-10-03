@@ -1,0 +1,80 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10 space-y-1.5">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📊</span>
+        <h1 class="page-title-premium">
+          Tableau de Bord Financier & Facturation
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold">
+        Indicateurs clés en temps réel de la plateforme MelqartX (Contrats, Factures émises, Encaissements)
+      </p>
+    </div>
+    <div class="relative z-10 flex flex-wrap items-center gap-2.5">
+      <a routerLink="/admin/billing/catalog" class="btn-secondary text-xs py-2.5 px-3.5 rounded-xl font-bold">
+        Catalogue & Prix
+      </a>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-12 text-muted-foreground">Calcul des KPIs financiers...</div>
+  <div *ngIf="error" class="p-4 bg-destructive/10 text-destructive rounded-xl border border-destructive/20">{{ error }}</div>
+
+  <div *ngIf="!loading && !error && data" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="glass-card p-5 rounded-2xl space-y-2">
+      <div class="flex justify-between items-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <span>Valeur Contrats Signés</span>
+        <span class="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg">💼</span>
+      </div>
+      <div class="text-2xl font-bold text-foreground">
+        {{ data.contractValue | number:'1.3-3' }} <span class="text-sm font-normal text-muted-foreground">TND</span>
+      </div>
+      <div class="text-xs text-muted-foreground">{{ data.activeContractsCount }} contrat(s) actif(s)</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-2xl space-y-2">
+      <div class="flex justify-between items-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <span>Total Facturé</span>
+        <span class="p-1.5 bg-purple-500/10 text-purple-500 rounded-lg">📑</span>
+      </div>
+      <div class="text-2xl font-bold text-purple-500">
+        {{ data.totalInvoiced | number:'1.3-3' }} <span class="text-sm font-normal text-muted-foreground">TND</span>
+      </div>
+      <div class="text-xs text-muted-foreground">{{ data.pendingInvoicesCount }} facture(s) en attente</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-2xl space-y-2">
+      <div class="flex justify-between items-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <span>Total Encaissé</span>
+        <span class="p-1.5 bg-emerald-500/10 text-emerald-500 rounded-lg">✅</span>
+      </div>
+      <div class="text-2xl font-bold text-emerald-500">
+        {{ data.totalCollected | number:'1.3-3' }} <span class="text-sm font-normal text-muted-foreground">TND</span>
+      </div>
+      <div class="text-xs text-emerald-500 font-medium">Taux: {{ data.collectionRate }}%</div>
+    </div>
+
+    <div class="glass-card p-5 rounded-2xl space-y-2">
+      <div class="flex justify-between items-center text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+        <span>Reste à Encaisser</span>
+        <span class="p-1.5 bg-amber-500/10 text-amber-500 rounded-lg">⏳</span>
+      </div>
+      <div class="text-2xl font-bold text-amber-500">
+        {{ data.totalOutstanding | number:'1.3-3' }} <span class="text-sm font-normal text-muted-foreground">TND</span>
+      </div>
+      <div class="text-xs text-muted-foreground">À facturer: {{ data.totalToInvoice | number:'1.3-3' }} TND</div>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && !error" class="bg-gradient-to-r from-blue-600 to-indigo-700 text-white rounded-2xl p-6 shadow-sm">
+    <h3 class="text-lg font-bold">Règles Financières MelqartX PCB/PCBA</h3>
+    <ul class="mt-2 text-sm text-blue-100 space-y-1 list-disc list-inside">
+      <li>Échéancier : <strong>50% Tranche 1 (Acompte confirmation)</strong> + <strong>50% Tranche 2 (Solde avant livraison)</strong>.</li>
+      <li>TVA légale : <strong>19%</strong> sur toutes les prestations + <strong>1.000 TND</strong> Timbre fiscal.</li>
+      <li>Immuabilité : Chaque facture émise est un document fiscal certifié avec horodatage et audit complet.</li>
+    </ul>
+  </div>
+</div>

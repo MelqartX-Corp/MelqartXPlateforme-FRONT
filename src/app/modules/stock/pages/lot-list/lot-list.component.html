@@ -1,0 +1,409 @@
+<div class="space-y-6 animate-fade-up">
+
+  <!-- ═══ PREMIUM PAGE HEADER ═══ -->
+  <div class="page-header-premium">
+    <div class="relative z-10">
+      <h1 class="page-title-premium">Lots</h1>
+      <p class="text-sm text-muted-foreground mt-1 font-medium">Réceptions et traçabilité des lots fournisseurs</p>
+    </div>
+    <button (click)="openCreate()" class="btn-primary gap-2 relative z-10" [disabled]="allSuppliers.length === 0" [title]="allSuppliers.length === 0 ? 'Ajoutez un fournisseur d\'abord' : 'Créer un lot'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Nouveau lot
+    </button>
+  </div>
+
+  <div *ngIf="error" class="flex items-center gap-3 p-4 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ error }}</p>
+  </div>
+  <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-4">
+    <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+    <p class="text-sm text-muted-foreground font-medium">Chargement des lots…</p>
+  </div>
+
+  <div *ngIf="!loading" class="glass-card-premium">
+    <div class="card-header-premium">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:hsl(var(--accent)/0.1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--accent))"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        </div>
+        <h3>Lots reçus</h3>
+      </div>
+      <span class="badge-glow-accent">{{ totalElements }}</span>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full data-table-premium">
+        <thead><tr><th>Lot fabricant</th><th>Fournisseur</th><th>Date code</th><th>Statut</th><th>Livré / Attendu</th><th>Dates</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let l of lots; let i = index" class="group animate-fade-in" [class]="'stagger-' + ((i % 8) + 1)">
+            <td>
+              <span class="font-bold text-foreground px-2.5 py-1 rounded-lg text-sm" style="background:hsl(var(--secondary)/0.5)">{{ l.manufacturerLot || '—' }}</span>
+            </td>
+            <td>
+              <span *ngIf="l.supplierName" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium" style="background:hsl(var(--secondary)/0.5)">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-muted-foreground"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+                {{ l.supplierName }}
+              </span>
+              <span *ngIf="!l.supplierName" class="text-xs text-muted-foreground/40">{{ l.supplierId || '—' }}</span>
+            </td>
+            <td>
+              <span *ngIf="l.dateCode" class="badge-glow-primary">{{ l.dateCode }}</span>
+              <span *ngIf="!l.dateCode" class="text-xs text-muted-foreground/40">—</span>
+            </td>
+            <td>
+              <span *ngIf="l.status === 'COMMANDE'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style="background:hsl(var(--warning)/0.12);color:hsl(var(--warning))">
+                <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:hsl(var(--warning))"></span>
+                Commande
+              </span>
+              <span *ngIf="l.status === 'PARTIELLEMENT_RECU'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style="background:hsl(38,92%,50%,0.15);color:hsl(38,92%,50%)">
+                <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background:hsl(38,92%,50%)"></span>
+                Partiel
+              </span>
+              <span *ngIf="l.status === 'RECU'" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style="background:hsl(var(--success)/0.12);color:hsl(var(--success))">
+                <span class="w-1.5 h-1.5 rounded-full" style="background:hsl(var(--success))"></span>
+                Reçu
+              </span>
+            </td>
+            <td>
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="badge-glow-primary text-xs font-semibold">{{ l.totalReceived || 0 }} / {{ l.totalExpected || 0 }}</span>
+                  <span *ngIf="l.receptionProgress != null" class="text-[10px] text-muted-foreground font-mono font-bold">({{ l.receptionProgress }}%)</span>
+                </div>
+                <div *ngIf="l.totalExpected && l.totalExpected > 0" class="w-24 h-1.5 rounded-full bg-secondary/50 overflow-hidden">
+                  <div class="h-full rounded-full transition-all duration-300" [style.width.%]="l.receptionProgress || 0" [style.background]="l.status === 'RECU' ? 'hsl(var(--success))' : 'hsl(var(--primary))'"></div>
+                </div>
+              </div>
+            </td>
+            <td class="text-xs font-medium">
+              <div class="flex flex-col gap-0.5">
+                <span *ngIf="l.status === 'RECU'" class="text-success font-semibold flex items-center gap-1">
+                  ✓ {{ l.receivedDate ? (l.receivedDate | date:'dd/MM/yyyy HH:mm') : 'Reçu' }}
+                </span>
+                <span *ngIf="l.status === 'PARTIELLEMENT_RECU'" class="text-warning flex items-center gap-1 font-medium">
+                  ⏳ 1ère livr: {{ l.firstReceptionDate ? (l.firstReceptionDate | date:'dd/MM/yyyy') : '—' }}
+                </span>
+                <span *ngIf="l.status !== 'RECU'" class="text-muted-foreground flex items-center gap-1 text-[11px]">
+                  Est: {{ l.estimatedDeliveryDate ? (l.estimatedDeliveryDate | date:'dd/MM/yyyy') : '—' }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="flex items-center gap-2">
+                <button *ngIf="l.status !== 'RECU'" (click)="openReceive(l)" class="btn-primary py-1.5 px-3 text-xs gap-1.5 rounded-xl flex items-center" style="background:linear-gradient(135deg,hsl(var(--accent)),hsl(var(--accent)/0.85))" title="Réceptionner">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                  Réceptionner
+                </button>
+                <button (click)="openEdit(l)" class="btn-icon w-8 h-8" title="Modifier" style="color:hsl(var(--primary))">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="lots.length === 0">
+            <td colspan="7">
+
+              <div class="empty-state-premium">
+                <div class="empty-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:hsl(var(--primary)/0.5)"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+                </div>
+                <p class="empty-title">Aucun lot enregistré</p>
+                <p class="empty-subtitle">Créez votre premier lot pour commencer</p>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="totalElements > pageSize" class="pagination-premium">
+      <button (click)="prevPage()" [disabled]="currentPage === 0" class="page-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Précédent
+      </button>
+      <span class="page-info">Page {{ currentPage + 1 }}</span>
+      <button (click)="nextPage()" [disabled]="(currentPage + 1) * pageSize >= totalElements" class="page-btn">
+        Suivant <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div *ngIf="showModal" class="modal-overlay-premium" (click)="closeModal()">
+    <div class="modal-content-premium max-w-lg" (click)="$event.stopPropagation()">
+      <div class="card-header-premium"><h3 class="font-semibold text-lg text-foreground">{{ isEditing ? 'Modifier le lot' : 'Nouveau lot' }}</h3><button (click)="closeModal()" class="btn-icon w-8 h-8"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+      <div class="card-body space-y-4 max-h-[60vh] overflow-y-auto pr-1">
+        <div class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fournisseur *</label>
+          <select class="input-base" [(ngModel)]="form.supplierId"><option value="">Sélectionner...</option><option *ngFor="let s of allSuppliers" [value]="s.id">{{ s.name }}</option></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5"><label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Lot fabricant</label><input class="input-base" [(ngModel)]="form.manufacturerLot"/></div>
+          <div class="space-y-1.5">
+            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date code</label>
+            <input class="input-base" [(ngModel)]="form.dateCode" placeholder="2526"/>
+            <p class="text-[10px] text-muted-foreground mt-0.5"></p>
+          </div>
+        </div>
+        <div *ngIf="form.status === 'RECU' && !isEditing" class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date réception</label>
+          <input type="date" class="input-base" [(ngModel)]="form.receivedDate"/>
+        </div>
+        <div *ngIf="form.status === 'COMMANDE'" class="space-y-1.5">
+          <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Date de livraison estimée</label>
+          <input type="date" class="input-base" [(ngModel)]="form.estimatedDeliveryDate" [min]="todayDate"/>
+        </div>
+
+        <!-- Component lines section for COMMANDE status -->
+        <div class="space-y-1.5 border-t border-border/30 pt-3" *ngIf="form.status === 'COMMANDE'">
+          <label class="text-xs font-bold text-foreground uppercase tracking-wide">Composants attendus *</label>
+          
+          <div class="space-y-2 max-h-40 overflow-y-auto mb-2 pr-1" *ngIf="form.lines && form.lines.length > 0">
+            <div *ngFor="let line of form.lines; let idx = index" class="flex items-center justify-between p-2 rounded-xl border border-border/30 bg-secondary/10">
+              <div class="text-xs">
+                <p class="font-bold text-foreground">{{ getComponentMpn(line.componentId) }}</p>
+                <p class="text-muted-foreground mt-0.5">Qté attendue : <span class="font-semibold text-primary">{{ line.expectedQuantity }}</span></p>
+              </div>
+              <button (click)="removeLine(idx)" class="btn-icon text-destructive w-7 h-7">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-xl border border-border/30 bg-secondary/5 space-y-2">
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2 select-container">
+                <select class="input-base text-xs" [(ngModel)]="newLineComponentId">
+                  <option value="">Choisir composant...</option>
+                  <option *ngFor="let c of allComponents" [value]="c.id">{{ c.mpn }} ({{ c.manufacturer }})</option>
+                </select>
+              </div>
+              <div>
+                <input type="number" class="input-base text-xs" placeholder="Qté" [(ngModel)]="newLineExpectedQuantity"/>
+              </div>
+            </div>
+            <button (click)="addLine()" class="btn-primary py-1.5 px-3 text-xs w-full gap-1.5 flex items-center justify-center bg-secondary" [disabled]="!newLineComponentId || !newLineExpectedQuantity || newLineExpectedQuantity <= 0">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Ajouter la ligne
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="saveError" class="flex items-center gap-2 p-3 rounded-xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.2)">
+          <span class="text-sm font-medium" style="color:hsl(var(--destructive))">{{ saveError }}</span>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button (click)="save()" class="btn-primary flex-1" [disabled]="saving || !form.supplierId || (form.status === 'COMMANDE' && (!form.lines || form.lines.length === 0))">
+            <span *ngIf="saving" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2 inline-block"></span>
+            {{ saving ? 'Enregistrement...' : (isEditing ? 'Enregistrer' : 'Créer la commande') }}
+          </button>
+          <button (click)="closeModal()" class="btn-secondary flex-1">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lot Reception Modal -->
+  <div *ngIf="showReceiveModal" class="modal-overlay-premium !items-start !pt-8" (click)="closeReceive()">
+    <div class="modal-content-premium max-w-2xl w-full" (click)="$event.stopPropagation()">
+      <div class="card-header-premium">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center bg-accent/10">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-accent"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-lg text-foreground">Réception du lot</h3>
+            <p *ngIf="receivingLot" class="text-xs text-muted-foreground font-mono">Lot : {{ receivingLot.manufacturerLot || receivingLot.id }}</p>
+          </div>
+        </div>
+        <button (click)="closeReceive()" class="btn-icon w-8 h-8">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Loading state -->
+      <div *ngIf="loadingReception" class="flex flex-col items-center justify-center py-16 gap-4">
+        <div class="relative w-12 h-12"><div class="w-12 h-12 border-4 rounded-full" style="border-color:hsl(var(--primary)/0.2)"></div><div class="absolute inset-0 w-12 h-12 border-4 border-t-transparent rounded-full animate-spin" style="border-color:hsl(var(--primary)) transparent transparent transparent"></div></div>
+        <p class="text-sm text-muted-foreground font-medium">Chargement des détails du lot…</p>
+      </div>
+
+      <div *ngIf="receivingLot && !loadingReception" class="card-body space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+        <!-- Supplier and info banner -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 p-3 rounded-2xl border border-border/30 bg-secondary/10">
+          <div class="text-xs font-semibold text-foreground">
+            Fournisseur : <span class="text-primary">{{ receivingLot.supplierName || 'Inconnu' }}</span>
+          </div>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-accent/10 text-accent border border-accent/20">
+            Réception partielle autorisée
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 p-3.5 rounded-xl border text-xs" style="background:hsl(var(--accent)/0.06);border-color:hsl(var(--accent)/0.25)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="text-accent"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <p class="font-medium text-muted-foreground">
+            Saisissez les bobines physiques reçues. La clôture du lot sera automatique dès que la totalité sera réceptionnée.
+          </p>
+        </div>
+
+        <!-- Component List -->
+        <div class="space-y-4 pt-2">
+          <div *ngFor="let line of receivingLot.lines" class="glass-card-premium p-4 border border-border/20 rounded-2xl relative bg-secondary/5">
+            
+            <!-- Component Header -->
+            <div class="flex items-start justify-between gap-4 border-b border-border/20 pb-3 mb-3">
+              <div>
+                <p class="text-xs text-muted-foreground uppercase font-bold tracking-wider">Composant attendu</p>
+                <h4 class="font-bold text-foreground text-sm font-mono mt-0.5">{{ line.mpn || getComponentMpn(line.componentId) }}</h4>
+                <p class="text-xs text-muted-foreground" *ngIf="line.manufacturer">{{ line.manufacturer }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xs text-muted-foreground">Reçu / Attendu</p>
+                <span class="text-base font-black text-primary font-mono mt-0.5 block">
+                  {{ line.receivedQuantity || 0 }} / {{ line.expectedQuantity }} pcs
+                </span>
+                <span class="text-[11px] font-semibold" [class.text-success]="line.complete" [class.text-warning]="!line.complete">
+                  {{ line.complete ? '✓ Complet' : 'Reste : ' + (line.remainingQuantity !== undefined ? line.remainingQuantity : (line.expectedQuantity - (line.receivedQuantity || 0))) + ' pcs' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Reels for this component -->
+            <div class="space-y-2">
+              <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Bobines physiques ajoutées dans cette vague</p>
+              
+              <!-- Reels list -->
+              <div class="space-y-1.5" *ngIf="getReelsForComponent(line.componentId).length > 0">
+                <div *ngFor="let reel of getReelsForComponent(line.componentId); let reelIdx = index" class="flex items-center justify-between p-2 rounded-xl border border-border/30 bg-background/50 hover:bg-background transition-colors duration-150">
+                  <div class="grid grid-cols-2 md:grid-cols-4 gap-2 flex-1 text-xs">
+                    <div>
+                      <span class="text-muted-foreground text-[10px] block font-semibold uppercase">N° Série</span>
+                      <span class="font-mono font-bold text-foreground">{{ reel.serialnumber }}</span>
+                    </div>
+                    <div>
+                      <span class="text-muted-foreground text-[10px] block font-semibold uppercase">Quantité</span>
+                      <span class="font-semibold text-primary font-mono">{{ reel.quantityInitial }}</span>
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                      <span class="text-muted-foreground text-[10px] block font-semibold uppercase">Emplacement</span>
+                      <span class="font-medium text-foreground truncate block max-w-[120px]">{{ getLocationPath(reel.storageLocationId) }}</span>
+                    </div>
+                    <div *ngIf="reel.marque || reel.prix">
+                      <span class="text-muted-foreground text-[10px] block font-semibold uppercase">Infos</span>
+                      <span class="text-[10px] text-muted-foreground truncate block">{{ reel.marque || '' }} {{ reel.prix ? '(' + reel.prix + ' DT)' : '' }}</span>
+                    </div>
+                  </div>
+                  <button (click)="removeReel(receptionReels.indexOf(reel))" class="btn-icon text-destructive w-8 h-8" title="Retirer">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Empty state reels -->
+              <div *ngIf="getReelsForComponent(line.componentId).length === 0" class="p-3 border border-dashed border-border/40 rounded-xl text-center">
+                <p class="text-xs text-muted-foreground/60 font-medium">Aucune nouvelle bobine à ajouter pour ce composant dans cette vague.</p>
+              </div>
+
+              <!-- Totals / Real-time status -->
+              <div class="flex items-center justify-between border-t border-border/10 pt-2 mt-2 text-xs">
+                <div class="flex items-center gap-1.5">
+                  <span class="text-muted-foreground font-medium">Saisi dans cette vague :</span>
+                  <span class="font-mono font-bold text-accent">
+                    +{{ getReelTotalQtyForComponent(line.componentId) }} pcs
+                  </span>
+                </div>
+                
+                <div>
+                  <span *ngIf="getReelTotalQtyForComponent(line.componentId) + (line.receivedQuantity || 0) === line.expectedQuantity" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-success/15 text-success border border-success/20">
+                    ✓ Complétera la ligne ({{ line.expectedQuantity }}/{{ line.expectedQuantity }})
+                  </span>
+                  <span *ngIf="getReelTotalQtyForComponent(line.componentId) + (line.receivedQuantity || 0) < line.expectedQuantity" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-warning/15 text-warning border border-warning/20">
+                    ⏳ Partiel (Restera : {{ line.expectedQuantity - (line.receivedQuantity || 0) - getReelTotalQtyForComponent(line.componentId) }} pcs)
+                  </span>
+                  <span *ngIf="getReelTotalQtyForComponent(line.componentId) + (line.receivedQuantity || 0) > line.expectedQuantity" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-destructive/15 text-destructive border border-destructive/20">
+                    ❌ Surcharge (+{{ getReelTotalQtyForComponent(line.componentId) + (line.receivedQuantity || 0) - line.expectedQuantity }})
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline Add Reel Form -->
+            <div class="mt-3 border-t border-border/20 pt-3" *ngIf="activeComponentIdForReel === line.componentId">
+              <div class="p-3.5 rounded-2xl border border-border/30 bg-background space-y-3">
+                <p class="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Nouvelle bobine physique</p>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-semibold text-muted-foreground uppercase">N° Série (S/N) *</label>
+                    <input class="input-base text-xs py-1.5" placeholder="Ex: SN-STM001" [(ngModel)]="newReel.serialnumber"/>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-semibold text-muted-foreground uppercase">Quantité initiale *</label>
+                    <input type="number" class="input-base text-xs py-1.5" placeholder="100" [(ngModel)]="newReel.quantityInitial"/>
+                  </div>
+                  <div class="col-span-2 md:col-span-1 space-y-1">
+                    <label class="text-[10px] font-semibold text-muted-foreground uppercase">Emplacement *</label>
+                    <select class="input-base text-xs py-1.5" [(ngModel)]="newReel.storageLocationId">
+                      <option value="">Sélectionner...</option>
+                      <option *ngFor="let loc of allLocations"
+                              [value]="loc.id"
+                              [disabled]="!isLocationFree(loc)">{{ locationIcon(loc) }} {{ loc.fullPath || loc.warehouse }} {{ !isLocationFree(loc) ? '(occupé)' : '' }}</option>
+                    </select>
+                  </div>
+                  <div class="space-y-1 relative">
+                    <label class="text-[10px] font-semibold text-muted-foreground uppercase">Marque *</label>
+                    <input class="input-base text-xs py-1.5" placeholder="Ex: Samsung, Yageo..." [(ngModel)]="newReel.marque" (input)="onMarqueInput($event)" (focus)="onMarqueFocus()" (blur)="onMarqueBlur()" autocomplete="off"/>
+                    <div *ngIf="showMarqueSuggestions && filteredMarques.length > 0" class="absolute z-50 left-0 right-0 top-full mt-1 max-h-40 overflow-y-auto rounded-xl border border-border/50 shadow-lg" style="background:hsl(var(--card))">
+                      <button *ngFor="let m of filteredMarques" type="button" (mousedown)="selectMarque(m)" class="w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:bg-primary/10 text-foreground">{{ m }}</button>
+                    </div>
+                  </div>
+                  <div class="space-y-1">
+                    <label class="text-[10px] font-semibold text-muted-foreground uppercase">Prix d'achat (DT) *</label>
+                    <input type="number" step="0.01" class="input-base text-xs py-1.5" placeholder="0.00" [(ngModel)]="newReel.prix"/>
+                  </div>
+                </div>
+                <div class="flex gap-2 justify-end pt-1">
+                  <button (click)="saveNewReel()" class="btn-primary py-1 px-3 text-xs gap-1 flex items-center" [disabled]="!newReel.serialnumber || !newReel.quantityInitial || newReel.quantityInitial <= 0 || !newReel.storageLocationId || !newReel.marque || newReel.prix == null || newReel.prix < 0">
+                    Confirmer
+                  </button>
+                  <button (click)="closeAddReel()" class="btn-secondary py-1 px-3 text-xs">
+                    Annuler
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Button to trigger inline form -->
+            <div class="mt-3 flex justify-end" *ngIf="activeComponentIdForReel !== line.componentId && !line.complete">
+              <button (click)="openAddReel(line.componentId)" class="btn-secondary py-1.5 px-3 text-xs gap-1.5 flex items-center rounded-xl">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Ajouter une bobine
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Error reporting -->
+        <div *ngIf="receptionError" class="flex items-center gap-3 p-3.5 rounded-2xl border" style="background:hsl(var(--destructive)/0.06);border-color:hsl(var(--destructive)/0.25)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:hsl(var(--destructive))"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <p class="text-xs font-semibold" style="color:hsl(var(--destructive))">{{ receptionError }}</p>
+        </div>
+      </div>
+
+      <div class="card-footer-premium border-t border-border/20 p-4 flex flex-col sm:flex-row gap-3 justify-between bg-secondary/5">
+        <div>
+          <button (click)="resetReceptionInput()" class="btn-secondary py-1.5 px-3 text-xs gap-1.5 text-destructive hover:bg-destructive/15 border-destructive/20 rounded-xl" [disabled]="receptionReels.length === 0">
+            Réinitialiser la saisie
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <button (click)="validateReception()" class="btn-primary py-2 px-5 gap-2 rounded-xl flex items-center" style="background:linear-gradient(135deg,hsl(var(--success)),hsl(var(--success)/0.85))" [disabled]="validatingReception || !isLotReadyToReceive()">
+            <span *ngIf="validatingReception" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1"></span>
+            Enregistrer cette réception
+          </button>
+          <button (click)="closeReceive()" class="btn-secondary py-2 px-5 rounded-xl">
+            Fermer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

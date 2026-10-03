@@ -1,0 +1,333 @@
+<div class="space-y-8 animate-fade-up">
+
+  <!-- ══════════════════════════════════════════════════════════════
+       EN-TÊTE ASSISTANT MELQARTX (ADAPTATIF CLIENT / INTERNE)
+       ══════════════════════════════════════════════════════════════ -->
+  <!-- Header pour Utilisateurs Externes (Clients) -->
+  <div *ngIf="isExternalUser()" class="client-header-hero">
+    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+      <!-- 3D/Glass Icon Squircle -->
+      <div class="client-header-icon-box !p-0 overflow-hidden shrink-0">
+        <img src="assistant/melqartx-m-chip.jpg" alt="MELQARTX AI" class="w-full h-full object-cover scale-105 rounded-xl sm:rounded-2xl" />
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2">
+          <span class="client-header-tag">
+            <span class="client-header-tag-dot"></span>
+            Intelligence Artificielle
+          </span>
+        </div>
+        <h1 class="client-header-title">
+          Assistant MELQARTX
+        </h1>
+        <p class="text-xs text-muted-foreground font-medium">
+          Votre copilote intelligent pour vos projets électroniques, analyses Gerber, BOM & fabrication.
+        </p>
+      </div>
+    </div>
+    <!-- Action Button Nouvelle Conversation -->
+    <button (click)="newConversation()" class="client-header-btn-primary self-start md:self-center z-10 cursor-pointer">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Nouvelle conversation</span>
+    </button>
+  </div>
+
+  <!-- Header pour Utilisateurs Internes (CDP, ST, Admin) -->
+  <div *ngIf="!isExternalUser()" class="page-header-premium flex flex-col md:flex-row items-stretch md:items-center justify-between gap-6 p-6 sm:p-8 rounded-3xl relative overflow-hidden shadow-2xl">
+    <div class="relative z-10 space-y-2">
+      <div class="flex items-center gap-3.5">
+        <!-- Logo Microchip M Emblem -->
+        <div class="relative shrink-0 w-11 h-11 rounded-2xl overflow-hidden bg-[#070D1E] border border-slate-200/90 dark:border-white/10 shadow-xs flex items-center justify-center">
+          <img src="assistant/melqartx-m-chip.jpg" alt="MELQARTX AI" class="w-full h-full object-cover scale-105" />
+        </div>
+        <h1 class="page-title-premium text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground" style="font-family:'Outfit',sans-serif">
+          Assistant MELQARTX
+        </h1>
+      </div>
+      <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+        <span>Votre expert intelligent pour la fabrication PCBA — workflow, Gerber, BOM & production</span>
+      </p>
+    </div>
+
+    <!-- Action Button Nouvelle Conversation -->
+    <button (click)="newConversation()"
+            class="btn-primary flex items-center justify-center gap-2 relative z-10 self-start md:self-center transition-all duration-300 cursor-pointer shadow-lg"
+            style="height: 46px; padding: 0 22px; border-radius: 14px; font-size: 13.5px; font-weight: 700;">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Nouvelle conversation</span>
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MAIN LAYOUT : 2 COLONNES (HISTORIQUE + CONVERSATION)
+       ══════════════════════════════════════════════════════════════ -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+    <!-- ── COLONNE GAUCHE : HISTORIQUE DES SESSIONS (3/12) ── -->
+    <aside class="lg:col-span-4 xl:col-span-3 tech-card rounded-2xl p-4 space-y-3.5 flex flex-col">
+      
+      <div class="flex items-center justify-between px-1">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-[#16C7D9]"></span>
+          <h2 class="text-[11px] font-black text-[#14213D] dark:text-white uppercase tracking-wider">
+            HISTORIQUE
+          </h2>
+        </div>
+        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/10">
+          {{ conversations.length }} session{{ conversations.length > 1 ? 's' : '' }}
+        </span>
+      </div>
+
+      <!-- Spinner chargement -->
+      <div *ngIf="loadingHistory" class="flex flex-col items-center justify-center py-10 space-y-2">
+        <div class="w-7 h-7 border-3 border-blue-500/20 border-t-blue-600 rounded-full animate-spin"></div>
+        <p class="text-[11px] text-slate-400 font-medium">Chargement des sessions...</p>
+      </div>
+
+      <!-- État vide historique -->
+      <div *ngIf="!loadingHistory && !conversations.length" class="text-center py-10 px-3 space-y-2 bg-slate-50/70 dark:bg-[#131620]/60 rounded-xl border border-dashed border-slate-200 dark:border-white/10">
+        <div class="w-9 h-9 mx-auto rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-400">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/>
+          </svg>
+        </div>
+        <p class="text-[11.5px] font-semibold text-slate-600 dark:text-slate-300">Aucune session enregistrée</p>
+        <p class="text-[10px] text-slate-400">Vos échanges apparaîtront ici automatiquement.</p>
+      </div>
+
+      <!-- Liste des cartes de conversations -->
+      <div *ngIf="!loadingHistory && conversations.length" class="space-y-2 max-h-[calc(100vh-17rem)] overflow-y-auto clean-scroll pr-1">
+        <div *ngFor="let c of conversations" (click)="openConversation(c.id)"
+             [class.active]="conversationId === c.id"
+             class="history-item group px-3.5 py-3 rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#131620] cursor-pointer shadow-xs flex items-center justify-between gap-2.5">
+          
+          <div class="min-w-0 flex items-start gap-2.5">
+            <!-- Microchip Indicator Icon -->
+            <div class="w-6 h-6 shrink-0 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-100 dark:border-blue-800/40 flex items-center justify-center text-blue-600 dark:text-blue-400 mt-0.5 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="4" y="4" width="16" height="16" rx="2" />
+                <path d="M9 9h6v6H9z" />
+              </svg>
+            </div>
+
+            <div class="min-w-0">
+              <p class="text-[12px] font-bold text-[#14213D] dark:text-white truncate group-hover:text-blue-500 dark:group-hover:text-cyan-300 transition-colors">
+                {{ c.title }}
+              </p>
+              <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+                <span>{{ c.updatedAt | date:'dd/MM/yyyy · HH:mm' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton de suppression discret -->
+          <button (click)="remove(c.id, $event)" title="Supprimer cette session"
+                  class="opacity-0 group-hover:opacity-100 w-6 h-6 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 flex items-center justify-center transition-all shrink-0 cursor-pointer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── COLONNE DROITE : ESPACE DE CONVERSATION IA (9/12) ── -->
+    <main class="lg:col-span-8 xl:col-span-9 tech-card rounded-2xl flex flex-col min-h-[calc(100vh-14rem)] overflow-hidden">
+      
+      <!-- Zone des messages / Empty State -->
+      <div #scrollZone class="flex-1 overflow-y-auto px-6 py-6 space-y-5 max-h-[calc(100vh-21rem)] clean-scroll">
+
+        <!-- ══════════════════════════════════════════════════════════
+             EMPTY STATE : BANNIÈRE HORIZONTALE HIGH-TECH PCBA MELQARTX
+             ══════════════════════════════════════════════════════════ -->
+        <div *ngIf="!messages.length" class="flex flex-col items-center justify-center py-2 space-y-5 max-w-4xl mx-auto w-full">
+          
+          <!-- Master Horizontal Hero Card -->
+          <div class="horizontal-pcba-banner relative w-full h-56 sm:h-64 rounded-3xl overflow-hidden shadow-md bg-[#070D1E] flex items-center">
+            
+            <!-- Horizontal PCBA Motherboard Artwork Image -->
+            <img src="assistant/melqartx-pcba-banner.jpg" alt="MELQARTX PCBA AI" 
+                 class="absolute inset-0 w-full h-full object-cover object-center opacity-90 scale-105 hover:scale-100 transition-transform duration-700" />
+            
+            <!-- High-tech Gradient Overlay for Text Legibility -->
+            <div class="absolute inset-0 bg-gradient-to-r from-[#070D1E]/95 via-[#070D1E]/75 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#070D1E]/90 via-transparent to-transparent"></div>
+
+            <!-- Content Inside the Horizontal Banner -->
+            <div class="relative z-10 px-6 sm:px-8 py-6 max-w-xl space-y-3.5">
+              
+              <!-- High-Tech Badge (MELQARTX) -->
+              <div class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-[#0B1733]/90 border border-cyan-400/70 text-cyan-300 backdrop-blur-md shadow-sm">
+                <span class="text-[11px] font-black uppercase tracking-wider">MELQARTX</span>
+              </div>
+
+              <!-- Headline -->
+              <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-tight leading-tight" style="font-family:'Outfit',sans-serif">
+                Comment puis-je vous accompagner ?
+              </h2>
+            </div>
+          </div>
+
+          <!-- 4 Quick Action Cards (2x2 Grid) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left pt-1">
+            
+            <div *ngFor="let s of quickSuggestions" (click)="useSuggestion(s.title)"
+                 class="group p-4 rounded-xl border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#131620] hover:border-cyan-400 dark:hover:border-cyan-400 hover:shadow-md hover:shadow-cyan-500/10 transition-all cursor-pointer flex items-center justify-between gap-3">
+              <div class="space-y-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="px-1.5 py-0.5 rounded text-[9px] font-black uppercase tracking-wider bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-300 border border-blue-100 dark:border-blue-800/40">
+                    {{ s.tag }}
+                  </span>
+                </div>
+                <p class="text-[12.5px] font-bold text-[#14213D] dark:text-white group-hover:text-blue-500 dark:group-hover:text-cyan-300 transition-colors truncate">
+                  {{ s.title }}
+                </p>
+                <p class="text-[10.5px] text-slate-400 truncate">
+                  {{ s.subtitle }}
+                </p>
+              </div>
+
+              <div class="w-7 h-7 shrink-0 rounded-lg bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center transition-all group-hover:translate-x-1">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- ══════════════════════════════════════════════════════════
+             STREAM DES MESSAGES DE LA DISCUSSION
+             ══════════════════════════════════════════════════════════ -->
+        <div *ngFor="let m of messages; let idx = index" class="flex gap-3" [class.justify-end]="m.role === 'user'">
+
+          <!-- Avatar Assistant (Microchip Icon) -->
+          <div *ngIf="m.role === 'assistant'"
+               class="w-8 h-8 shrink-0 rounded-xl bg-gradient-to-br from-blue-600 via-indigo-600 to-cyan-400 p-[1.5px] shadow-sm mt-0.5 overflow-hidden">
+            <div class="w-full h-full rounded-[10px] bg-[#070D1E] overflow-hidden flex items-center justify-center">
+              <img src="assistant/melqartx-m-chip.jpg" alt="Assistant" class="w-full h-full object-cover scale-110" />
+            </div>
+          </div>
+
+          <!-- Bulle Utilisateur -->
+          <div *ngIf="m.role === 'user'"
+               class="max-w-[78%] px-5 py-3.5 rounded-2xl rounded-br-md bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] text-white text-[13px] leading-relaxed whitespace-pre-line shadow-md shadow-blue-500/15">
+            {{ m.content }}
+          </div>
+
+          <!-- Bulle Assistant -->
+          <div *ngIf="m.role === 'assistant'" class="max-w-[84%] min-w-0 space-y-2">
+            
+            <div class="px-5 py-4 rounded-2xl rounded-bl-md border border-slate-200/90 dark:border-white/10 bg-white dark:bg-[#131620] text-slate-800 dark:text-slate-200 space-y-2.5 shadow-xs">
+              
+              <!-- Indicateur de frappe / logique IA en cours -->
+              <div *ngIf="m.pending && !m.content" class="flex items-center gap-2 py-1">
+                <span class="logic-dot w-2 h-2 rounded-full bg-[#16C7D9]"></span>
+                <span class="logic-dot w-2 h-2 rounded-full bg-[#2563EB]"></span>
+                <span class="logic-dot w-2 h-2 rounded-full bg-[#7C5CFC]"></span>
+                <span class="text-[11px] font-semibold text-slate-400 ml-1">Analyse des données PCBA...</span>
+              </div>
+
+              <!-- Contenu parsé en blocs -->
+              <ng-container *ngFor="let block of blocks(m.content)">
+                <p *ngIf="block.type === 'h'" class="text-[13.5px] font-black text-[#14213D] dark:text-white pt-1">
+                  <ng-container *ngTemplateOutlet="segs; context: { $implicit: block.segments }"></ng-container>
+                </p>
+                
+                <div *ngIf="block.type === 'li'" class="flex items-start gap-2.5">
+                  <span class="mt-[7px] w-2 h-2 rounded-full bg-gradient-to-r from-[#16C7D9] to-[#2563EB] shrink-0"></span>
+                  <p class="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200">
+                    <ng-container *ngTemplateOutlet="segs; context: { $implicit: block.segments }"></ng-container>
+                  </p>
+                </div>
+
+                <p *ngIf="block.type === 'p'" class="text-[13px] leading-relaxed text-slate-700 dark:text-slate-200">
+                  <ng-container *ngTemplateOutlet="segs; context: { $implicit: block.segments }"></ng-container>
+                </p>
+              </ng-container>
+            </div>
+
+            <!-- Barre d'outils du message (Copier) -->
+            <div *ngIf="!m.pending && m.content" class="flex items-center gap-2 px-1">
+              <button (click)="copyMessage(m.content, idx)"
+                      class="text-[11px] font-medium text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 flex items-center gap-1 transition-colors cursor-pointer">
+                <svg *ngIf="copiedIndex !== idx" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span *ngIf="copiedIndex !== idx">Copier</span>
+                <span *ngIf="copiedIndex === idx" class="text-emerald-600 font-bold flex items-center gap-1">
+                  ✓ Copié
+                </span>
+              </button>
+            </div>
+
+          </div>
+
+        </div>
+
+        <p *ngIf="errorMessage" class="text-xs text-rose-600 dark:text-rose-400 font-semibold text-center py-2 bg-rose-50 dark:bg-rose-950/40 rounded-xl border border-rose-200 dark:border-rose-800/40">
+          {{ errorMessage }}
+        </p>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════════
+           ZONE DE SAISIE DE PROMPT (BAS DE PAGE)
+           ══════════════════════════════════════════════════════════ -->
+      <div class="p-4 sm:p-5 border-t border-slate-200/90 dark:border-white/10 bg-slate-50/50 dark:bg-[#1A1D27]/80">
+        
+        <div class="relative flex items-end gap-3 p-2 bg-white dark:bg-[#131620] rounded-2xl border border-slate-200 dark:border-white/10 shadow-xs focus-within:border-cyan-400 dark:focus-within:border-cyan-400 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
+          
+          <textarea [(ngModel)]="draft" (keydown)="onKeydown($event)" rows="1"
+                    placeholder="Posez votre question... (Maj+Entrée pour un saut de ligne)"
+                    class="flex-1 resize-none max-h-36 px-3 py-2 bg-transparent text-[13px] text-[#14213D] dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none leading-relaxed"></textarea>
+
+          <!-- Bouton Envoyer ou Arrêter -->
+          <div class="flex items-center gap-1.5 shrink-0 pb-0.5">
+            <button *ngIf="!sending" (click)="send()" [disabled]="!draft.trim()" title="Envoyer la question"
+                    class="btn-cyan-send w-10 h-10 rounded-xl disabled:opacity-35 disabled:cursor-not-allowed text-white flex items-center justify-center cursor-pointer shadow-md">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            </button>
+            <button *ngIf="sending" (click)="stop()" title="Arrêter la réponse"
+                    class="w-10 h-10 rounded-xl bg-slate-200 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-700 dark:text-slate-200 flex items-center justify-center transition-all cursor-pointer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+              </svg>
+            </button>
+          </div>
+
+        </div>
+
+        <p class="text-[10.5px] text-slate-400 mt-2.5 text-center font-medium">
+          L’assistant peut se tromper — vérifiez les informations importantes relatives à la production.
+        </p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Template segments cliquables -->
+<ng-template #segs let-segments>
+  <ng-container *ngFor="let seg of segments">
+    <span *ngIf="seg.kind === 'text'">{{ seg.text }}</span>
+    <a *ngIf="seg.kind === 'link'" (click)="goTo(seg.path)"
+       class="text-blue-600 font-bold underline decoration-blue-400/40 underline-offset-2 hover:decoration-blue-600 hover:text-blue-700 cursor-pointer transition-colors">{{ seg.text }}</a>
+  </ng-container>
+</ng-template>

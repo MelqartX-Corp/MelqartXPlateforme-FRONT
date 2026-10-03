@@ -1,0 +1,621 @@
+<div class="space-y-8 animate-fade-up">
+
+      <!-- ══════════════════════════════════════════════════════
+           CLIENT "WOW" HERO HEADER
+      ══════════════════════════════════════════════════════ -->
+      <div class="client-header-hero">
+        <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 max-w-2xl">
+          <!-- 3D/Glass Icon Squircle -->
+          <div class="client-header-icon-box">
+            📄
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex items-center gap-2">
+              <span class="client-header-tag">
+                <span class="client-header-tag-dot"></span>
+                Espace Facturation & Contrats
+              </span>
+            </div>
+            <h1 class="client-header-title">
+              Mes Devis & Contrats
+            </h1>
+            <p class="text-xs text-muted-foreground font-medium max-w-xl">
+              Consultez vos chiffrages détaillés, téléchargez les documents légaux et signez vos contrats électroniquement.
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Action Button -->
+        <a routerLink="/client/projets" class="client-header-btn-primary self-start md:self-center z-10 cursor-pointer text-xs">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          <span>Nouveau Projet</span>
+        </a>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           SUCCESS NOTIFICATION BANNER
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="successToast" class="p-5 bg-gradient-to-r from-emerald-500/10 via-teal-500/10 to-emerald-500/15 dark:from-emerald-950/40 dark:to-teal-950/40 text-emerald-900 dark:text-emerald-200 rounded-3xl border border-emerald-300/80 dark:border-emerald-700/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg shadow-emerald-500/5 animate-in fade-in slide-in-from-top-3 duration-300">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/30">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-bold text-sm text-emerald-950 dark:text-emerald-100">Action confirmée !</h4>
+            <p class="text-xs text-emerald-800 dark:text-emerald-300">{{ successToast }}</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-end sm:self-center">
+          <a routerLink="/client/billing/invoices" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95">
+            <span>Régler ma Facture d'Acompte</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </a>
+          <button (click)="successToast = ''" class="p-2 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-200/50 dark:hover:bg-emerald-900/40 rounded-xl transition cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           KPI STATS STRIP (4 METRICS)
+      ══════════════════════════════════════════════════════ -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <!-- Metric 1: Total Devis -->
+        <div class="bg-card/90 dark:bg-card/90 backdrop-blur-md rounded-3xl p-5 border border-border/50 shadow-xs hover:shadow-md hover:border-primary/30 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Total Devis Reçus</span>
+            <div class="w-9 h-9 rounded-2xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-foreground">{{ totalQuotesCount }}</span>
+            <span class="text-xs text-muted-foreground">dossier(s)</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground mt-1">Historique complet de vos propositions</p>
+        </div>
+
+        <!-- Metric 2: À Signer -->
+        <div class="bg-card/90 dark:bg-card/90 backdrop-blur-md rounded-3xl p-5 border border-border/50 shadow-xs hover:shadow-md hover:border-amber-500/30 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <span *ngIf="pendingQuotesCount > 0" class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+              À Signer
+            </span>
+            <div class="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-2xl font-black" [class.text-amber-600]="pendingQuotesCount > 0" [class.text-foreground]="pendingQuotesCount === 0">{{ pendingQuotesCount }}</span>
+            <span class="text-xs font-semibold text-muted-foreground">en attente</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground mt-1">Contrats à signer pour lancer l'ingénierie</p>
+        </div>
+
+        <!-- Metric 3: Validés / Actifs -->
+        <div class="bg-card/90 dark:bg-card/90 backdrop-blur-md rounded-3xl p-5 border border-border/50 shadow-xs hover:shadow-md hover:border-emerald-500/30 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Contrats Signés</span>
+            <div class="w-9 h-9 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-2">
+            <span class="text-2xl font-black text-foreground">{{ acceptedQuotesCount }}</span>
+            <span class="text-xs font-semibold text-muted-foreground">validé(s)</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground mt-1">Engagements actifs en production</p>
+        </div>
+
+        <!-- Metric 4: Montant Total Engagé -->
+        <div class="bg-card/90 dark:bg-card/90 backdrop-blur-md rounded-3xl p-5 border border-border/50 shadow-xs hover:shadow-md hover:border-primary/30 transition-all">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-muted-foreground">Budget Total Engagé</span>
+            <div class="w-9 h-9 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="mt-3 flex items-baseline gap-1.5">
+            <span class="text-2xl font-black text-foreground">{{ totalEngagedAmount | number:'1.3-3' }}</span>
+            <span class="text-xs font-bold text-primary">TND TTC</span>
+          </div>
+          <p class="text-[11px] text-muted-foreground mt-1">Valeur totale des devis acceptés</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           FILTERS & SEARCH BAR
+      ══════════════════════════════════════════════════════ -->
+      <div class="bg-card/90 dark:bg-card/90 backdrop-blur-md rounded-3xl p-4 sm:p-5 border border-border/50 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        <!-- Search Input -->
+        <div class="relative flex-1 max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-muted-foreground">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input 
+            type="text" 
+            [(ngModel)]="searchTerm" 
+            placeholder="Rechercher par n° de devis ou nom de projet..." 
+            class="w-full pl-10 pr-9 py-2.5 bg-secondary/30 dark:bg-secondary/30 border border-border/60 rounded-2xl text-xs sm:text-sm text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all">
+          <button *ngIf="searchTerm" (click)="searchTerm = ''" class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-foreground hover:text-foreground cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+
+        <!-- Filter Status Pills -->
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button 
+            (click)="selectedStatus = 'ALL'"
+            [ngClass]="selectedStatus === 'ALL' ? 'bg-primary text-white shadow-sm shadow-primary/30' : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+            Tous <span class="ml-1 opacity-75">({{ quotes.length }})</span>
+          </button>
+          <button 
+            (click)="selectedStatus = 'SENT'"
+            [ngClass]="selectedStatus === 'SENT' ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/30' : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5">
+            <span>À Signer</span>
+            <span *ngIf="pendingQuotesCount > 0" class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span class="opacity-75">({{ pendingQuotesCount }})</span>
+          </button>
+          <button 
+            (click)="selectedStatus = 'ACCEPTED'"
+            [ngClass]="selectedStatus === 'ACCEPTED' ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/30' : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+            Validés & Signés <span class="ml-1 opacity-75">({{ acceptedQuotesCount }})</span>
+          </button>
+          <button 
+            (click)="selectedStatus = 'REJECTED'"
+            [ngClass]="selectedStatus === 'REJECTED' ? 'bg-rose-600 text-white shadow-sm shadow-rose-500/30' : 'bg-secondary/60 text-muted-foreground hover:bg-secondary hover:text-foreground'"
+            class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer">
+            Refusés
+          </button>
+        </div>
+
+        <!-- Sort dropdown -->
+        <div class="flex items-center gap-2 text-xs">
+          <span class="text-muted-foreground font-medium">Trier :</span>
+          <select 
+            [(ngModel)]="sortBy"
+            class="bg-secondary/30 dark:bg-secondary/30 border border-border/60 rounded-xl px-3 py-2 text-xs font-semibold text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none">
+            <option value="NEWEST">Plus récents</option>
+            <option value="OLDEST">Plus anciens</option>
+            <option value="AMOUNT_DESC">Montant décroissant</option>
+            <option value="AMOUNT_ASC">Montant croissant</option>
+          </select>
+        </div>
+      </div>
+        
+      <!-- ══════════════════════════════════════════════════════
+           LOADING STATE
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="loading" class="py-20 text-center space-y-4">
+        <div class="relative w-16 h-16 mx-auto">
+          <div class="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping opacity-25"></div>
+          <div class="w-16 h-16 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+        </div>
+        <div class="space-y-1">
+          <h3 class="text-base font-bold text-foreground">Chargement de vos devis...</h3>
+          <p class="text-xs text-muted-foreground">Récupération sécurisée auprès du serveur de facturation MelqartX</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           QUOTES LIST
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="!loading" class="space-y-6">
+
+        <!-- Individual Quote Card -->
+        <div *ngFor="let q of filteredQuotes" 
+             class="group relative bg-card/95 dark:bg-card/95 backdrop-blur-md rounded-3xl p-6 sm:p-7 border border-border/50 shadow-xs hover:shadow-lg hover:border-primary/40 transition-all duration-300 space-y-6">
+          
+          <!-- Top Row: Quote Number, Badges, Amount -->
+          <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-5 border-b border-border/40">
+            
+            <div class="space-y-2">
+              <div class="flex flex-wrap items-center gap-3">
+                <!-- Reference Chip with Copy -->
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-2xl bg-primary/10 border border-primary/20 shadow-xs">
+                  <span class="font-mono font-extrabold text-sm sm:text-base text-primary tracking-wide">{{ q.quoteNumber }}</span>
+                  <button (click)="copyToClipboard(q.quoteNumber, q.id)" title="Copier la référence" class="text-primary/70 hover:text-primary cursor-pointer transition">
+                    <svg *ngIf="copiedQuoteId !== q.id" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                    </svg>
+                    <svg *ngIf="copiedQuoteId === q.id" class="w-3.5 h-3.5 text-emerald-600 animate-scale" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                  </button>
+                </div>
+
+                <!-- Animated Status Pill -->
+                <div [ngClass]="{
+                  'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/25': q.status === 'SENT' || q.status === 'DRAFT',
+                  'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/25': q.status === 'ACCEPTED',
+                  'bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/25': q.status === 'REJECTED'
+                }" class="inline-flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-2xl border shadow-xs">
+                  <span [ngClass]="{
+                    'bg-amber-500 animate-pulse': q.status === 'SENT',
+                    'bg-emerald-500': q.status === 'ACCEPTED',
+                    'bg-rose-500': q.status === 'REJECTED',
+                    'bg-muted-foreground': q.status === 'DRAFT'
+                  }" class="w-2 h-2 rounded-full"></span>
+                  <span>{{ q.status === 'SENT' ? 'En attente de signature du contrat' : (q.status === 'ACCEPTED' ? 'Contrat Signé & Validé ✅' : (q.status === 'DRAFT' ? 'Brouillon' : 'Refusé')) }}</span>
+                </div>
+              </div>
+
+              <!-- Project Association and Metadata -->
+              <div class="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                <span class="font-medium">Projet Associé :</span>
+                <a [routerLink]="['/client/projets', q.projectId]" class="inline-flex items-center gap-1.5 px-3 py-1 bg-secondary/40 hover:bg-primary/10 text-xs font-bold text-foreground hover:text-primary rounded-xl border border-border/60 hover:border-primary/30 transition shadow-xs">
+                  <svg class="w-3.5 h-3.5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                  </svg>
+                  <span>{{ q.projectName || 'Projet #' + q.projectId }}</span>
+                </a>
+                <span *ngIf="q.createdAt" class="text-border">•</span>
+                <span *ngIf="q.createdAt" class="flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                  Émis le {{ q.createdAt | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Amount Section -->
+            <div class="lg:text-right bg-secondary/20 dark:bg-secondary/10 px-5 py-3 rounded-2xl border border-border/50">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Montant Total TTC</span>
+              <div class="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
+                {{ q.totalTtc | number:'1.3-3' }} <span class="text-sm font-extrabold text-primary">TND</span>
+              </div>
+              <div class="text-[11px] text-muted-foreground font-medium">
+                HT : {{ q.subtotalHt | number:'1.3-3' }} TND • TVA 19% : {{ q.totalTax | number:'1.3-3' }} TND
+              </div>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════════════════════
+               2-TRANCHE (50% / 50%) LIFECYCLE MILESTONE CARDS
+          ══════════════════════════════════════════════════════ -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold text-foreground flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+                Échéancier Financier &amp; Jalons de Fabrication (50% / 50%)
+              </span>
+              <span class="text-[11px] text-muted-foreground">Conformité standard MelqartX Corp</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+              
+              <!-- Milestone 1: Tranche 1 -->
+              <div [ngClass]="{
+                'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/30': q.status === 'ACCEPTED',
+                'bg-secondary/20 border-border/50': q.status !== 'ACCEPTED'
+              }" class="p-4 rounded-2xl border transition-all flex flex-col justify-between gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-black text-xs flex items-center justify-center shadow-xs">1</span>
+                    <span class="font-bold text-xs text-foreground">Tranche 1 (50% Acompte)</span>
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20">
+                    {{ q.status === 'ACCEPTED' ? 'Contrat Validé' : 'À la Signature' }}
+                  </span>
+                </div>
+                <div class="flex items-baseline justify-between pt-1">
+                  <span class="text-xs text-muted-foreground">Condition de lancement :</span>
+                  <span class="font-black text-base text-emerald-600 dark:text-emerald-400">{{ q.tranche1Amount | number:'1.3-3' }} TND</span>
+                </div>
+                <p class="text-[10px] text-muted-foreground leading-tight">Déclenche l'approvisionnement des composants et le lancement de production PCB/PCBA.</p>
+              </div>
+
+              <!-- Milestone 2: Tranche 2 -->
+              <div class="p-4 rounded-2xl bg-secondary/20 border border-border/50 flex flex-col justify-between gap-3">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg bg-primary text-white font-black text-xs flex items-center justify-center shadow-xs">2</span>
+                    <span class="font-bold text-xs text-foreground">Tranche 2 (50% Solde)</span>
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary border border-primary/20">
+                    Avant Expédition
+                  </span>
+                </div>
+                <div class="flex items-baseline justify-between pt-1">
+                  <span class="text-xs text-muted-foreground">Condition de livraison :</span>
+                  <span class="font-black text-base text-primary">{{ q.tranche2Amount | number:'1.3-3' }} TND</span>
+                </div>
+                <p class="text-[10px] text-muted-foreground leading-tight">Règlement final après tests de validation électrique et contrôle qualité des cartes.</p>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════════════════════
+               ITEMIZED BREAKDOWN TOGGLE (IF LINES EXIST)
+          ══════════════════════════════════════════════════════ -->
+          <div *ngIf="q.lines && q.lines.length > 0" class="border-t border-border/40 pt-3">
+            <button (click)="toggleExpandQuote(q.id)" class="text-xs font-bold text-primary hover:underline flex items-center gap-1.5 cursor-pointer">
+              <svg class="w-4 h-4 transition-transform duration-200" [ngClass]="{'rotate-180': expandedQuoteId === q.id}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              </svg>
+              <span>{{ expandedQuoteId === q.id ? 'Masquer le détail des prestations' : 'Afficher le détail des prestations (' + q.lines.length + ' ligne' + (q.lines.length > 1 ? 's' : '') + ')' }}</span>
+            </button>
+
+            <!-- Expanded Details Table -->
+            <div *ngIf="expandedQuoteId === q.id" class="mt-3 overflow-x-auto rounded-2xl border border-border/40 animate-in fade-in duration-200">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="bg-secondary/40 text-muted-foreground uppercase tracking-wider text-[10px] font-bold">
+                  <tr>
+                    <th class="p-3 pl-4">Prestation / Service</th>
+                    <th class="p-3">Quantité</th>
+                    <th class="p-3">Prix Unitaire HT</th>
+                    <th class="p-3">Total HT</th>
+                    <th class="p-3 pr-4 text-right">Total TTC</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-border/30">
+                  <tr *ngFor="let l of q.lines" class="hover:bg-secondary/20">
+                    <td class="p-3 pl-4">
+                      <span class="font-bold text-foreground">{{ l.serviceName || l.serviceCode }}</span>
+                      <p *ngIf="l.description" class="text-[11px] text-muted-foreground mt-0.5">{{ l.description }}</p>
+                    </td>
+                    <td class="p-3 font-mono text-foreground">{{ l.quantity }} {{ l.unit || 'u' }}</td>
+                    <td class="p-3 font-mono text-foreground">{{ l.unitPrice | number:'1.3-3' }} TND</td>
+                    <td class="p-3 font-mono text-foreground">{{ l.subtotalHt | number:'1.3-3' }} TND</td>
+                    <td class="p-3 pr-4 text-right font-mono font-bold text-primary">{{ l.totalTtc | number:'1.3-3' }} TND</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ══════════════════════════════════════════════════════
+               ACTION BUTTONS
+          ══════════════════════════════════════════════════════ -->
+          <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-border/40">
+            
+            <!-- Download Quote PDF -->
+            <button
+              (click)="downloadQuote(q)"
+              class="px-4 py-2.5 text-xs font-bold text-foreground bg-secondary/60 hover:bg-secondary rounded-2xl transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-95 border border-border/40">
+              <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span>Télécharger le Devis (PDF)</span>
+            </button>
+
+            <!-- Download Contract PDF -->
+            <button 
+              (click)="downloadContract(q)" 
+              class="px-4 py-2.5 text-xs font-bold text-foreground bg-secondary/60 hover:bg-secondary rounded-2xl transition-all shadow-xs flex items-center gap-2 cursor-pointer active:scale-95 border border-border/40">
+              <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+              </svg>
+              <span>Télécharger le Contrat (PDF)</span>
+            </button>
+
+            <!-- Pending Signature Actions -->
+            <div *ngIf="q.status === 'SENT'" class="flex items-center gap-2.5">
+              <button 
+                (click)="openRejectModal(q)" 
+                [disabled]="processingId === q.id" 
+                class="px-4 py-2.5 text-xs text-rose-600 hover:bg-rose-500/10 font-bold rounded-2xl transition-all cursor-pointer">
+                Refuser
+              </button>
+              <button 
+                (click)="openSignModal(q)" 
+                [disabled]="processingId === q.id" 
+                class="px-6 py-2.5 text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-extrabold rounded-2xl shadow-md transition-all active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+                <span>✍️ Signer &amp; Déposer le Contrat</span>
+              </button>
+            </div>
+
+            <!-- Accepted State Action: Go to Invoices -->
+            <div *ngIf="q.status === 'ACCEPTED'" class="flex items-center gap-2">
+              <a 
+                routerLink="/client/billing/invoices" 
+                class="px-5 py-2.5 bg-primary/10 text-primary hover:bg-primary hover:text-white font-extrabold text-xs rounded-2xl border border-primary/20 shadow-xs transition-all flex items-center gap-2 cursor-pointer active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                </svg>
+                <span>Voir Facture d'Acompte</span>
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredQuotes.length === 0" class="text-center py-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-8 space-y-4">
+          <div class="w-20 h-20 rounded-3xl bg-blue-50 dark:bg-blue-950/40 text-blue-500 dark:text-blue-400 flex items-center justify-center mx-auto shadow-inner">
+            <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="space-y-1">
+            <h3 class="text-lg font-extrabold text-gray-900 dark:text-white">Aucun devis trouvé</h3>
+            <p *ngIf="searchTerm || selectedStatus !== 'ALL'" class="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+              Aucun résultat ne correspond à vos critères de recherche.
+            </p>
+            <p *ngIf="!searchTerm && selectedStatus === 'ALL'" class="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+              Vous n'avez pas encore de devis émis. Créez un nouveau projet pour recevoir une offre technique et financière.
+            </p>
+          </div>
+          <div *ngIf="searchTerm || selectedStatus !== 'ALL'" class="pt-2">
+            <button (click)="searchTerm = ''; selectedStatus = 'ALL'" class="px-4 py-2 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">
+              Réinitialiser les filtres
+            </button>
+          </div>
+          <div *ngIf="!searchTerm && selectedStatus === 'ALL'" class="pt-2">
+            <a routerLink="/client/projets" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-2xl shadow-md transition inline-flex items-center gap-2 cursor-pointer">
+              <span>Lancer un Projet</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           MODAL SIGNATURE & DÉPÔT DU CONTRAT (3 ÉTAPES)
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="selectedQuoteForSign" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
+        <div class="bg-white dark:bg-gray-800 rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-100 dark:border-gray-700 space-y-6 animate-in zoom-in-95 duration-200 max-h-[92vh] overflow-y-auto">
+          
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-700 pb-4">
+            <div class="flex items-center gap-3.5">
+              <div class="p-3 bg-gradient-to-tr from-emerald-500 to-teal-600 text-white rounded-2xl shadow-md shadow-emerald-500/25">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-xl font-extrabold text-gray-900 dark:text-white">Validation & Signature du Contrat</h3>
+                <p class="text-xs text-gray-500 font-mono">Devis Référence : {{ selectedQuoteForSign.quoteNumber }}</p>
+              </div>
+            </div>
+            <button (click)="closeSignModal()" class="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 flex items-center justify-center transition cursor-pointer">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+          </div>
+
+          <!-- Project & Financial Recap Box -->
+          <div class="p-4 bg-gradient-to-br from-gray-50 to-blue-50/30 dark:from-gray-900/60 dark:to-gray-800/60 rounded-2xl border border-gray-100 dark:border-gray-700 space-y-2 text-xs">
+            <div class="flex justify-between items-center text-gray-600 dark:text-gray-300">
+              <span class="font-medium">Projet associé :</span>
+              <span class="font-bold text-gray-900 dark:text-white">{{ selectedQuoteForSign.projectName || selectedQuoteForSign.projectId }}</span>
+            </div>
+            <div class="flex justify-between items-center text-gray-600 dark:text-gray-300">
+              <span class="font-medium">Montant Total TTC :</span>
+              <span class="font-bold text-gray-900 dark:text-white">{{ selectedQuoteForSign.totalTtc | number:'1.3-3' }} TND</span>
+            </div>
+            <div class="flex justify-between items-center text-emerald-700 dark:text-emerald-400 font-bold border-t border-gray-200 dark:border-gray-700 pt-2">
+              <span>Tranche 1 (Acompte 50%) à régler après signature :</span>
+              <span class="text-sm font-black">{{ selectedQuoteForSign.tranche1Amount | number:'1.3-3' }} TND</span>
+            </div>
+          </div>
+
+          <!-- 3 Step Process -->
+          <div class="space-y-3.5">
+            
+            <!-- Étape 1 -->
+            <div class="p-4 rounded-2xl border border-blue-100 dark:border-blue-900/40 bg-blue-50/40 dark:bg-blue-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-blue-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">1</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-900 dark:text-white">Téléchargez le contrat officiel</h4>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400">Document contractuel reprenant les clauses techniques et financières.</p>
+                </div>
+              </div>
+              <button (click)="downloadContract(selectedQuoteForSign)" class="shrink-0 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 cursor-pointer active:scale-95">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <span>Télécharger PDF</span>
+              </button>
+            </div>
+
+            <!-- Étape 2 -->
+            <div class="p-4 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30 flex items-center gap-3">
+              <span class="w-8 h-8 rounded-xl bg-amber-500 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">2</span>
+              <div>
+                <h4 class="text-xs font-bold text-gray-900 dark:text-white">Signez le document (mention 'Bon pour accord')</h4>
+                <p class="text-[11px] text-gray-500 dark:text-gray-400">Signature manuscrite scannée ou signature électronique certifiée.</p>
+              </div>
+            </div>
+
+            <!-- Étape 3: Drag & Drop Zone -->
+            <div class="p-4 rounded-2xl border-2 border-dashed border-emerald-300 dark:border-emerald-700 bg-emerald-50/20 dark:bg-emerald-950/20 space-y-3">
+              <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-xs">3</span>
+                <div>
+                  <h4 class="text-xs font-bold text-gray-900 dark:text-white">Déposez votre exemplaire signé (PDF)</h4>
+                  <p class="text-[11px] text-gray-500 dark:text-gray-400">Fichier PDF uniquement (Taille max : 15 Mo).</p>
+                </div>
+              </div>
+
+              <input #fileInput type="file" accept=".pdf,application/pdf" (change)="onFileSelected($event)" class="hidden" id="signedContractFileInput">
+
+              <!-- Drop area -->
+              <div 
+                *ngIf="!selectedFile" 
+                (click)="fileInput.click()"
+                (dragover)="onDragOver($event)"
+                (dragleave)="isDragging = false"
+                (drop)="onFileDrop($event)"
+                [ngClass]="{'border-emerald-500 bg-emerald-100/40': isDragging}"
+                class="p-6 rounded-2xl border border-dashed border-gray-300 dark:border-gray-600 text-center hover:bg-white dark:hover:bg-gray-800/80 transition-all cursor-pointer space-y-2">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mx-auto">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                  </svg>
+                </div>
+                <div class="space-y-0.5">
+                  <p class="text-xs font-bold text-gray-900 dark:text-white">Glissez-déposez votre PDF ici, ou <span class="text-emerald-600 dark:text-emerald-400 underline">parcourez vos fichiers</span></p>
+                  <p class="text-[10px] text-gray-400">Format PDF accepté</p>
+                </div>
+              </div>
+
+              <!-- File Selected State -->
+              <div *ngIf="selectedFile" class="p-4 rounded-2xl bg-white dark:bg-gray-800 border border-emerald-300 dark:border-emerald-700 flex items-center justify-between shadow-sm">
+                <div class="flex items-center gap-3 truncate">
+                  <div class="w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                  </div>
+                  <div class="truncate">
+                    <p class="text-xs font-bold text-gray-900 dark:text-white truncate">{{ selectedFile.name }}</p>
+                    <p class="text-[10px] text-gray-500 font-mono">{{ (selectedFile.size / 1024 / 1024) | number:'1.2-2' }} Mo</p>
+                  </div>
+                </div>
+                <button (click)="selectedFile = null" class="text-xs font-bold text-red-500 hover:text-red-700 px-3 py-1.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-950/40 transition cursor-pointer">
+                  Changer
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Error Alert -->
+          <div *ngIf="uploadError" class="p-3.5 bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 rounded-2xl text-xs font-bold border border-red-200 dark:border-red-800/60 flex items-center gap-2">
+            <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <span>{{ uploadError }}</span>
+          </div>
+
+          <!-- Modal Action Buttons -->
+          <div class="flex gap-3 justify-end pt-3 border-t border-gray-100 dark:border-gray-700">
+            <button (click)="closeSignModal()" [disabled]="uploadingSigned" class="px-5 py-2.5 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition cursor-pointer">
+              Annuler
+            </button>
+            <button 
+              (click)="submitSignedContract()" 
+              [disabled]="!selectedFile || uploadingSigned" 
+              class="px-6 py-2.5 text-xs font-extrabold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 rounded-2xl shadow-lg shadow-emerald-500/25 transition active:scale-95 disabled:opacity-50 flex items-center gap-2 cursor-pointer">
+              <span *ngIf="uploadingSigned" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              <span>{{ uploadingSigned ? 'Téléversement en cours...' : '🚀 Valider & Déposer le Contrat' }}</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+    </div>

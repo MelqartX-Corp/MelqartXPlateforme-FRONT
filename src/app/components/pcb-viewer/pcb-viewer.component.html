@@ -1,0 +1,274 @@
+<div #containerWrapper class="pcb-viewer-root rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-lg dark:shadow-2xl flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200"
+     [style.height]="height">
+
+  <!-- ═════ 1. JLCPCB Style Header Toolbar ═════ -->
+  <div *ngIf="showHeader" class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-900/90 backdrop-blur-md flex flex-wrap items-center justify-between gap-3 shrink-0 z-20 transition-colors duration-200">
+    
+    <!-- Title & Mode Tabs [ 2D ] [ 3D ] [ Layers ] -->
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
+        <span class="text-lg">🗺️</span>
+        <h3 class="text-xs font-black tracking-wide text-slate-900 dark:text-white hidden sm:inline">{{ title }}</h3>
+      </div>
+
+      <!-- Segmented Tabs -->
+      <div class="inline-flex rounded-xl p-1 bg-slate-200/80 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 shadow-inner">
+        <button (click)="setTab('2D')"
+                [class.bg-blue-600]="activeTab === '2D'"
+                [class.text-white]="activeTab === '2D'"
+                [class.shadow-sm]="activeTab === '2D'"
+                [class.text-slate-600]="activeTab !== '2D'"
+                [class.dark:text-slate-400]="activeTab !== '2D'"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-black tracking-wider transition-all duration-200 cursor-pointer">
+          2D
+        </button>
+        <button (click)="setTab('3D')"
+                [class.bg-blue-600]="activeTab === '3D'"
+                [class.text-white]="activeTab === '3D'"
+                [class.shadow-sm]="activeTab === '3D'"
+                [class.text-slate-600]="activeTab !== '3D'"
+                [class.dark:text-slate-400]="activeTab !== '3D'"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-black tracking-wider transition-all duration-200 cursor-pointer">
+          3D
+        </button>
+        <button (click)="setTab('LAYERS')"
+                [class.bg-blue-600]="activeTab === 'LAYERS'"
+                [class.text-white]="activeTab === 'LAYERS'"
+                [class.shadow-sm]="activeTab === 'LAYERS'"
+                [class.text-slate-600]="activeTab !== 'LAYERS'"
+                [class.dark:text-slate-400]="activeTab !== 'LAYERS'"
+                class="px-3.5 py-1.5 rounded-lg text-xs font-black tracking-wider transition-all duration-200 cursor-pointer">
+          Layers
+        </button>
+      </div>
+
+      <!-- 2D Side Switch (Top / Bottom) -->
+      <div *ngIf="activeTab === '2D'" class="inline-flex rounded-xl p-0.5 bg-slate-200/80 dark:bg-slate-950/80 border border-slate-300 dark:border-slate-800">
+        <button (click)="setSide('TOP')"
+                [class.bg-white]="activeSide === 'TOP'"
+                [class.dark:bg-slate-800]="activeSide === 'TOP'"
+                [class.text-amber-600]="activeSide === 'TOP'"
+                [class.dark:text-amber-400]="activeSide === 'TOP'"
+                [class.shadow-xs]="activeSide === 'TOP'"
+                [class.text-slate-600]="activeSide !== 'TOP'"
+                [class.dark:text-slate-400]="activeSide !== 'TOP'"
+                class="px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all">
+          Top Face
+        </button>
+        <button (click)="setSide('BOTTOM')"
+                [class.bg-white]="activeSide === 'BOTTOM'"
+                [class.dark:bg-slate-800]="activeSide === 'BOTTOM'"
+                [class.text-amber-600]="activeSide === 'BOTTOM'"
+                [class.dark:text-amber-400]="activeSide === 'BOTTOM'"
+                [class.shadow-xs]="activeSide === 'BOTTOM'"
+                [class.text-slate-600]="activeSide !== 'BOTTOM'"
+                [class.dark:text-slate-400]="activeSide !== 'BOTTOM'"
+                class="px-2.5 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-all">
+          Bottom Face
+        </button>
+      </div>
+    </div>
+
+    <!-- Actions & Zoom/Fullscreen Controls -->
+    <div class="flex items-center gap-2.5">
+      <!-- Zoom / Reset Controls -->
+      <button (click)="reset2DView()" title="Centrer et ajuster la vue" class="px-2.5 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer">
+        <span>🔄 Ajuster (Fit)</span>
+      </button>
+
+      <!-- Fullscreen -->
+      <button *ngIf="allowFullscreen" (click)="toggleFullscreen()" class="px-2.5 py-1.5 rounded-lg bg-blue-600/10 hover:bg-blue-600 text-blue-600 hover:text-white dark:bg-blue-600/20 dark:text-blue-400 border border-blue-500/30 text-xs font-bold transition-all cursor-pointer">
+        {{ isFullscreen ? '⛶ Réduire' : '⛶ Plein Écran' }}
+      </button>
+    </div>
+
+  </div>
+
+  <!-- ═════ 2. Main View Canvas ═════ -->
+  <div class="relative flex-1 w-full bg-slate-100 dark:bg-slate-950 overflow-hidden select-none transition-colors duration-200">
+
+    <!-- Loading Overlay -->
+    <div *ngIf="isLoading" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-white/85 dark:bg-slate-950/85 backdrop-blur-sm gap-3">
+      <div class="w-10 h-10 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+      <p class="text-xs font-black tracking-wide text-slate-900 dark:text-white">Extraction & Rendu Haute Définition du Gerber...</p>
+      <p class="text-[10px] text-slate-500 dark:text-slate-400">Génération automatique des pistes cuivre, sérigraphie et perçages</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="hasError" class="absolute inset-0 z-30 flex flex-col items-center justify-center p-6 text-center bg-white/95 dark:bg-slate-950/95 gap-3">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center text-xl">⚠️</div>
+      <h4 class="text-sm font-bold text-slate-900 dark:text-white">Impossible de charger le Gerber</h4>
+      <p class="text-xs text-rose-500 max-w-md">{{ errorMessage }}</p>
+      <button (click)="loadPcbData()" class="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-lg cursor-pointer">
+        Réessayer
+      </button>
+    </div>
+
+    <!-- TAB 1 : Real 2D SVG Composite View (pcb-stackup) -->
+    <div [class.hidden]="activeTab !== '2D'"
+         class="w-full h-full relative overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing bg-slate-200/90 dark:bg-slate-950 transition-colors duration-200"
+         (wheel)="onWheel($event)"
+         (mousedown)="onMouseDown($event)"
+         (mousemove)="onMouseMove($event)"
+         (mouseup)="onMouseUp()"
+         (mouseleave)="onMouseUp()">
+      
+      <!-- Zoom/Pan Canvas Wrapper -->
+      <div [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'"
+           [style.transform-origin]="'center center'"
+           class="w-full h-full flex items-center justify-center p-6 transition-transform duration-75 select-none pointer-events-none">
+        
+        <!-- pointer-events réactivé ici : le wrapper pan/zoom les désactive,
+             or les marqueurs de défauts DFM doivent rester cliquables. -->
+        <div *ngIf="pcbDoc"
+             class="max-w-full max-h-full flex items-center justify-center drop-shadow-xl dark:drop-shadow-2xl svg-render-container"
+             style="pointer-events: auto;"
+             (click)="onSvgContainerClick($event)"
+             [innerHTML]="currentSvgContent">
+        </div>
+
+      </div>
+
+      <!-- Quick Floating Zoom Buttons -->
+      <div class="absolute bottom-4 right-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 shadow-lg">
+        <button (click)="zoomIn()" title="Zoomer" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold text-sm flex items-center justify-center transition-all cursor-pointer">
+          +
+        </button>
+        <button (click)="reset2DView()" title="Réinitialiser la vue (100%)" class="px-2 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-mono text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer">
+          {{ (zoom * 100).toFixed(0) }}%
+        </button>
+        <button (click)="zoomOut()" title="Dézoomer" class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-bold text-sm flex items-center justify-center transition-all cursor-pointer">
+          -
+        </button>
+      </div>
+
+    </div>
+
+    <!-- TAB 2 : 3D WebGL Three.js View -->
+    <div [class.hidden]="activeTab !== '3D'" class="w-full h-full relative bg-slate-100 dark:bg-slate-950">
+      <div #threeCanvasContainer class="w-full h-full"></div>
+    </div>
+
+    <!-- TAB 3 : JLCPCB Style Interactive Layers Viewer (Sidebar + CAD Canvas Overlay) -->
+    <div [class.hidden]="activeTab !== 'LAYERS'" class="w-full h-full flex flex-col md:flex-row bg-[#0d1117] text-slate-100 overflow-hidden select-none">
+
+      <!-- Les calques se dessinent au premier affichage de l'onglet : sans
+           cet indicateur, l'écran resterait noir sans rien annoncer. -->
+      <div *ngIf="layersLoading"
+           class="absolute inset-0 z-30 flex flex-col items-center justify-center gap-3"
+           style="background: rgba(13, 17, 23, 0.92);">
+        <div class="w-8 h-8 border-2 border-blue-500/25 border-t-blue-500 rounded-full animate-spin"></div>
+        <p class="text-xs font-semibold text-slate-300 m-0">Préparation des calques CAO…</p>
+      </div>
+
+      
+      <!-- Left Sidebar : Layers List (Numbered, Color box, Eye icon) -->
+      <div class="w-full md:w-72 md:shrink-0 bg-[#111827] border-b md:border-b-0 md:border-r border-slate-700/50 flex flex-col h-auto md:h-full z-10">
+        
+        <!-- Header with All On / All Off -->
+        <div class="p-3 border-b border-slate-700/50 flex items-center justify-between gap-2 bg-[#0d1117]">
+          <span class="text-xs font-bold text-slate-300">Couches CAO ({{ detectedLayers.length }})</span>
+          <div class="flex items-center gap-1.5">
+            <button (click)="toggleAllLayers(true)" title="Afficher toutes les couches" class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 cursor-pointer transition-colors">
+              All On
+            </button>
+            <button (click)="toggleAllLayers(false)" title="Masquer toutes les couches" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-700/50 hover:bg-slate-700 text-slate-400 cursor-pointer transition-colors">
+              All Off
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Layer Items -->
+        <div class="flex-1 overflow-y-auto p-2 space-y-1">
+          <div *ngFor="let layer of detectedLayers; let idx = index"
+               (click)="toggleLayerVisibility(layer)"
+               [class.bg-slate-800]="layer.visible"
+               [class.text-white]="layer.visible"
+               [class.border-slate-600]="layer.visible"
+               [class.text-slate-500]="!layer.visible"
+               [class.opacity-50]="!layer.visible"
+               class="px-2.5 py-1.5 rounded-lg border border-transparent hover:bg-slate-800/80 transition-all cursor-pointer flex items-center justify-between gap-2 text-xs font-medium select-none">
+            
+            <div class="flex items-center gap-2.5 min-w-0">
+              <span class="font-mono text-[10px] text-slate-500 w-3 text-right">{{ idx + 1 }}</span>
+              <span class="w-3.5 h-3.5 rounded-xs shrink-0 shadow-xs" [style.background]="layer.color"></span>
+              <span class="truncate font-sans font-semibold text-xs">{{ layer.displayName }}</span>
+            </div>
+
+            <!-- Eye Icon Toggle -->
+            <button class="text-xs shrink-0 cursor-pointer p-0.5 hover:text-blue-500 transition-colors">
+              <span *ngIf="layer.visible">👁️</span>
+              <span *ngIf="!layer.visible" class="opacity-40">🚫</span>
+            </button>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right CAD Canvas Viewport (Overlay with Pan & Zoom) -->
+      <div class="flex-1 h-full relative bg-[#0d1117] overflow-hidden flex items-center justify-center cursor-grab active:cursor-grabbing"
+           (wheel)="onWheel($event)"
+           (mousedown)="onMouseDown($event)"
+           (mousemove)="onMouseMove($event)"
+           (mouseup)="onMouseUp()"
+           (mouseleave)="onMouseUp()">
+        
+        <!-- Zoom/Pan Canvas Wrapper -->
+        <div [style.transform]="'translate(' + panX + 'px, ' + panY + 'px) scale(' + zoom + ')'"
+             [style.transform-origin]="'center center'"
+             class="w-full h-full flex items-center justify-center p-6 transition-transform duration-75 select-none pointer-events-none">
+          
+          <!-- Stack of active CAD Layer SVGs -->
+          <div class="relative w-full h-full flex items-center justify-center cad-layer-canvas">
+            <ng-container *ngFor="let layer of detectedLayers">
+              <div *ngIf="layer.visible && layer.svgContent"
+                   class="absolute inset-0 flex items-center justify-center cad-single-layer"
+                   [class.cad-mask-layer]="layer.kind === 'MASK'"
+                   [class.cad-copper-layer]="layer.kind === 'COPPER'"
+                   [class.cad-drill-layer]="layer.kind === 'DRILL'"
+                   [class.cad-silk-layer]="layer.kind === 'SILK'"
+                   [style.z-index]="getLayerZIndex(layer)"
+                   [innerHTML]="getSafeSvg(layer.svgContent)">
+              </div>
+            </ng-container>
+          </div>
+
+        </div>
+
+        <!-- Quick Floating Zoom Buttons -->
+        <div class="absolute bottom-4 right-4 z-20 flex items-center gap-1.5 p-1.5 rounded-xl bg-[#1e293b]/90 backdrop-blur-md border border-slate-700/50 shadow-lg text-white">
+          <button (click)="zoomIn()" title="Zoomer" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-slate-600 font-bold text-sm flex items-center justify-center transition-all cursor-pointer">
+            +
+          </button>
+          <button (click)="reset2DView()" title="Réinitialiser la vue (100%)" class="px-2 h-7 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 font-mono text-[11px] font-bold flex items-center justify-center transition-all cursor-pointer">
+            {{ (zoom * 100).toFixed(0) }}%
+          </button>
+          <button (click)="zoomOut()" title="Dézoomer" class="w-7 h-7 rounded-lg bg-slate-700 hover:bg-slate-600 font-bold text-sm flex items-center justify-center transition-all cursor-pointer">
+            -
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═════ 3. Footer Status Bar ═════ -->
+  <div class="px-4 py-2 border-t border-slate-200 dark:border-slate-800/80 bg-slate-100/80 dark:bg-slate-900/60 flex flex-wrap items-center justify-between text-[10px] text-slate-600 dark:text-slate-400 font-mono shrink-0 transition-colors duration-200">
+    <div class="flex items-center gap-3">
+      <span>📐 Dimensions : <strong class="text-slate-900 dark:text-white">{{ pcbDoc?.metadata?.widthMm }} x {{ pcbDoc?.metadata?.heightMm }} mm</strong></span>
+      <span>•</span>
+      <span>Épaisseur : <strong class="text-slate-900 dark:text-white">{{ pcbDoc?.metadata?.thicknessMm }} mm</strong></span>
+      <span>•</span>
+      <span>Couches cuivre : <strong class="text-slate-900 dark:text-white">{{ pcbDoc?.metadata?.layerCount }} Layers</strong></span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <span class="text-slate-700 dark:text-slate-300">Moteur Client-Side Haute Fidélité (100% Local)</span>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,525 @@
+<div class="space-y-7 animate-fade-up font-sans text-slate-900 dark:text-slate-100">
+      
+      <!-- ═══ PREMIUM PAGE HEADER (Matching Workspace Projets Style) ═══ -->
+      <div class="page-header-premium">
+        <div class="relative z-10 space-y-1.5">
+          <div class="flex items-center gap-3">
+            <span class="text-2xl">📅</span>
+            <h1 class="page-title-premium">
+              Planning & Rendez-vous
+            </h1>
+          </div>
+          <p class="text-xs text-muted-foreground font-semibold flex flex-wrap items-center gap-x-2.5 gap-y-1">
+            <span>{{ reunions.length }} rendez-vous au total</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-primary font-bold">{{ todayMeetingsCount }} aujourd'hui</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-warning font-bold">{{ upcomingMeetingsCount }} à venir</span>
+            <span class="text-muted-foreground/30">•</span>
+            <span class="text-success font-bold">{{ completedMeetingsCount }} terminés</span>
+          </p>
+        </div>
+
+        <!-- Right Side Controls -->
+        <div class="flex items-center gap-3 relative z-10 self-start md:self-center">
+          <button (click)="showAvailabilityModal = true"
+                  class="btn-primary flex items-center justify-center gap-2 transition-all duration-300"
+                  style="height: 44px; padding: 0 20px; border-radius: 12px; font-size: 13px; box-shadow: 0 8px 25px hsl(var(--primary)/0.25);">
+            <span>⚙️</span>
+            <span>Mes Disponibilités</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           PANORAMIC CONNECTED BUSINESS METRICS
+      ══════════════════════════════════════════════════════ -->
+      <section class="rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden space-y-6"
+               style="background: linear-gradient(135deg, hsl(var(--card)/0.9) 0%, hsl(var(--primary)/0.03) 100%); border: 1px solid hsl(var(--border)/0.4); backdrop-filter: blur(20px);">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
+          
+          <!-- Metric 1: Total Réunions À Venir -->
+          <div class="space-y-1.5 sm:border-r border-slate-200/80 dark:border-slate-800 sm:pr-4">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
+              RÉUNIONS CONFIRMÉES
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl sm:text-4xl font-extrabold text-slate-950 dark:text-white font-mono">
+                {{ upcomingMeetingsCount }}
+              </span>
+              <span class="text-xs font-bold text-blue-600 uppercase">À venir</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">Créneaux réservés par les clients</p>
+          </div>
+
+          <!-- Metric 2: Aujourd'hui -->
+          <div class="space-y-1.5 lg:border-r border-slate-200/80 dark:border-slate-800 lg:pr-4">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                AUJOURD'HUI
+              </span>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
+                {{ todayDateFormatted }}
+              </span>
+            </div>
+            <div class="text-3xl sm:text-4xl font-extrabold text-amber-600 dark:text-amber-400 font-mono">
+              {{ todayMeetingsCount }}
+            </div>
+            <p class="text-[11px] text-slate-500 truncate font-medium">
+              {{ nextMeetingTodayLabel }}
+            </p>
+          </div>
+
+          <!-- Metric 3: Réunions Complétées -->
+          <div class="space-y-1.5 sm:border-r border-slate-200/80 dark:border-slate-800 sm:pr-4">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              HONORÉES / COMPLÉTÉES
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl sm:text-4xl font-extrabold text-emerald-600 dark:text-emerald-400 font-mono">
+                {{ completedMeetingsCount }}
+              </span>
+              <span class="text-xs font-bold text-emerald-600 font-mono">/ {{ reunions.length }}</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">Consultations techniques effectuées</p>
+          </div>
+
+          <!-- Metric 4: Heures d'Échange -->
+          <div class="space-y-1.5">
+            <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">
+              TEMPS DE CONSULTATION
+            </span>
+            <div class="flex items-baseline gap-2">
+              <span class="text-3xl sm:text-4xl font-extrabold text-blue-600 dark:text-blue-400 font-mono">
+                {{ totalConsultationHours | number:'1.1-1' }}
+              </span>
+              <span class="text-xs font-bold text-slate-400 font-mono">HEURES</span>
+            </div>
+            <p class="text-[11px] text-slate-500 font-medium">Total des échanges chiffrage alloués</p>
+          </div>
+
+        </div>
+
+        <!-- Linear Progress Track -->
+        <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 space-y-1.5">
+          <div class="flex justify-between items-center text-[10px] font-mono uppercase tracking-wider text-slate-400">
+            <span>Activité du mois en cours</span>
+            <span>{{ upcomingMeetingsCount }} à venir • {{ completedMeetingsCount }} terminées</span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden flex">
+            <div [style.width.%]="completedPercentage" class="bg-emerald-500 h-full transition-all" title="Complétées"></div>
+            <div [style.width.%]="upcomingPercentage" class="bg-blue-600 h-full transition-all" title="À venir"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════════════════════════════════════════════
+           NAVIGATION & VIEW MODE SWITCHER
+      ══════════════════════════════════════════════════════ -->
+      <div class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        <!-- Month Navigation -->
+        <div class="flex items-center gap-3">
+          <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+            <button (click)="previousMonth()" title="Mois précédent" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer font-bold text-sm">
+              ‹
+            </button>
+            <button (click)="goToToday()" class="px-3.5 py-1 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition cursor-pointer">
+              Aujourd'hui
+            </button>
+            <button (click)="nextMonth()" title="Mois suivant" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 transition cursor-pointer font-bold text-sm">
+              ›
+            </button>
+          </div>
+
+          <h2 class="text-xl sm:text-2xl font-black text-slate-950 dark:text-white capitalize font-mono tracking-tight pl-2">
+            {{ currentMonthName }} {{ currentYear }}
+          </h2>
+        </div>
+
+        <!-- View Mode Tabs -->
+        <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
+          <button (click)="activeView = 'MONTH'"
+                  [ngClass]="activeView === 'MONTH' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+            <span>📅</span>
+            <span>Vue Calendrier Mensuel</span>
+          </button>
+          <button (click)="activeView = 'WEEK'"
+                  [ngClass]="activeView === 'WEEK' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+            <span>📋</span>
+            <span>Semaine & Créneaux</span>
+          </button>
+          <button (click)="activeView = 'LIST'"
+                  [ngClass]="activeView === 'LIST' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+                  class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5">
+            <span>📑</span>
+            <span>Registre Chronologique ({{ reunions.length }})</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW 1: HIGH-TECH MONTHLY CALENDAR GRID
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="activeView === 'MONTH'" class="space-y-6">
+        
+        <div class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
+          
+          <!-- Days of Week Header -->
+          <div class="grid grid-cols-7 border-b border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-[11px] font-mono font-bold text-slate-400 uppercase text-center py-3">
+            <div *ngFor="let dayName of ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche']">
+              {{ dayName }}
+            </div>
+          </div>
+
+          <!-- Calendar Grid Cells -->
+          <div class="grid grid-cols-7 divide-x divide-y divide-slate-100 dark:divide-slate-800/80">
+            <div *ngFor="let day of calendarDays" 
+                 (click)="selectDay(day)"
+                 [ngClass]="{
+                   'bg-slate-50/50 dark:bg-slate-950/40 text-slate-400': !day.isCurrentMonth,
+                   'bg-blue-50/15 dark:bg-blue-950/10': day.isCurrentMonth && day.isWorkingDay,
+                   'ring-2 ring-blue-600 ring-inset bg-blue-50/50 dark:bg-blue-950/30': selectedDay?.dateStr === day.dateStr,
+                   'border-t-2 border-t-amber-500': day.isToday
+                 }"
+                 class="min-h-[115px] sm:min-h-[135px] p-2 sm:p-3 transition cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 flex flex-col justify-between group">
+              
+              <!-- Day Header -->
+              <div class="flex items-center justify-between">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-bold"
+                      [ngClass]="day.isToday ? 'bg-blue-600 text-white shadow-xs' : (day.isCurrentMonth ? 'text-slate-900 dark:text-white' : 'text-slate-400')">
+                  {{ day.dayNumber }}
+                </span>
+
+                <!-- Counter Pill if meetings exist -->
+                <div class="flex items-center gap-1">
+                  <span *ngIf="day.meetings.length > 0" class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black bg-blue-600 text-white shadow-2xs">
+                    {{ day.meetings.length }}
+                  </span>
+                  <span *ngIf="day.isWorkingDay && day.isCurrentMonth && day.meetings.length === 0" class="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-700" title="Jour ouvert"></span>
+                </div>
+              </div>
+
+              <!-- Meeting Micro-Badges Inside Day Cell -->
+              <div class="space-y-1 mt-1.5 flex-1 overflow-hidden">
+                <div *ngFor="let m of day.meetings | slice:0:2" 
+                     [ngClass]="{
+                       'bg-blue-100 dark:bg-blue-950/60 text-blue-900 dark:text-blue-200 border-blue-200 dark:border-blue-800': getEffectiveStatus(m) === 'PLANIFIEE',
+                       'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-200 border-amber-200 animate-pulse': getEffectiveStatus(m) === 'EN_COURS',
+                       'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-200 border-emerald-200': getEffectiveStatus(m) === 'TERMINEE',
+                       'bg-slate-100 text-slate-500 line-through': getEffectiveStatus(m) === 'ANNULEE'
+                     }"
+                     class="p-1 rounded-md text-[10px] font-mono font-semibold border truncate flex items-center gap-1 shadow-2xs">
+                  <span class="shrink-0 font-bold">{{ m.dateDebut | date:'HH:mm' }}</span>
+                  <span class="truncate font-sans font-medium">{{ m.projetNom || m.titre }}</span>
+                </div>
+                
+                <span *ngIf="day.meetings.length > 2" class="text-[9px] font-mono text-slate-400 block pl-1">
+                  + {{ day.meetings.length - 2 }} autre(s)
+                </span>
+              </div>
+
+              <!-- Bottom Day Tag -->
+              <div class="text-[9px] font-mono text-slate-400 pt-1 text-right">
+                <span *ngIf="!day.isWorkingDay && day.isCurrentMonth" class="text-slate-300 dark:text-slate-700">Fermé</span>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ── INTERACTIVE SELECTED DAY INSPECTOR PANEL ── -->
+        <div *ngIf="selectedDay" class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4 animate-in slide-in-from-bottom-2 duration-150">
+          
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-mono font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400">JOUR SÉLECTIONNÉ</span>
+                <span *ngIf="selectedDay.isToday" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">AUJOURD'HUI</span>
+              </div>
+              <h3 class="text-xl sm:text-2xl font-black text-slate-950 dark:text-white capitalize">
+                {{ selectedDay.date | date:'EEEE dd MMMM yyyy' }}
+              </h3>
+            </div>
+
+            <!-- Active hours for this day -->
+            <div *ngIf="selectedDayWorkingPlages.length > 0" class="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 bg-slate-50 dark:bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700">
+              <span class="font-bold text-slate-700 dark:text-slate-300">Créneaux configurés :</span>
+              <span *ngFor="let p of selectedDayWorkingPlages" class="text-blue-600 dark:text-blue-400 font-black">
+                {{ p.heureDebut }} - {{ p.heureFin }}
+              </span>
+            </div>
+            <div *ngIf="selectedDayWorkingPlages.length === 0" class="text-xs font-mono text-slate-400 italic">
+              Jour fermé (Aucun créneau configuré)
+            </div>
+          </div>
+
+          <!-- List of meetings for selected day -->
+          <div *ngIf="selectedDay.meetings.length > 0" class="space-y-3">
+            <div *ngFor="let m of selectedDay.meetings" 
+                 class="p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-800/50 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 shadow-2xs">
+              
+              <div class="space-y-1.5 min-w-0">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                  <span class="px-2.5 py-1 rounded-lg text-xs font-mono font-extrabold bg-blue-600 text-white">
+                    {{ m.dateDebut | date:'HH:mm' }} - {{ m.dateFin | date:'HH:mm' }}
+                  </span>
+                  
+                  <a [routerLink]="['/client/projets', m.projetId]" class="font-bold text-xs text-slate-900 dark:text-slate-200 hover:text-blue-600 flex items-center gap-1">
+                    <span>📁</span>
+                    <span>{{ m.projetNom }}</span>
+                  </a>
+
+                  <span [ngClass]="{
+                    'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-200': getEffectiveStatus(m) === 'PLANIFIEE',
+                    'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-200 animate-pulse': getEffectiveStatus(m) === 'EN_COURS',
+                    'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-200': getEffectiveStatus(m) === 'TERMINEE',
+                    'bg-rose-100 text-rose-800 border-rose-200': getEffectiveStatus(m) === 'ANNULEE'
+                  }" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold border">
+                    {{ getEffectiveStatus(m) }}
+                  </span>
+                </div>
+
+                <h4 class="text-sm font-bold text-slate-900 dark:text-white">{{ m.titre }}</h4>
+                <p *ngIf="m.ordreDuJour" class="text-xs text-slate-500 italic">{{ m.ordreDuJour }}</p>
+                <div class="text-xs text-slate-600 dark:text-slate-400">
+                  Client : <strong class="text-slate-900 dark:text-white">{{ m.clientNom }}</strong> 
+                  <span class="text-slate-400 font-mono">({{ m.clientEmail || 'Email non renseigné' }})</span>
+                </div>
+              </div>
+
+              <!-- Meeting Actions -->
+              <div class="flex flex-wrap items-center gap-2 self-stretch sm:self-auto justify-end">
+                <a *ngIf="m.lienVisio && (getEffectiveStatus(m) === 'PLANIFIEE' || getEffectiveStatus(m) === 'EN_COURS')" 
+                   [href]="m.lienVisio" target="_blank"
+                   class="px-4 py-2 text-xs font-extrabold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-sm transition flex items-center gap-2 cursor-pointer active:scale-98">
+                  <span>🎥</span>
+                  <span>Rejoindre l'Appel</span>
+                </a>
+
+                <button *ngIf="m.lienVisio" (click)="copyLink(m.lienVisio, m.id)" 
+                        title="Copier le lien Google Meet"
+                        class="p-2 rounded-xl bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-100 transition cursor-pointer text-xs font-bold flex items-center gap-1">
+                  <span>{{ copiedMeetingId === m.id ? '✓ Copié' : 'Copier lien' }}</span>
+                </button>
+
+                <button *ngIf="getEffectiveStatus(m) === 'PLANIFIEE'" (click)="openCancelModal(m)"
+                        class="px-3 py-2 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition cursor-pointer">
+                  Annuler
+                </button>
+              </div>
+
+            </div>
+          </div>
+
+          <div *ngIf="selectedDay.meetings.length === 0" class="py-8 text-center text-slate-400 text-xs">
+            Aucun rendez-vous client programmé pour cette journée.
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW 2: WEEKLY SCHEDULE & AVAILABILITY OVERVIEW
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="activeView === 'WEEK'" class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl p-6 shadow-xs space-y-6">
+        
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h3 class="text-base font-extrabold text-slate-950 dark:text-white">
+              Grille Hebdomadaire des Créneaux de Travail
+            </h3>
+            <p class="text-xs text-slate-500">
+              Superposition de vos plages de travail hebdomadaires et des rendez-vous clients.
+            </p>
+          </div>
+
+          <button (click)="showAvailabilityModal = true" class="px-3.5 py-1.5 text-xs font-bold text-blue-600 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 rounded-xl border border-blue-200 dark:border-blue-800 transition cursor-pointer">
+            Modifier mes plages
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+          <div *ngFor="let j of joursDisponibilites" 
+               class="p-4 rounded-2xl border space-y-3"
+               [ngClass]="j.actif ? 'bg-slate-50/70 dark:bg-slate-800/40 border-slate-200 dark:border-slate-700' : 'bg-slate-50/20 dark:bg-slate-900/20 border-slate-100 dark:border-slate-800 opacity-50'">
+            
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black text-slate-900 dark:text-white">{{ dayLabels[j.jour] || j.jour }}</span>
+              <span [ngClass]="j.actif ? 'bg-emerald-500' : 'bg-slate-300 dark:bg-slate-700'" class="w-2 h-2 rounded-full"></span>
+            </div>
+
+            <div *ngIf="j.actif && j.plages && j.plages.length > 0" class="space-y-1.5 text-[11px] font-mono">
+              <div *ngFor="let p of j.plages; let idx = index" class="bg-white dark:bg-slate-900 p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                <span class="text-slate-400 text-[10px] block font-sans font-semibold">Créneau {{ idx + 1 }} :</span>
+                <strong>{{ p.heureDebut }} - {{ p.heureFin }}</strong>
+              </div>
+            </div>
+
+            <div *ngIf="!j.actif || !j.plages || j.plages.length === 0" class="text-[11px] text-slate-400 italic py-6 text-center">
+              Fermé
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           VIEW 3: CHRONOLOGICAL ACTIVITY LEDGER (LIST VIEW)
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="activeView === 'LIST'" class="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        
+        <!-- Filter Toolbar -->
+        <div class="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+          
+          <div class="relative flex-1 max-w-md">
+            <input type="text" [(ngModel)]="listSearchTerm" placeholder="Filtrer par projet, client ou titre..."
+                   class="w-full pl-9 pr-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs outline-none focus:border-blue-500 font-sans"/>
+            <span class="absolute left-3 top-2.5 text-slate-400 text-xs">🔍</span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button (click)="listStatusFilter = 'ALL'"
+                    [ngClass]="listStatusFilter === 'ALL' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 hover:bg-slate-100 border border-slate-200 dark:border-slate-700'"
+                    class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
+              Toutes ({{ reunions.length }})
+            </button>
+            <button (click)="listStatusFilter = 'PLANIFIEE'"
+                    [ngClass]="listStatusFilter === 'PLANIFIEE' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 hover:bg-slate-100 border border-slate-200 dark:border-slate-700'"
+                    class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
+              À Venir ({{ upcomingMeetingsCount }})
+            </button>
+            <button (click)="listStatusFilter = 'TERMINEE'"
+                    [ngClass]="listStatusFilter === 'TERMINEE' ? 'bg-slate-900 text-white dark:bg-blue-600 font-bold' : 'bg-white dark:bg-slate-800 text-slate-600 hover:bg-slate-100 border border-slate-200 dark:border-slate-700'"
+                    class="px-3 py-1.5 rounded-lg text-xs transition cursor-pointer">
+              Complétées ({{ completedMeetingsCount }})
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Meetings Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-800/40 text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
+                <th class="py-3.5 pl-6 pr-4">Date & Heure</th>
+                <th class="py-3.5 px-4">Projet Associé</th>
+                <th class="py-3.5 px-4">Client & Contact</th>
+                <th class="py-3.5 px-4">Objet de la Consultation</th>
+                <th class="py-3.5 px-4 text-center">Statut</th>
+                <th class="py-3.5 pr-6 pl-4 text-right">Lien Google Meet & Actions</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
+              <tr *ngFor="let m of filteredListReunions" class="hover:bg-slate-50/70 dark:hover:bg-slate-800/30 transition">
+                
+                <!-- Date -->
+                <td class="py-4 pl-6 pr-4 whitespace-nowrap font-mono">
+                  <div class="font-bold text-slate-900 dark:text-white">{{ m.dateDebut | date:'dd/MM/yyyy' }}</div>
+                  <div class="text-[11px] text-blue-600 dark:text-blue-400 font-extrabold">{{ m.dateDebut | date:'HH:mm' }} - {{ m.dateFin | date:'HH:mm' }}</div>
+                </td>
+
+                <!-- Projet -->
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <a [routerLink]="['/client/projets', m.projetId]" class="inline-flex items-center gap-1.5 font-bold text-slate-900 dark:text-slate-200 hover:text-blue-600">
+                    <span>📁</span>
+                    <span>{{ m.projetNom }}</span>
+                  </a>
+                </td>
+
+                <!-- Client -->
+                <td class="py-4 px-4 whitespace-nowrap">
+                  <div class="font-bold text-slate-900 dark:text-white">{{ m.clientNom }}</div>
+                  <div class="text-[11px] text-slate-500 font-mono">{{ m.clientEmail || 'N/A' }}</div>
+                </td>
+
+                <!-- Titre -->
+                <td class="py-4 px-4">
+                  <div class="font-semibold text-slate-900 dark:text-white">{{ m.titre }}</div>
+                  <div *ngIf="m.ordreDuJour" class="text-[11px] text-slate-500 italic line-clamp-1">{{ m.ordreDuJour }}</div>
+                </td>
+
+                <!-- Statut -->
+                <td class="py-4 px-4 text-center whitespace-nowrap">
+                  <span [ngClass]="{
+                    'bg-blue-50 text-blue-800 dark:bg-blue-950/40 dark:text-blue-300 border-blue-200': getEffectiveStatus(m) === 'PLANIFIEE',
+                    'bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 border-amber-200 animate-pulse': getEffectiveStatus(m) === 'EN_COURS',
+                    'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 border-emerald-200': getEffectiveStatus(m) === 'TERMINEE',
+                    'bg-rose-50 text-rose-800 border-rose-200': getEffectiveStatus(m) === 'ANNULEE'
+                  }" class="px-2.5 py-1 rounded-md text-[10px] font-mono font-bold border">
+                    {{ getEffectiveStatus(m) }}
+                  </span>
+                </td>
+
+                <!-- Actions -->
+                <td class="py-4 pr-6 pl-4 text-right whitespace-nowrap">
+                  <div class="flex items-center justify-end gap-2">
+                    <a *ngIf="m.lienVisio && (getEffectiveStatus(m) === 'PLANIFIEE' || getEffectiveStatus(m) === 'EN_COURS')" 
+                       [href]="m.lienVisio" target="_blank"
+                       class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-lg transition flex items-center gap-1 cursor-pointer">
+                      <span>🎥</span>
+                      <span>Rejoindre</span>
+                    </a>
+                    
+                    <button *ngIf="getEffectiveStatus(m) === 'PLANIFIEE'" (click)="openCancelModal(m)"
+                            class="px-2.5 py-1 text-xs text-rose-600 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-lg transition cursor-pointer">
+                      Annuler
+                    </button>
+                  </div>
+                </td>
+              </tr>
+
+              <tr *ngIf="filteredListReunions.length === 0">
+                <td colspan="6" class="py-16 text-center text-slate-400 text-xs">
+                  Aucune réunion trouvée selon vos filtres.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- ══════════════════════════════════════════════════════
+           ANNULATION MODAL DIALOG
+      ══════════════════════════════════════════════════════ -->
+      <div *ngIf="meetingToCancel" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+            <h3 class="text-base font-extrabold text-slate-950 dark:text-white">Annuler le Rendez-vous</h3>
+            <button (click)="meetingToCancel = null" class="text-slate-400 hover:text-slate-900 dark:hover:text-white">✕</button>
+          </div>
+
+          <p class="text-xs text-slate-500">
+            Veuillez préciser le motif d'annulation. Un email de notification sera automatiquement transmis au client (<strong>{{ meetingToCancel.clientNom }}</strong>).
+          </p>
+
+          <textarea [(ngModel)]="cancelReason" placeholder="Motif d'annulation..." rows="3"
+                    class="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs outline-none focus:ring-1 focus:ring-rose-500"></textarea>
+
+          <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button (click)="meetingToCancel = null" class="px-4 py-2 text-xs font-bold text-slate-600 dark:text-slate-300">Annuler</button>
+            <button (click)="confirmCancelMeeting()" [disabled]="cancelling || !cancelReason.trim()"
+                    class="px-4 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-xs transition cursor-pointer disabled:opacity-50">
+              {{ cancelling ? 'Annulation...' : 'Confirmer l\'annulation' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disponibilités Modal -->
+      <app-chef-availability-modal
+        *ngIf="showAvailabilityModal"
+        (close)="onAvailabilityModalClose()">
+      </app-chef-availability-modal>
+
+    </div>

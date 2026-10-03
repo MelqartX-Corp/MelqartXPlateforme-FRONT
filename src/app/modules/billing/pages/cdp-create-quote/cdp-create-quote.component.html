@@ -1,0 +1,95 @@
+<div class="p-6 max-w-4xl mx-auto space-y-6">
+  <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700">
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-3">
+      <span class="p-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-xl shadow-sm">📝</span>
+      Élaboration du Devis — {{ projectName || 'Projet' }}
+    </h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+      Sélectionnez la prestation (Consulting, Engineering, Testing...) et spécifiez le volume pour calculer le montant et les tranches 50/50.
+    </p>
+  </div>
+
+  <!-- Success Toast -->
+  <div *ngIf="successToast" class="p-4 bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 rounded-2xl border border-emerald-200 dark:border-emerald-800 flex items-center justify-between shadow-md animate-in fade-in slide-in-from-top-2 duration-300">
+    <div class="flex items-center gap-2.5 font-bold text-sm">
+      <span class="text-base">🚀</span>
+      <span>{{ successToast }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="p-4 bg-red-50 text-red-700 rounded-xl border border-red-200">{{ errorMessage }}</div>
+
+  <div *ngIf="loading" class="text-center py-8 text-gray-500 flex items-center justify-center gap-2">
+    <svg class="animate-spin h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+    Chargement des prestations du catalogue...
+  </div>
+
+  <div *ngIf="!loading" class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 space-y-6">
+    <!-- Service Selection -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Prestation à Facturer *</label>
+      <select [(ngModel)]="req.serviceId" (change)="onServiceChange()" class="w-full px-4 py-2.5 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <option value="" disabled>-- Sélectionnez un service du catalogue --</option>
+        <option *ngFor="let s of services" [value]="s.id">
+          {{ s.name }} ({{ s.code }}) — {{ s.currentPrice?.unitPrice | number:'1.3-3' }} TND / {{ s.defaultUnit }} (TVA {{ s.currentPrice?.taxRate || 19 }}%)
+        </option>
+      </select>
+    </div>
+
+    <!-- Quantity Input with dynamic label -->
+    <div *ngIf="selectedService">
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <span *ngIf="selectedService.billingMethod === 'TIME'">⏳ Nombre d'Heures Estimées ({{ selectedService.defaultUnit }}) *</span>
+        <span *ngIf="selectedService.billingMethod === 'QUANTITY'">📦 Quantité de Pièces à Tester / Produire ({{ selectedService.defaultUnit }}) *</span>
+        <span *ngIf="selectedService.billingMethod === 'FIXED'">Forfait Fixe *</span>
+      </label>
+      <div class="relative">
+        <input type="number" min="1" [(ngModel)]="req.quantity" (input)="recalculate()" placeholder="ex: 10" class="w-full px-4 py-2.5 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm pr-16 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+        <span class="absolute right-4 top-2.5 text-sm text-gray-400 font-medium">{{ selectedService.defaultUnit }}</span>
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div>
+      <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Description / Détails de la Prestation (Optionnel)</label>
+      <textarea [(ngModel)]="req.description" rows="3" placeholder="Précisez le périmètre des livrables (ex: 20 heures d'étude de faisabilité et schématique)..." class="w-full px-4 py-2.5 border rounded-xl dark:bg-gray-700 dark:border-gray-600 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"></textarea>
+    </div>
+
+    <!-- Live Server-Side Simulation Summary -->
+    <div *ngIf="selectedService && req.quantity > 0" class="p-5 bg-gradient-to-br from-blue-50/70 to-indigo-50/70 dark:from-blue-950/30 dark:to-indigo-950/30 rounded-2xl border border-blue-100 dark:border-blue-800/40 space-y-4">
+      <div class="font-bold text-sm text-blue-900 dark:text-blue-200 flex items-center gap-2">
+        <span>📊 Décomposition Financière (Norme TVA 19% + Timbre Fiscal)</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+        <div class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-xl border border-blue-50 dark:border-gray-700">
+          <span class="text-xs text-gray-500 block">Total HT</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ subtotalHt | number:'1.3-3' }} TND</span>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-xl border border-blue-50 dark:border-gray-700">
+          <span class="text-xs text-gray-500 block">TVA (19%)</span>
+          <span class="font-bold text-gray-900 dark:text-white">{{ taxAmount | number:'1.3-3' }} TND</span>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-xl border border-blue-50 dark:border-gray-700">
+          <span class="text-xs text-gray-500 block">Total TTC</span>
+          <span class="font-bold text-blue-600 dark:text-blue-400">{{ totalTtc | number:'1.3-3' }} TND</span>
+        </div>
+        <div class="bg-white/80 dark:bg-gray-800/80 p-3 rounded-xl border border-blue-50 dark:border-gray-700">
+          <span class="text-xs text-gray-500 block">Acompte 50%</span>
+          <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ tranche1 | number:'1.3-3' }} TND</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+      <button (click)="cancel()" class="w-full sm:w-auto px-5 py-2.5 text-sm text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700 rounded-xl transition">
+        Annuler
+      </button>
+      <button (click)="submitAndSendQuote()" [disabled]="submitting || !req.serviceId || req.quantity <= 0" 
+              class="w-full sm:w-auto px-6 py-2.5 text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer">
+        <span *ngIf="submitting" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+        <span>{{ submitting ? 'Transmission...' : 'Créer & Transmettre au Client 🚀' }}</span>
+      </button>
+    </div>
+  </div>
+</div>

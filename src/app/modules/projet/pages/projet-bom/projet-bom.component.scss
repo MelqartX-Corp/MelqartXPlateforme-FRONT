@@ -1,0 +1,235 @@
+/* ==========================================================================
+   MELQARTX HARDWARE PLATFORM — BOM COCKPIT LUXURY DESIGN SYSTEM
+   Ultra-Premium Hardware Manufacturing UI / UX
+   ========================================================================== */
+
+:host {
+  display: block;
+  width: 100%;
+  --pcb-cyan: #06b6d4;
+  --pcb-blue: #2563eb;
+  --pcb-indigo: #4f46e5;
+  --pcb-emerald: #10b981;
+  --pcb-amber: #f59e0b;
+  --pcb-rose: #f43f5e;
+}
+
+/* ── Typographie Haute Fidélité ── */
+.font-outfit {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-inter {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+.font-mono-tech {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace !important;
+}
+
+/* ── Arrière-plan Tech & Grille Industrielle ── */
+.cockpit-canvas {
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 15% 15%, rgba(37, 99, 235, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 85% 25%, rgba(6, 182, 212, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(99, 102, 241, 0.04) 0%, transparent 50%),
+    hsl(var(--background));
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-grid-pattern {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.07) 1px, transparent 1px);
+}
+
+:host-context(.dark) .tech-grid-pattern,
+.dark .tech-grid-pattern {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+/* ── Hero Banner de Commande (Glassmorphism Luxueux) ── */
+.hero-cockpit-banner {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(243, 248, 255, 0.85) 50%, rgba(240, 249, 255, 0.8) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  box-shadow:
+    0 20px 40px -15px rgba(37, 99, 235, 0.07),
+    0 1px 3px 0 rgba(0, 0, 0, 0.02),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+:host-context(.dark) .hero-cockpit-banner,
+.dark .hero-cockpit-banner {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow:
+    0 25px 50px -12px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.hero-cockpit-banner::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #2563EB, #06B6D4, #10B981, #2563EB);
+  background-size: 300% 100%;
+  animation: traceGlow 6s linear infinite;
+  z-index: 5;
+}
+
+@keyframes traceGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Cartes Hardware Bento ── */
+.bento-card-hardware {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  border-radius: 1.5rem;
+  box-shadow:
+    0 10px 25px -5px rgba(15, 23, 42, 0.04),
+    0 1px 3px 0 rgba(15, 23, 42, 0.02),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+:host-context(.dark) .bento-card-hardware,
+.dark .bento-card-hardware {
+  background: rgba(30, 41, 59, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow:
+    0 16px 36px -10px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ── Stepper Pipeline Capsule Flottante ── */
+.stepper-pipeline-capsule {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  border-radius: 9999px;
+  box-shadow:
+    0 10px 30px -5px rgba(15, 23, 42, 0.06),
+    0 2px 6px -1px rgba(15, 23, 42, 0.02),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  padding: 0.35rem 0.5rem;
+  transition: all 0.3s ease;
+}
+
+:host-context(.dark) .stepper-pipeline-capsule,
+.dark .stepper-pipeline-capsule {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 14px 35px -8px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.step-pill-completed {
+  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95) 0%, rgba(209, 250, 229, 0.85) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #047857;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px -1px rgba(16, 185, 129, 0.15);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:host-context(.dark) .step-pill-completed,
+.dark .step-pill-completed {
+  background: linear-gradient(135deg, rgba(6, 78, 59, 0.4) 0%, rgba(6, 95, 70, 0.3) 100%);
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #34D399;
+}
+
+.step-pill-completed:hover {
+  transform: translateY(-1px) scale(1.02);
+  border-color: rgba(16, 185, 129, 0.6);
+  box-shadow: 0 4px 12px -1px rgba(16, 185, 129, 0.25);
+}
+
+.step-pill-active {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 50%, #0284C7 100%);
+  color: #FFFFFF;
+  border-radius: 9999px;
+  box-shadow:
+    0 6px 18px -2px rgba(37, 99, 235, 0.45),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+  transition: all 0.25s ease;
+}
+
+.step-pill-pending {
+  background: rgba(248, 250, 252, 0.7);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  color: #94A3B8;
+  border-radius: 9999px;
+}
+
+:host-context(.dark) .step-pill-pending,
+.dark .step-pill-pending {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #64748B;
+}
+
+.step-connector-gradient {
+  height: 3px;
+  width: 1.5rem;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #10B981, #06B6D4, #2563EB);
+  box-shadow: 0 0 6px rgba(6, 182, 212, 0.4);
+}
+
+.step-connector-muted {
+  height: 2px;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background: rgba(203, 213, 225, 0.8);
+}
+
+:host-context(.dark) .step-connector-muted,
+.dark .step-connector-muted {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Animations ── */
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
