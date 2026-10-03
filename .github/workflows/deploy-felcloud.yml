@@ -12,8 +12,10 @@
 #
 #  Secrets de l'environnement "prod" (Settings → Environments → prod) :
 #    SSH_HOST, SSH_USER, SSH_PRIVATE_KEY, SSH_KNOWN_HOSTS
-#  Variables (optionnelles) : DEPLOY_PATH (défaut /var/www/melqartx-app),
-#                             APP_URL (défaut https://app.melqartx.com)
+#  Variables : GOOGLE_MAPS_API_KEY (clé navigateur restreinte au domaine,
+#              injectée au build — jamais commitée),
+#              DEPLOY_PATH (défaut /var/www/melqartx-app),
+#              APP_URL (défaut https://app.melqartx.com)
 # ─────────────────────────────────────────────────────────────────────
 name: Deploy front → FelCloud
 
@@ -58,6 +60,18 @@ jobs:
 
       - name: Installer les dépendances
         run: npm ci
+
+      - name: Injecter la clé Google Maps
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ vars.GOOGLE_MAPS_API_KEY }}
+        run: |
+          if [ -z "$GOOGLE_MAPS_API_KEY" ]; then
+            echo "::warning::Variable GOOGLE_MAPS_API_KEY absente : la carte ne s'affichera pas"
+          else
+            sed -i "s|VOTRE_CLE_API_GOOGLE_MAPS|${GOOGLE_MAPS_API_KEY}|" src/environments/environment.production.ts
+            grep -q "VOTRE_CLE_API_GOOGLE_MAPS" src/environments/environment.production.ts \
+              && { echo "::error::remplacement de la clé échoué"; exit 1; } || echo "✅ clé Google Maps injectée"
+          fi
 
       - name: Build Angular (production)
         run: npx ng build --configuration production
