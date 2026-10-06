@@ -4,10 +4,11 @@ import { roleGuard } from './guards/role.guard';
 import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'features', pathMatch: 'full' },
 
   // Page vitrine — accessible à tous (connectés ou non)
-  { path: 'features', loadComponent: () => import('./pages/features-showcase/features-showcase.component').then(m => m.FeaturesShowcaseComponent) },
+  { path: '', pathMatch: 'full', loadComponent: () => import('./pages/features-showcase/features-showcase.component').then(m => m.FeaturesShowcaseComponent) },
+  // Ancienne adresse /features : redirige vers l'accueil (liens deja partages)
+  { path: 'features', redirectTo: '', pathMatch: 'full' },
   // Politique de confidentialité — publique : Google exige ce lien pour publier l'écran de consentement OAuth
   { path: 'confidentialite', loadComponent: () => import('./pages/confidentialite/confidentialite.component').then(m => m.ConfidentialiteComponent) },
   // Pages d'auth — guestGuard redirige vers /dashboard si déjà connecté

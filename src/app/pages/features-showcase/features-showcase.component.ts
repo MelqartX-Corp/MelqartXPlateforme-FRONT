@@ -326,8 +326,8 @@ export class FeaturesShowcaseComponent {
   /** Coordonnées affichées dans la section Contact */
   contactInfo = {
     email: 'contact@melqartx.com',
-    phone: '+33 1 00 00 00 00',
-    address: 'Paris · Tunis · Remote',
+    phone: '+216 22 508 622',
+    address: 'Menzel Bouzelfa, Nabeul, Tunisie',
   };
 
   /** Question ouverte dans l'accordéon FAQ (-1 = toutes fermées) */
