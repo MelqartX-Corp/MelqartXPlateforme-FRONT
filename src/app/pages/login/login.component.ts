@@ -13,6 +13,9 @@ import { environment } from '../../../environments/environment';
   templateUrl: './login.component.html'
 })
 export class LoginComponent {
+  /** Cartes de statistiques du panneau gauche (500+ clients...) : desactivees pour l'instant. Mettre true pour les reafficher. */
+  showStats = false;
+
   private authService = inject(AuthService);
   private router = inject(Router);
   theme = inject(ThemeService);

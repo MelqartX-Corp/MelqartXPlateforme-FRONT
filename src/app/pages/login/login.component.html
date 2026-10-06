@@ -81,8 +81,8 @@
         </span>
       </div>
 
-      <!-- Floating mini stat cards -->
-      <div class="grid grid-cols-2 gap-3">
+      <!-- Floating mini stat cards (masquees : showStats = false dans login.component.ts) -->
+      <div *ngIf="showStats" class="grid grid-cols-2 gap-3">
         <div class="glow-card p-4 animate-float" style="animation-delay: 0s;">
           <p class="text-2xl font-extrabold text-foreground">500+</p>
           <p class="text-xs text-muted-foreground mt-0.5">Clients satisfaits</p>
